@@ -92,14 +92,14 @@ class _TopTabBarState extends State<TopTabBar> with TickerProviderStateMixin {
               indicator: const BoxDecoration(
                   color: Color(0xff449cc0),
                   borderRadius: BorderRadius.all(Radius.circular(15))),
-              tabs: [
-                const Tab(
+              tabs: const [
+                Tab(
                   text: 'Register',
                 ),
-                const Tab(
+                Tab(
                   text: 'Login',
                 ),
-                const Tab(
+                Tab(
                   text: 'Recover',
                 )
               ]),
@@ -315,7 +315,7 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
                   });
                   print(widget.loginCurrentIndex.value);
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => HomePage(),
+                    builder: (context) => const HomePage(),
                   ));
                 },
               ),
@@ -429,7 +429,7 @@ class WhiteTextFormFeild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 293,
       height: 54,
       child: TextFormField(
