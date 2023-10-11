@@ -43,7 +43,6 @@ class CallsView extends StatelessWidget {
           height: 40.h,
           color: const Color(0xff449cc0),
           child: TabBar(
-          
               unselectedLabelColor: const Color.fromARGB(255, 221, 221, 221),
               indicatorSize: TabBarIndicatorSize.tab,
               indicatorColor: Colors.white,

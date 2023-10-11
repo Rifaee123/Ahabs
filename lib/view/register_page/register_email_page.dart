@@ -1,4 +1,3 @@
-import 'package:ahbas/view/auth_page/auth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,7 +36,6 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
           child: Container(
             child: ElevatedButton(
               onPressed: () {},
-              child: Text("Verify"),
               style: ButtonStyle(
                   shape: const MaterialStatePropertyAll(
                       ContinuousRectangleBorder(
@@ -47,6 +45,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
                   elevation: const MaterialStatePropertyAll(5),
                   foregroundColor: const MaterialStatePropertyAll(Colors.white),
                   textStyle: MaterialStatePropertyAll(GoogleFonts.poppins())),
+              child: const Text("Verify"),
             ),
           ),
         ),
@@ -126,7 +125,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
             obscureText: true),
         Padding(
           padding: EdgeInsets.only(left: 70.w, bottom: 10.h, top: 20.h),
-          child: Container(
+          child: SizedBox(
             width: 200.w,
             height: 50.h,
             child: ElevatedButton(

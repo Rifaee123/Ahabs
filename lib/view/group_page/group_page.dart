@@ -33,7 +33,7 @@ class _GroupPageState extends State<GroupPage> {
                     children: [
                       CircleAvatar(
                         radius: 17,
-                        backgroundColor: Color(0xff449cc0),
+                        backgroundColor: const Color(0xff449cc0),
                         child: Image.asset(
                           'assets/images/more.png',
                           height: 17.h,
@@ -43,7 +43,7 @@ class _GroupPageState extends State<GroupPage> {
                       Container(
                         height: 35.h,
                         width: 200.w,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(30)),
                             color: Color(0xffece8e8)),
                         child: TextFormField(
@@ -60,10 +60,11 @@ class _GroupPageState extends State<GroupPage> {
                           textAlign: TextAlign.start,
                           decoration: InputDecoration(
                               suffixIcon: IconButton(
-                                  onPressed: () {}, icon: Icon(Icons.send)),
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.send)),
                               prefixIcon: IconButton(
                                   onPressed: () {},
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.emoji_emotions,
                                     color: Color.fromARGB(255, 93, 88, 88),
                                   )),
@@ -72,7 +73,7 @@ class _GroupPageState extends State<GroupPage> {
                       ),
                       CircleAvatar(
                         radius: 17,
-                        backgroundColor: Color(0xff449cc0),
+                        backgroundColor: const Color(0xff449cc0),
                         child: InkWell(
                           onTap: () {
                             showModalBottomSheet(
@@ -95,7 +96,7 @@ class _GroupPageState extends State<GroupPage> {
                                       builder: (BuildContext context,
                                           ScrollController scrollController) {
                                         return Container(
-                                            decoration: BoxDecoration(
+                                            decoration: const BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius: BorderRadius.only(
                                                     topLeft:
@@ -108,7 +109,7 @@ class _GroupPageState extends State<GroupPage> {
                                               child: GridView.builder(
                                                 controller: scrollController,
                                                 gridDelegate:
-                                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
                                                         crossAxisSpacing: 4,
                                                         mainAxisSpacing: 4,
                                                         crossAxisCount: 3),
@@ -116,7 +117,8 @@ class _GroupPageState extends State<GroupPage> {
                                                     Container(
                                                   height: 30,
                                                   width: 30,
-                                                  color: Color(0xff000088),
+                                                  color:
+                                                      const Color(0xff000088),
                                                 ),
                                               ),
                                             ));
@@ -127,7 +129,7 @@ class _GroupPageState extends State<GroupPage> {
                                       child: Container(
                                         height: 70.h,
                                         width: 360.w,
-                                        color: Color(0xffbcddea),
+                                        color: const Color(0xffbcddea),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceEvenly,
@@ -186,7 +188,7 @@ class _GroupPageState extends State<GroupPage> {
                       ),
                       CircleAvatar(
                         radius: 17,
-                        backgroundColor: Color(0xff449cc0),
+                        backgroundColor: const Color(0xff449cc0),
                         child: Image.asset(
                           'assets/images/camara1.png',
                           height: 17.h,
@@ -195,7 +197,7 @@ class _GroupPageState extends State<GroupPage> {
                       ),
                       CircleAvatar(
                         radius: 17,
-                        backgroundColor: Color(0xff449cc0),
+                        backgroundColor: const Color(0xff449cc0),
                         child: Image.asset(
                           'assets/images/voice.png',
                           height: 17.h,
@@ -207,10 +209,10 @@ class _GroupPageState extends State<GroupPage> {
                 } else {
                   if (value == 1) {
                     return AnimatedContainer(
-                      duration: Duration(seconds: 1),
+                      duration: const Duration(seconds: 1),
                       height: _containerHeight.h,
                       width: _containerWidth,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(30)),
                           color: Color(0xffece8e8)),
                       child: TextFormField(
@@ -234,10 +236,10 @@ class _GroupPageState extends State<GroupPage> {
                         textAlign: TextAlign.start,
                         decoration: InputDecoration(
                             suffixIcon: IconButton(
-                                onPressed: () {}, icon: Icon(Icons.send)),
+                                onPressed: () {}, icon: const Icon(Icons.send)),
                             prefixIcon: IconButton(
                                 onPressed: () {},
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.emoji_emotions,
                                   color: Color.fromARGB(255, 93, 88, 88),
                                 )),
@@ -252,7 +254,7 @@ class _GroupPageState extends State<GroupPage> {
                         color: Colors.blue,
                       );
                     } else {
-                      return Center(
+                      return const Center(
                         child: CircularProgressIndicator(),
                       );
                     }
@@ -264,7 +266,7 @@ class _GroupPageState extends State<GroupPage> {
           children: [
             Container(
               height: 50.h,
-              color: Color(0xff449cc0),
+              color: const Color(0xff449cc0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -272,7 +274,7 @@ class _GroupPageState extends State<GroupPage> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.arrow_back,
                         color: Colors.white,
                       )),
@@ -318,7 +320,7 @@ class _GroupPageState extends State<GroupPage> {
                   ),
                   IconButton(
                       onPressed: () {},
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.call,
                         color: Colors.white,
                       )),
@@ -339,11 +341,11 @@ class _GroupPageState extends State<GroupPage> {
                 ],
               ),
             ),
-            Expanded(
+            const Expanded(
                 child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0),
                   child: Text("Today"),
                 ),
                 ChatBubble(message: "sugalle", isMe: true),
