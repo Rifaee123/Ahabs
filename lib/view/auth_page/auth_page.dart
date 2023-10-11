@@ -27,7 +27,7 @@ class _AuthPageState extends State<AuthPage> {
         builder: (context, value, child) => Container(
           height: registercurntIndex.value == 1 || registercurntIndex.value == 2
               ? 950.h
-              : 660.h,
+              : 680.h,
           width: 500,
           decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -82,11 +82,11 @@ class _TopTabBarState extends State<TopTabBar> with TickerProviderStateMixin {
               borderRadius: BorderRadius.all(Radius.circular(15.r))),
           child: TabBar(
               controller: tabcontroller,
+              dividerColor: const Color.fromARGB(0, 255, 214, 64),
               splashBorderRadius: const BorderRadius.all(Radius.circular(30)),
               indicatorSize: TabBarIndicatorSize.tab,
               labelPadding: EdgeInsets.symmetric(horizontal: 30.w),
               isScrollable: true,
-              indicatorWeight: 1,
               labelColor: Colors.white,
               unselectedLabelColor: Colors.black,
               indicator: const BoxDecoration(

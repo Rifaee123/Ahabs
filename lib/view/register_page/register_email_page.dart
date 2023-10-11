@@ -1,4 +1,5 @@
 import 'package:ahbas/view/auth_page/auth_page.dart';
+import 'package:ahbas/view/register_page/widgets/dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,6 +15,11 @@ class RegisterEmailPage extends StatefulWidget {
 class _RegisterEmailPageState extends State<RegisterEmailPage> {
   @override
   Widget build(BuildContext context) {
+    TextEditingController emailcontroller = TextEditingController();
+    TextEditingController dobcontroller = TextEditingController();
+    TextEditingController namecontroller = TextEditingController();
+    TextEditingController passwordcontroller = TextEditingController();
+    TextEditingController conpasswordcontroller = TextEditingController();
     String gender = "male";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,7 +32,8 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
               });
             },
             icon: const Icon(Icons.close)),
-        const TextFealdAndHeading(
+         TextFealdAndHeading(
+          controller: emailcontroller,
             heading: 'Enter Email Address',
             hintText: 'Email',
             icon: Icons.phone_android,
@@ -50,13 +57,15 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
             ),
           ),
         ),
-        const TextFealdAndHeading(
+        TextFealdAndHeading(
+          controller: dobcontroller,
             heading: 'Enter Your Birth Date',
             icon: Icons.calendar_month,
             hintText: "YYYY  MM  DD",
             inputType: TextInputType.datetime,
             obscureText: false),
-        const TextFealdAndHeading(
+         TextFealdAndHeading(
+          controller: namecontroller,
             heading: 'Enter Profile Name',
             icon: Icons.person,
             hintText: "Name",
@@ -70,55 +79,61 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(left: 10.w, bottom: 10.h),
-          child: SizedBox(
-            width: 400.w,
-            child: Row(
-              children: [
-                Radio(
-                  value: "Male",
-                  groupValue: gender,
-                  onChanged: (value) {
-                    setState(() {
-                      gender = value.toString();
-                    });
-                  },
-                ),
-                const Icon(Icons.male),
-                const Text('Male'),
-                Radio(
-                  value: "Female",
-                  groupValue: gender,
-                  onChanged: (value) {
-                    setState(() {
-                      gender = value.toString();
-                    });
-                  },
-                ),
-                const Icon(Icons.female),
-                const Text('Female'),
-                Radio(
-                  value: "Other",
-                  groupValue: gender,
-                  onChanged: (value) {
-                    setState(() {
-                      gender = value.toString();
-                    });
-                  },
-                ),
-                const Icon(Icons.transgender),
-                const Text('Other'),
-              ],
-            ),
-          ),
+          padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
+          child: DropdownMenuExample(),
         ),
-        const TextFealdAndHeading(
+        // Padding(
+        //   padding: EdgeInsets.only(left: 10.w, bottom: 10.h),
+        //   child: SizedBox(
+        //     width: 400.w,
+        //     child: Row(
+        //       children: [
+        //         Radio(
+        //           value: "Male",
+        //           groupValue: gender,
+        //           onChanged: (value) {
+        //             setState(() {
+        //               gender = value.toString();
+        //             });
+        //           },
+        //         ),
+        //         const Icon(Icons.male),
+        //         const Text('Male'),
+        //         Radio(
+        //           value: "Female",
+        //           groupValue: gender,
+        //           onChanged: (value) {
+        //             setState(() {
+        //               gender = value.toString();
+        //             });
+        //           },
+        //         ),
+        //         const Icon(Icons.female),
+        //         const Text('Female'),
+        //         Radio(
+        //           value: "Other",
+        //           groupValue: gender,
+        //           onChanged: (value) {
+        //             setState(() {
+        //               gender = value.toString();
+        //             });
+        //           },
+        //         ),
+        //         const Icon(Icons.transgender),
+        //         const Text('Other'),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+        TextFealdAndHeading(
+          controller: passwordcontroller,
             heading: "Enter Your Password",
             icon: Icons.lock,
             hintText: "password",
             inputType: TextInputType.visiblePassword,
             obscureText: true),
-        const TextFealdAndHeading(
+         TextFealdAndHeading(
+          controller: conpasswordcontroller,
             heading: "RE Enter Password",
             icon: Icons.lock,
             hintText: "RE Enter password",
@@ -157,13 +172,14 @@ class TextFealdAndHeading extends StatelessWidget {
     required this.icon,
     required this.hintText,
     required this.inputType,
-    required this.obscureText,
+    required this.obscureText, required this.controller,
   });
   final String heading;
   final IconData icon;
   final String hintText;
   final TextInputType inputType;
   final bool obscureText;
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +196,7 @@ class TextFealdAndHeading extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
           child: ComenFormFeild(
+            controller: controller,
             hinttext: hintText,
             icon: icon,
             callback: () {},
@@ -199,13 +216,14 @@ class ComenFormFeild extends StatelessWidget {
     required this.icon,
     required this.callback,
     required this.inputType,
-    required this.obscureText,
+    required this.obscureText, required this.controller,
   });
   final String hinttext;
   final IconData icon;
   final Function() callback;
   final TextInputType inputType;
   final bool obscureText;
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -231,6 +249,7 @@ class ComenFormFeild extends StatelessWidget {
                 height: 30,
                 width: 200,
                 child: TextFormField(
+                  controller: controller,
                   obscureText: obscureText,
                   keyboardType: inputType,
                   decoration: InputDecoration(

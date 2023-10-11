@@ -13,6 +13,8 @@ class LoginPhonePage extends StatefulWidget {
 }
 
 class _LoginPhonePageState extends State<LoginPhonePage> {
+  TextEditingController loginphonecontroller =TextEditingController();
+  TextEditingController loginphonepasscontroller =TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -35,6 +37,7 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
         Padding(
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
           child: ComenFormFeild(
+            controller: loginphonecontroller,
               hinttext: "Enter Your Phone",
               icon: Icons.person,
               callback: () {},
@@ -51,6 +54,7 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
         Padding(
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
           child: ComenFormFeild(
+            controller: loginphonepasscontroller,
               hinttext: "Enter Your Password",
               icon: Icons.person,
               callback: () {},
