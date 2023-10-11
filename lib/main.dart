@@ -23,10 +23,18 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) => MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => LoginProvider(),),
-          ChangeNotifierProvider(create: (context) => PhoneRegistrationProvider(),),
-          ChangeNotifierProvider(create: (context) => EmailRegistrationProvider(),),
-          ChangeNotifierProvider(create: (context) => VerifyEmailProvider(),),
+          ChangeNotifierProvider(
+            create: (context) => LoginProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => PhoneRegistrationProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => EmailRegistrationProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => VerifyEmailProvider(),
+          ),
         ],
         child: MaterialApp(
             debugShowCheckedModeBanner: false,

@@ -23,7 +23,7 @@ class EmailRegistrationService {
         "dateOfBirth": registerBody.dateOfBirth,
         "username": registerBody.username
       };
-   
+
       final newbody = data.keys
           .map((key) =>
               '${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(data[key]!)}')

@@ -18,7 +18,6 @@ class LoginProvider extends ChangeNotifier {
       return false;
     });
     if (isAnyError == false) {
-     
       if (loginResponse!.status == 'true') {
         final StorageItem newItem =
             StorageItem('AuthToken', loginResponse!.token ??= '');
@@ -39,7 +38,7 @@ class LoginProvider extends ChangeNotifier {
     } else {
       resultData = LoginResult(isError: true, isLoading: false);
     }
-   
+
     notifyListeners();
   }
 }

@@ -15,7 +15,7 @@ class PhoneRegistrationService {
     try {
       const url = '$kBaseUrl$registrationEndpoint';
       final uri = Uri.parse(url);
-      
+
       final data = {
         "phone": registerBody.phone,
         "password": registerBody.password,
@@ -33,7 +33,7 @@ class PhoneRegistrationService {
         'Content-Type': 'application/x-www-form-urlencoded',
       });
       log(response.statusCode.toString());
-      if (response.statusCode == 200||response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final responseBody = jsonDecode(response.body);
         final result = RegisterResponse.fromJson(responseBody);
 

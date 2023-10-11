@@ -140,9 +140,7 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
                     foregroundColor:
                         const MaterialStatePropertyAll(Colors.white),
                     textStyle: MaterialStatePropertyAll(GoogleFonts.poppins())),
-                onPressed: () {
-                 
-                },
+                onPressed: () {},
                 child: const Text("Register")),
           ),
         )
