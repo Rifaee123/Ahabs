@@ -32,7 +32,7 @@ class _ChatPageState extends State<ChatPage> {
                     children: [
                       CircleAvatar(
                         radius: 17,
-                        backgroundColor: const Color(0xff449cc0),
+                        backgroundColor: Color(0xff449cc0),
                         child: Image.asset(
                           'assets/images/more.png',
                           height: 17.h,
@@ -42,7 +42,7 @@ class _ChatPageState extends State<ChatPage> {
                       Container(
                         height: 35.h,
                         width: 200.w,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(30)),
                             color: Color(0xffece8e8)),
                         child: TextFormField(
@@ -59,11 +59,10 @@ class _ChatPageState extends State<ChatPage> {
                           textAlign: TextAlign.start,
                           decoration: InputDecoration(
                               suffixIcon: IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.send)),
+                                  onPressed: () {}, icon: Icon(Icons.send)),
                               prefixIcon: IconButton(
                                   onPressed: () {},
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.emoji_emotions,
                                     color: Color.fromARGB(255, 93, 88, 88),
                                   )),
@@ -72,7 +71,7 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                       CircleAvatar(
                         radius: 17,
-                        backgroundColor: const Color(0xff449cc0),
+                        backgroundColor: Color(0xff449cc0),
                         child: InkWell(
                           onTap: () {
                             showModalBottomSheet(
@@ -95,7 +94,7 @@ class _ChatPageState extends State<ChatPage> {
                                       builder: (BuildContext context,
                                           ScrollController scrollController) {
                                         return Container(
-                                            decoration: const BoxDecoration(
+                                            decoration: BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius: BorderRadius.only(
                                                     topLeft:
@@ -108,7 +107,7 @@ class _ChatPageState extends State<ChatPage> {
                                               child: GridView.builder(
                                                 controller: scrollController,
                                                 gridDelegate:
-                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    SliverGridDelegateWithFixedCrossAxisCount(
                                                         crossAxisSpacing: 4,
                                                         mainAxisSpacing: 4,
                                                         crossAxisCount: 3),
@@ -116,8 +115,7 @@ class _ChatPageState extends State<ChatPage> {
                                                     Container(
                                                   height: 30,
                                                   width: 30,
-                                                  color:
-                                                      const Color(0xff000088),
+                                                  color: Color(0xff000088),
                                                 ),
                                               ),
                                             ));
@@ -128,7 +126,7 @@ class _ChatPageState extends State<ChatPage> {
                                       child: Container(
                                         height: 70.h,
                                         width: 360.w,
-                                        color: const Color(0xffbcddea),
+                                        color: Color(0xffbcddea),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceEvenly,
@@ -187,7 +185,7 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                       CircleAvatar(
                         radius: 17,
-                        backgroundColor: const Color(0xff449cc0),
+                        backgroundColor: Color(0xff449cc0),
                         child: Image.asset(
                           'assets/images/camara1.png',
                           height: 17.h,
@@ -196,7 +194,7 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                       CircleAvatar(
                         radius: 17,
-                        backgroundColor: const Color(0xff449cc0),
+                        backgroundColor: Color(0xff449cc0),
                         child: Image.asset(
                           'assets/images/voice.png',
                           height: 17.h,
@@ -208,10 +206,10 @@ class _ChatPageState extends State<ChatPage> {
                 } else {
                   if (value == 1) {
                     return AnimatedContainer(
-                      duration: const Duration(seconds: 1),
+                      duration: Duration(seconds: 1),
                       height: _containerHeight.h,
                       width: _containerWidth,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(30)),
                           color: Color(0xffece8e8)),
                       child: TextFormField(
@@ -235,10 +233,10 @@ class _ChatPageState extends State<ChatPage> {
                         textAlign: TextAlign.start,
                         decoration: InputDecoration(
                             suffixIcon: IconButton(
-                                onPressed: () {}, icon: const Icon(Icons.send)),
+                                onPressed: () {}, icon: Icon(Icons.send)),
                             prefixIcon: IconButton(
                                 onPressed: () {},
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.emoji_emotions,
                                   color: Color.fromARGB(255, 93, 88, 88),
                                 )),
@@ -253,7 +251,7 @@ class _ChatPageState extends State<ChatPage> {
                         color: Colors.blue,
                       );
                     } else {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(),
                       );
                     }
@@ -265,7 +263,7 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             Container(
               height: 50.h,
-              color: const Color(0xff449cc0),
+              color: Color(0xff449cc0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -273,7 +271,7 @@ class _ChatPageState extends State<ChatPage> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back,
                         color: Colors.white,
                       )),
@@ -312,10 +310,10 @@ class _ChatPageState extends State<ChatPage> {
                         style: GoogleFonts.poppins(
                             color: Colors.white, fontSize: 16.sp),
                       ),
-                      const Text(
+                      Text(
                         "online",
                         style: TextStyle(
-                            color: Color.fromARGB(255, 208, 208, 208)),
+                            color: const Color.fromARGB(255, 208, 208, 208)),
                       )
                     ],
                   ),
@@ -324,7 +322,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   IconButton(
                       onPressed: () {},
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.call,
                         color: Colors.white,
                       )),
@@ -345,11 +343,11 @@ class _ChatPageState extends State<ChatPage> {
                 ],
               ),
             ),
-            const Expanded(
+            Expanded(
                 child: Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Text("Today"),
                 ),
                 ChatBubble(message: "sugalle", isMe: true),
@@ -376,7 +374,7 @@ class ChatBubble extends StatelessWidget {
   final String message;
   final bool isMe;
 
-  const ChatBubble({super.key, required this.message, required this.isMe});
+  ChatBubble({required this.message, required this.isMe});
 
   @override
   Widget build(BuildContext context) {
@@ -405,14 +403,10 @@ class ChatBubble extends StatelessWidget {
                       )),
               Positioned(
                 child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                     decoration: BoxDecoration(
-                      color: isMe
-                          ? const Color(0xffbcddea)
-                          : const Color(0xffececec),
+                      color: isMe ? Color(0xffbcddea) : Color(0xffececec),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -430,8 +424,8 @@ class ChatBubble extends StatelessWidget {
                                     "9.45pm",
                                     style: TextStyle(
                                         fontSize: 12.sp,
-                                        color: const Color.fromARGB(
-                                            255, 134, 133, 133)),
+                                        color:
+                                            Color.fromARGB(255, 134, 133, 133)),
                                   ),
                                   Image.asset(
                                     "assets/images/chatTick.png",
@@ -442,8 +436,7 @@ class ChatBubble extends StatelessWidget {
                             : Text("9.45pm",
                                 style: TextStyle(
                                     fontSize: 12.sp,
-                                    color: const Color.fromARGB(
-                                        255, 134, 133, 133)))
+                                    color: Color.fromARGB(255, 134, 133, 133)))
                       ],
                     )),
               ),
