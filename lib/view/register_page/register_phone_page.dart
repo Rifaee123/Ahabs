@@ -1,3 +1,12 @@
+import 'dart:developer';
+
+import 'package:ahbas/data/profile/add_profile_pic_service.dart';
+import 'package:ahbas/data/profile/current_user.dart';
+import 'package:ahbas/data/profile/edit_profile_service.dart';
+import 'package:ahbas/data/search/all_user_service.dart';
+import 'package:ahbas/data/verify_phone/verify_phone_service.dart';
+import 'package:ahbas/model/profile/edit_profile/edit_profile.dart';
+import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
 import 'package:ahbas/view/register_page/widgets/dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,7 +23,7 @@ class RegisterPhonePage extends StatefulWidget {
 class _RegisterPhonePageState extends State<RegisterPhonePage> {
   @override
   Widget build(BuildContext context) {
-     TextEditingController emailcontroller = TextEditingController();
+    TextEditingController emailcontroller = TextEditingController();
     TextEditingController dobcontroller = TextEditingController();
     TextEditingController namecontroller = TextEditingController();
     TextEditingController passwordcontroller = TextEditingController();
@@ -31,8 +40,8 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
               });
             },
             icon: const Icon(Icons.close)),
-         TextFealdAndHeading(
-          controller: emailcontroller,
+        TextFealdAndHeading(
+            controller: emailcontroller,
             heading: 'Enter Active Mobile Number',
             hintText: '+91',
             icon: Icons.phone_android,
@@ -56,15 +65,15 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
             ),
           ),
         ),
-         TextFealdAndHeading(
-          controller: dobcontroller,
+        TextFealdAndHeading(
+            controller: dobcontroller,
             heading: 'Enter Your Birth Date',
             icon: Icons.calendar_month,
             hintText: "YYYY  MM  DD",
             inputType: TextInputType.datetime,
             obscureText: false),
-         TextFealdAndHeading(
-          controller: namecontroller,
+        TextFealdAndHeading(
+            controller: namecontroller,
             heading: 'Enter Profile Name',
             icon: Icons.person,
             hintText: "Name",
@@ -81,16 +90,15 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
           child: const DropdownMenuExample(),
         ),
-       
-         TextFealdAndHeading(
-          controller: passwordcontroller,
+        TextFealdAndHeading(
+            controller: passwordcontroller,
             heading: "Enter Your Password",
             icon: Icons.lock,
             hintText: "password",
             inputType: TextInputType.visiblePassword,
             obscureText: true),
-         TextFealdAndHeading(
-          controller: conpasswordcontroller,
+        TextFealdAndHeading(
+            controller: conpasswordcontroller,
             heading: "RE Enter Password",
             icon: Icons.lock,
             hintText: "RE Enter password",
@@ -113,7 +121,11 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
                     foregroundColor:
                         const MaterialStatePropertyAll(Colors.white),
                     textStyle: MaterialStatePropertyAll(GoogleFonts.poppins())),
-                onPressed: () {},
+                onPressed: () async {
+                  final image = await getImageFileFromAssets('appstore.png');
+                  log(image.toString());
+                  await AddProfilePicService().addProfilePic(image);
+                },
                 child: const Text("Register")),
           ),
         )
@@ -129,7 +141,8 @@ class TextFealdAndHeading extends StatelessWidget {
     required this.icon,
     required this.hintText,
     required this.inputType,
-    required this.obscureText, required this.controller,
+    required this.obscureText,
+    required this.controller,
   });
   final String heading;
   final IconData icon;
@@ -173,7 +186,8 @@ class ComenFormFeild extends StatelessWidget {
     required this.icon,
     required this.callback,
     required this.inputType,
-    required this.obscureText, required this.controller,
+    required this.obscureText,
+    required this.controller,
   });
   final String hinttext;
   final IconData icon;

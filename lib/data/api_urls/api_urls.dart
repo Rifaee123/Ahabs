@@ -1,6 +1,16 @@
 const kBaseUrl = 'https://ahabs.cyenosure.in';
+const twilioOtpSentingBaseUrl = 'https://verify.twilio.com/v2/Services/';
 const loginEndPoint = '/api/auth/login';
 const registrationEndpoint = '/api/auth/register';
 const verifyEmailEndpoint = '/api/auth/verifyemail';
 const verifyEmailCodeEndpoint = '/api/auth/verify';
-const editProfileEndpoint = '/api/user/editprofile/651fae73c4809d45d258078f';
+const editProfileEndpoint = '/api/user/editprofile/';
+const getAllUsersEndpoint = '/api/user/getallusers';
+const getcurrentUserEndpoint = '/api/user/currentuser/';
+const addProfilePicEndpoint = '/api/user/addprofilepicture/';
+
+const followRequestEndPoint = '/api/user/follow/';
+const unFollowRequestEndPoint = '/api/user/unfollow/';
+const followStatusEndPoint = '/api/user/checkFollowStatus/';
+const followerListEndPoint = '/api/user/listfollowers/';
+const followingListEndPoint = '/api/user/listfollowing/';
