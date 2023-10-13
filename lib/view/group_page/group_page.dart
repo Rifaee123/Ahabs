@@ -60,7 +60,8 @@ class _GroupPageState extends State<GroupPage> {
                           textAlign: TextAlign.start,
                           decoration: InputDecoration(
                               suffixIcon: IconButton(
-                                  onPressed: () {}, icon: const Icon(Icons.send)),
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.send)),
                               prefixIcon: IconButton(
                                   onPressed: () {},
                                   icon: const Icon(
@@ -116,7 +117,8 @@ class _GroupPageState extends State<GroupPage> {
                                                     Container(
                                                   height: 30,
                                                   width: 30,
-                                                  color: const Color(0xff000088),
+                                                  color:
+                                                      const Color(0xff000088),
                                                 ),
                                               ),
                                             ));

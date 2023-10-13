@@ -15,8 +15,8 @@ class LoginEmailPage extends StatefulWidget {
 class _LoginEmailPageState extends State<LoginEmailPage> {
   @override
   Widget build(BuildContext context) {
-    TextEditingController loginemailcontroller =TextEditingController();
-    TextEditingController loginemailpasscontroller =TextEditingController();
+    TextEditingController loginemailcontroller = TextEditingController();
+    TextEditingController loginemailpasscontroller = TextEditingController();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -37,7 +37,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
         Padding(
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
           child: ComenFormFeild(
-            controller: loginemailcontroller,
+              controller: loginemailcontroller,
               hinttext: "Enter Your Email",
               icon: Icons.person,
               callback: () {},
@@ -54,7 +54,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
         Padding(
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
           child: ComenFormFeild(
-            controller: loginemailpasscontroller,
+              controller: loginemailpasscontroller,
               hinttext: "Enter Your Password",
               icon: Icons.person,
               callback: () {},

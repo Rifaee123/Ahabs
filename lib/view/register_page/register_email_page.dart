@@ -32,8 +32,8 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
               });
             },
             icon: const Icon(Icons.close)),
-         TextFealdAndHeading(
-          controller: emailcontroller,
+        TextFealdAndHeading(
+            controller: emailcontroller,
             heading: 'Enter Email Address',
             hintText: 'Email',
             icon: Icons.phone_android,
@@ -58,14 +58,14 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
           ),
         ),
         TextFealdAndHeading(
-          controller: dobcontroller,
+            controller: dobcontroller,
             heading: 'Enter Your Birth Date',
             icon: Icons.calendar_month,
             hintText: "YYYY  MM  DD",
             inputType: TextInputType.datetime,
             obscureText: false),
-         TextFealdAndHeading(
-          controller: namecontroller,
+        TextFealdAndHeading(
+            controller: namecontroller,
             heading: 'Enter Profile Name',
             icon: Icons.person,
             hintText: "Name",
@@ -126,14 +126,14 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
         //   ),
         // ),
         TextFealdAndHeading(
-          controller: passwordcontroller,
+            controller: passwordcontroller,
             heading: "Enter Your Password",
             icon: Icons.lock,
             hintText: "password",
             inputType: TextInputType.visiblePassword,
             obscureText: true),
-         TextFealdAndHeading(
-          controller: conpasswordcontroller,
+        TextFealdAndHeading(
+            controller: conpasswordcontroller,
             heading: "RE Enter Password",
             icon: Icons.lock,
             hintText: "RE Enter password",
@@ -172,7 +172,8 @@ class TextFealdAndHeading extends StatelessWidget {
     required this.icon,
     required this.hintText,
     required this.inputType,
-    required this.obscureText, required this.controller,
+    required this.obscureText,
+    required this.controller,
   });
   final String heading;
   final IconData icon;
@@ -216,7 +217,8 @@ class ComenFormFeild extends StatelessWidget {
     required this.icon,
     required this.callback,
     required this.inputType,
-    required this.obscureText, required this.controller,
+    required this.obscureText,
+    required this.controller,
   });
   final String hinttext;
   final IconData icon;

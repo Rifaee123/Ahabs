@@ -21,7 +21,6 @@ class MyApp extends StatelessWidget {
       designSize: ScreenUtil.defaultSize,
       minTextAdapt: true,
       splitScreenMode: true,
-
       builder: (context, child) => MultiProvider(
         providers: [
           ChangeNotifierProvider(
@@ -47,7 +46,6 @@ class MyApp extends StatelessWidget {
             ),
             home: const AuthPage()),
       ),
-
     );
   }
 }
