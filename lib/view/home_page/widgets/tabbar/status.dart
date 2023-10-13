@@ -19,12 +19,9 @@ class StatusView extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Container(
-                height: 50.h,
-                width: 55.w,
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 230, 229, 229),
-                    borderRadius: BorderRadius.all(Radius.circular(50))),
+              CircleAvatar(
+                backgroundColor: const Color.fromARGB(255, 230, 229, 229),
+                radius: 30.r,
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,8 +55,8 @@ class StatusView extends StatelessWidget {
               indicatorWeight: 1,
               labelColor: Colors.white,
               unselectedLabelColor: Colors.black,
-              unselectedLabelStyle: GoogleFonts.poppins(fontSize: 13.sp),
-              labelStyle: GoogleFonts.poppins(fontSize: 14.sp),
+              unselectedLabelStyle: GoogleFonts.poppins(fontSize: 11.sp),
+              labelStyle: GoogleFonts.poppins(fontSize: 12.sp),
               indicator: const BoxDecoration(
                   color: Color(0xff449cc0),
                   borderRadius: BorderRadius.all(Radius.circular(15))),
@@ -87,12 +84,9 @@ class StatusView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    height: 50.h,
-                    width: 55.w,
-                    decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 230, 229, 229),
-                        borderRadius: BorderRadius.all(Radius.circular(50))),
+                  CircleAvatar(
+                    backgroundColor: const Color.fromARGB(255, 230, 229, 229),
+                    radius: 30.r,
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,11 +94,11 @@ class StatusView extends StatelessWidget {
                       Text(
                         "Appukuttan",
                         style: GoogleFonts.poppins(
-                            fontSize: 20.sp, fontWeight: FontWeight.w500),
+                            fontSize: 18.sp, fontWeight: FontWeight.w500),
                       ),
                       Text("Yesterday,9.54 pm",
                           style: GoogleFonts.poppins(
-                              fontSize: 16.sp, color: Colors.grey)),
+                              fontSize: 15.sp, color: Colors.grey)),
                     ],
                   ),
                   IconButton(
@@ -133,12 +127,9 @@ class ViewsStatus extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Container(
-              height: 50.h,
-              width: 55.w,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 230, 229, 229),
-                  borderRadius: BorderRadius.all(Radius.circular(50))),
+            CircleAvatar(
+              backgroundColor: const Color.fromARGB(255, 230, 229, 229),
+              radius: 30.r,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,11 +137,11 @@ class ViewsStatus extends StatelessWidget {
                 Text(
                   "Thakudu",
                   style: GoogleFonts.poppins(
-                      fontSize: 20.sp, fontWeight: FontWeight.w500),
+                      fontSize: 18.sp, fontWeight: FontWeight.w500),
                 ),
                 Text("Yesterday,9.54 pm",
                     style: GoogleFonts.poppins(
-                        fontSize: 16.sp, color: Colors.grey)),
+                        fontSize: 15.sp, color: Colors.grey)),
               ],
             ),
             IconButton(onPressed: () {}, icon: const Icon(Icons.more_horiz))
@@ -175,12 +166,9 @@ class RecentStatus extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Container(
-              height: 50.h,
-              width: 55.w,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 230, 229, 229),
-                  borderRadius: BorderRadius.all(Radius.circular(50))),
+            CircleAvatar(
+              backgroundColor: const Color.fromARGB(255, 230, 229, 229),
+              radius: 30.r,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,11 +176,11 @@ class RecentStatus extends StatelessWidget {
                 Text(
                   "Pachukuttan",
                   style: GoogleFonts.poppins(
-                      fontSize: 20.sp, fontWeight: FontWeight.w500),
+                      fontSize: 18.sp, fontWeight: FontWeight.w500),
                 ),
                 Text("Yesterday,9.54 pm",
                     style: GoogleFonts.poppins(
-                        fontSize: 16.sp, color: Colors.grey)),
+                        fontSize: 15.sp, color: Colors.grey)),
               ],
             ),
             IconButton(onPressed: () {}, icon: const Icon(Icons.more_horiz))

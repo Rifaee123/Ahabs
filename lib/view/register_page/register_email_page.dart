@@ -1,4 +1,3 @@
-import 'package:ahbas/view/auth_page/auth_page.dart';
 import 'package:ahbas/view/register_page/widgets/dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -44,7 +43,6 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
           child: Container(
             child: ElevatedButton(
               onPressed: () {},
-              child: Text("Verify"),
               style: ButtonStyle(
                   shape: const MaterialStatePropertyAll(
                       ContinuousRectangleBorder(
@@ -54,6 +52,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
                   elevation: const MaterialStatePropertyAll(5),
                   foregroundColor: const MaterialStatePropertyAll(Colors.white),
                   textStyle: MaterialStatePropertyAll(GoogleFonts.poppins())),
+              child: const Text("Verify"),
             ),
           ),
         ),
@@ -80,7 +79,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
         ),
         Padding(
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
-          child: DropdownMenuExample(),
+          child: const DropdownMenuExample(),
         ),
         // Padding(
         //   padding: EdgeInsets.only(left: 10.w, bottom: 10.h),
@@ -141,7 +140,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
             obscureText: true),
         Padding(
           padding: EdgeInsets.only(left: 70.w, bottom: 10.h, top: 20.h),
-          child: Container(
+          child: SizedBox(
             width: 200.w,
             height: 50.h,
             child: ElevatedButton(
@@ -250,15 +249,17 @@ class ComenFormFeild extends StatelessWidget {
               child: SizedBox(
                 height: 30,
                 width: 200,
-                child: TextFormField(
-                  controller: controller,
-                  obscureText: obscureText,
-                  keyboardType: inputType,
-                  decoration: InputDecoration(
-                      hintStyle: GoogleFonts.poppins(
-                          color: Colors.white, fontSize: 15.sp),
-                      hintText: hinttext,
-                      border: InputBorder.none),
+                child: Form(
+                  child: TextFormField(
+                    controller: controller,
+                    obscureText: obscureText,
+                    keyboardType: inputType,
+                    decoration: InputDecoration(
+                        hintStyle: GoogleFonts.poppins(
+                            color: Colors.white, fontSize: 15.sp),
+                        hintText: hinttext,
+                        border: InputBorder.none),
+                  ),
                 ),
               )),
         ],

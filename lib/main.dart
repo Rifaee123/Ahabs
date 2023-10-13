@@ -5,6 +5,7 @@ import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
 import 'package:ahbas/view/auth_page/auth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -17,26 +18,25 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: ScreenUtil.defaultSize,
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-            create: (context) => LoginProvider(),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => PhoneRegistrationProvider(),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => EmailRegistrationProvider(),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => VerifyEmailProvider(),
-          ),
-        ],
-        child: MaterialApp(
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => LoginProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PhoneRegistrationProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => EmailRegistrationProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => VerifyEmailProvider(),
+        ),
+      ],
+      child: ScreenUtilInit(
+        designSize: ScreenUtil.defaultSize,
+        builder: (context, child) => GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
             theme: ThemeData(

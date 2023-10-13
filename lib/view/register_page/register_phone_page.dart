@@ -52,7 +52,6 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
           child: Container(
             child: ElevatedButton(
               onPressed: () {},
-              child: Text("Verify"),
               style: ButtonStyle(
                   shape: const MaterialStatePropertyAll(
                       ContinuousRectangleBorder(
@@ -62,6 +61,7 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
                   elevation: const MaterialStatePropertyAll(5),
                   foregroundColor: const MaterialStatePropertyAll(Colors.white),
                   textStyle: MaterialStatePropertyAll(GoogleFonts.poppins())),
+              child: const Text("Verify"),
             ),
           ),
         ),
@@ -88,7 +88,7 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
         ),
         Padding(
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
-          child: DropdownMenuExample(),
+          child: const DropdownMenuExample(),
         ),
         TextFealdAndHeading(
             controller: passwordcontroller,
@@ -106,7 +106,7 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
             obscureText: true),
         Padding(
           padding: EdgeInsets.only(left: 70.w, bottom: 10.h, top: 20.h),
-          child: Container(
+          child: SizedBox(
             width: 200.w,
             height: 50.h,
             child: ElevatedButton(

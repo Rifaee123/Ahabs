@@ -280,27 +280,13 @@ class _GroupPageState extends State<GroupPage> {
                       )),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      height: 50.h,
-                      width: 40.w,
-                      decoration: const BoxDecoration(
-                          color: Color.fromARGB(255, 230, 229, 229),
-                          borderRadius: BorderRadius.all(Radius.circular(50))),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                              child: Image.asset(
-                            'assets/images/icons8-person-96 2.png',
-                            height: 40.h,
-                          )),
-                          Positioned(
-                              right: 0,
-                              bottom: 0,
-                              child: Image.asset(
-                                'assets/images/Group 26.png',
-                                height: 20.h,
-                              ))
-                        ],
+                    child: CircleAvatar(
+                      backgroundColor: const Color.fromARGB(255, 230, 229, 229),
+                      radius: 25.r,
+                      child: Image.asset(
+                        'assets/images/icons8-person-96 2.png',
+                        height: 30.h,
+                        width: 30.w,
                       ),
                     ),
                   ),
@@ -325,10 +311,10 @@ class _GroupPageState extends State<GroupPage> {
                 ],
               ),
             ),
-            Expanded(
+            const Expanded(
                 child: Column(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text("Today"),
                 ),
