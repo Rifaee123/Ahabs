@@ -1,4 +1,3 @@
-import 'package:ahbas/view/auth_page/auth_page.dart';
 import 'package:ahbas/view/register_page/widgets/dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,8 +31,8 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
               });
             },
             icon: const Icon(Icons.close)),
-         TextFealdAndHeading(
-          controller: emailcontroller,
+        TextFealdAndHeading(
+            controller: emailcontroller,
             heading: 'Enter Email Address',
             hintText: 'Email',
             icon: Icons.phone_android,
@@ -44,7 +43,6 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
           child: Container(
             child: ElevatedButton(
               onPressed: () {},
-              child: Text("Verify"),
               style: ButtonStyle(
                   shape: const MaterialStatePropertyAll(
                       ContinuousRectangleBorder(
@@ -54,18 +52,19 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
                   elevation: const MaterialStatePropertyAll(5),
                   foregroundColor: const MaterialStatePropertyAll(Colors.white),
                   textStyle: MaterialStatePropertyAll(GoogleFonts.poppins())),
+              child: const Text("Verify"),
             ),
           ),
         ),
         TextFealdAndHeading(
-          controller: dobcontroller,
+            controller: dobcontroller,
             heading: 'Enter Your Birth Date',
             icon: Icons.calendar_month,
             hintText: "YYYY  MM  DD",
             inputType: TextInputType.datetime,
             obscureText: false),
-         TextFealdAndHeading(
-          controller: namecontroller,
+        TextFealdAndHeading(
+            controller: namecontroller,
             heading: 'Enter Profile Name',
             icon: Icons.person,
             hintText: "Name",
@@ -80,7 +79,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
         ),
         Padding(
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
-          child: DropdownMenuExample(),
+          child: const DropdownMenuExample(),
         ),
         // Padding(
         //   padding: EdgeInsets.only(left: 10.w, bottom: 10.h),
@@ -126,14 +125,14 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
         //   ),
         // ),
         TextFealdAndHeading(
-          controller: passwordcontroller,
+            controller: passwordcontroller,
             heading: "Enter Your Password",
             icon: Icons.lock,
             hintText: "password",
             inputType: TextInputType.visiblePassword,
             obscureText: true),
-         TextFealdAndHeading(
-          controller: conpasswordcontroller,
+        TextFealdAndHeading(
+            controller: conpasswordcontroller,
             heading: "RE Enter Password",
             icon: Icons.lock,
             hintText: "RE Enter password",
@@ -141,7 +140,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
             obscureText: true),
         Padding(
           padding: EdgeInsets.only(left: 70.w, bottom: 10.h, top: 20.h),
-          child: Container(
+          child: SizedBox(
             width: 200.w,
             height: 50.h,
             child: ElevatedButton(
@@ -172,7 +171,8 @@ class TextFealdAndHeading extends StatelessWidget {
     required this.icon,
     required this.hintText,
     required this.inputType,
-    required this.obscureText, required this.controller,
+    required this.obscureText,
+    required this.controller,
   });
   final String heading;
   final IconData icon;
@@ -216,7 +216,8 @@ class ComenFormFeild extends StatelessWidget {
     required this.icon,
     required this.callback,
     required this.inputType,
-    required this.obscureText, required this.controller,
+    required this.obscureText,
+    required this.controller,
   });
   final String hinttext;
   final IconData icon;
@@ -248,15 +249,17 @@ class ComenFormFeild extends StatelessWidget {
               child: SizedBox(
                 height: 30,
                 width: 200,
-                child: TextFormField(
-                  controller: controller,
-                  obscureText: obscureText,
-                  keyboardType: inputType,
-                  decoration: InputDecoration(
-                      hintStyle: GoogleFonts.poppins(
-                          color: Colors.white, fontSize: 15.sp),
-                      hintText: hinttext,
-                      border: InputBorder.none),
+                child: Form(
+                  child: TextFormField(
+                    controller: controller,
+                    obscureText: obscureText,
+                    keyboardType: inputType,
+                    decoration: InputDecoration(
+                        hintStyle: GoogleFonts.poppins(
+                            color: Colors.white, fontSize: 15.sp),
+                        hintText: hinttext,
+                        border: InputBorder.none),
+                  ),
                 ),
               )),
         ],

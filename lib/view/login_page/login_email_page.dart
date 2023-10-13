@@ -26,7 +26,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
                 widget.loginCurrentIndex.value = 0;
               });
             },
-            icon: Icon(Icons.close)),
+            icon: const Icon(Icons.close)),
         Padding(
           padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
           child: Text(
@@ -63,7 +63,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
         ),
         Padding(
           padding: EdgeInsets.only(left: 70.w, bottom: 10.h, top: 20.h),
-          child: Container(
+          child: SizedBox(
             width: 200.w,
             height: 50.h,
             child: ElevatedButton(
@@ -80,7 +80,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
                     textStyle: MaterialStatePropertyAll(GoogleFonts.poppins())),
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => HomePage(),
+                    builder: (context) => const HomePage(),
                   ));
                 },
                 child: const Text("Login")),

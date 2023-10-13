@@ -8,7 +8,7 @@ class RegisterResponse {
   String? token;
   String? status;
 
-  RegisterResponse({this.message, this.token,this.status});
+  RegisterResponse({this.message, this.token, this.status});
 
   factory RegisterResponse.fromJson(Map<String, dynamic> json) {
     return _$RegisterResponseFromJson(json);

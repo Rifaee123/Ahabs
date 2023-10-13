@@ -8,7 +8,7 @@ class LoginResponse {
   String? token;
   String? status;
 
-  LoginResponse({this.message, this.token,this.status});
+  LoginResponse({this.message, this.token, this.status});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return _$LoginResponseFromJson(json);

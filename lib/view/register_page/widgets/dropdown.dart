@@ -25,13 +25,13 @@ class _DropdownMenuExampleState extends State<DropdownMenuExample> {
     return Container(
       decoration: BoxDecoration(
           border: Border.all(color: Colors.white),
-          borderRadius: BorderRadius.all(Radius.circular(15))),
+          borderRadius: const BorderRadius.all(Radius.circular(15))),
       child: Padding(
         padding: EdgeInsets.only(left: 10.w),
         child: DropdownMenu<String>(
           
           
-          inputDecorationTheme: InputDecorationTheme(border: InputBorder.none),
+          inputDecorationTheme: const InputDecorationTheme(border: InputBorder.none),
           hintText: "Gender",
           textStyle: GoogleFonts.poppins(color: Colors.white),
           initialSelection: list.first,
