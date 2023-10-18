@@ -1,4 +1,5 @@
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
+import 'package:ahbas/view/auth_page/auth_page.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/calls.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/group.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/primary.dart';
@@ -65,9 +66,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             SizedBox(
                               width: 26.w,
                             ),
-                            Image.asset(
-                              "assets/images/🦆 icon _add_.png",
-                              height: 15.h,
+                            InkWell(
+                              onTap: () {
+                                Navigator.of(context)
+                                    .pushReplacement(MaterialPageRoute(
+                                  builder: (context) => AuthPage(),
+                                ));
+                              },
+                              child: Image.asset(
+                                "assets/images/🦆 icon _add_.png",
+                                height: 15.h,
+                              ),
                             ),
                             SizedBox(
                               width: 26.w,
