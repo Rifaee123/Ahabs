@@ -1,10 +1,14 @@
 import 'package:ahbas/controller/getx/auth_controller.dart';
+import 'package:ahbas/model/login/login_response/login_response.dart';
+import 'package:ahbas/provider/login/login_provider.dart';
+import 'package:ahbas/view/home_page/home_page.dart';
 import 'package:ahbas/view/register_page/register_email_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../../controller/getx/tabbar_controller.dart';
 
@@ -116,6 +120,66 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
                       loginemailpasscontroller.text.isEmpty
                           ? controller.loginemailpasswordvalidate.value = true
                           : controller.loginemailpasswordvalidate.value = false;
+
+                      if (loginemailcontroller.text.isNotEmpty &&
+                          loginemailpasscontroller.text.isNotEmpty) {
+                        Provider.of<LoginProvider>(context, listen: false)
+                            .login(
+                                identifier: loginemailcontroller.text,
+                                pasword: loginemailpasscontroller.text);
+                        LoginResponse logintoken = LoginResponse();
+
+                        print(logintoken);
+                        final result =
+                            Provider.of<LoginProvider>(context, listen: false)
+                                .resultData;
+                        if (result.isAuthorized == true) {
+                          Future.delayed(Duration.zero);
+                          loginemailcontroller.clear();
+                          loginemailpasscontroller.clear();
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const HomePage(),
+                          ));
+                          authcontrolller.registerCurrentIndex.value = 0;
+                          authcontrolller.loginCurrentIndex.value = 0;
+                        } else {
+                          final snackBar = SnackBar(
+                            backgroundColor: Colors.white,
+                            content: Consumer<LoginProvider>(
+                                builder: (context, data, _) {
+                              final result = data.resultData;
+
+                              if (result.isLoading) {
+                                return Text(
+                                  'Loading',
+                                  style:
+                                      GoogleFonts.poppins(color: Colors.green),
+                                );
+                              } else if (result.isError) {
+                                return Text(
+                                  'Error',
+                                  style:
+                                      GoogleFonts.poppins(color: Colors.green),
+                                );
+                              } else if (result.isPasswordInvalid == true) {
+                                return Text(
+                                  'invalid Password',
+                                  style:
+                                      GoogleFonts.poppins(color: Colors.green),
+                                );
+                              } else {
+                                return Text(
+                                  'Something Went Wrong',
+                                  style:
+                                      GoogleFonts.poppins(color: Colors.green),
+                                );
+                              }
+                            }),
+                          );
+
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }
+                      }
                       // Navigator.of(context).push(MaterialPageRoute(
                       //   builder: (context) => const HomePage(),
                       // ));

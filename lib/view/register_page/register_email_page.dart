@@ -1,12 +1,18 @@
 import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
+import 'package:ahbas/provider/register/email_registration_provider.dart';
+import 'package:ahbas/provider/register/registration_result.dart';
+import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
 import 'package:ahbas/view/auth_page/auth_page.dart';
+import 'package:ahbas/view/home_page/home_page.dart';
 import 'package:ahbas/view/register_page/widgets/dropdown.dart';
+import 'package:ahbas/view/register_page/widgets/email_varify.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class RegisterEmailPage extends StatefulWidget {
   const RegisterEmailPage({
@@ -56,7 +62,15 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
               padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
               child: Container(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Provider.of<VerifyEmailProvider>(context, listen: false)
+                        .sentVerficationMail(
+                            email: emailcontroller.text.trim());
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          EmailVerifyPage(email: emailcontroller.text.trim()),
+                    ));
+                  },
                   style: ButtonStyle(
                       shape: const MaterialStatePropertyAll(
                           ContinuousRectangleBorder(
@@ -193,6 +207,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
                         textStyle:
                             MaterialStatePropertyAll(GoogleFonts.poppins())),
                     onPressed: () {
+                      print(controller.dob.value);
                       emailcontroller.text.isEmpty
                           ? controller.registerEmailemailvalidate.value = true
                           : controller.registerEmailemailvalidate.value = false;
@@ -212,6 +227,122 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
                       controller.dob.value == 'YYYY MM DD'
                           ? controller.registerEmaildobvalidate.value = true
                           : controller.registerEmaildobvalidate.value = false;
+
+                      final VerificationStatus result =
+                          Provider.of<VerifyEmailProvider>(context,
+                                  listen: false)
+                              .verificationStatus;
+
+                      if (result.isVerified == true) {
+                        if (passwordcontroller.text !=
+                            conpasswordcontroller.text) {
+                          controller.registerEmailrepasswordvalidate.value =
+                              true;
+                          print("password not valid");
+                        } else {
+                          controller.registerEmailrepasswordvalidate.value =
+                              false;
+                          if (namecontroller.text.isNotEmpty ||
+                              emailcontroller.text.isNotEmpty ||
+                              passwordcontroller.text.isNotEmpty) {
+                            String email = emailcontroller.text;
+                            String password = passwordcontroller.text;
+                            String gender = controller.selectedGender.string;
+                            String dateOfBirth = controller.dob.value;
+                            String username = namecontroller.text;
+                            Provider.of<EmailRegistrationProvider>(context,
+                                    listen: false)
+                                .registerWithEmail(
+                                    gender: gender,
+                                    dateOfBirth: dateOfBirth,
+                                    password: password,
+                                    email: email,
+                                    username: username);
+                            final RegistrationResult result =
+                                Provider.of<EmailRegistrationProvider>(context,
+                                        listen: false)
+                                    .resultData;
+
+                            if (result.isRegistarationSuccess == true) {
+                              Future.delayed(Duration.zero);
+                              Navigator.of(context)
+                                  .pushReplacement(MaterialPageRoute(
+                                builder: (context) => HomePage(),
+                              ));
+                              emailcontroller.clear();
+                              passwordcontroller.clear();
+                              namecontroller.clear();
+
+                              conpasswordcontroller.clear();
+                            } else {
+                              final snackBar = SnackBar(
+                                backgroundColor: Colors.white,
+                                content: Consumer<EmailRegistrationProvider>(
+                                    builder: (context, data, _) {
+                                  final result = data.resultData;
+
+                                  if (result.isRegistarationSuccess == true) {
+                                    return Text(
+                                      'Registration Completed',
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.green),
+                                    );
+                                  } else if (result.isLoadng) {
+                                    return Text(
+                                      'Loading',
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.green),
+                                    );
+                                  } else if (result.isError) {
+                                    return Text(
+                                      'Error',
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.green),
+                                    );
+                                  } else if (result.emailAlreadyExisted !=
+                                          null &&
+                                      result.emailAlreadyExisted!) {
+                                    return Text(
+                                      'Something Went Wrong',
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.green),
+                                    );
+                                  } else if (result.userNameAlreadyExisted !=
+                                          null &&
+                                      result.userNameAlreadyExisted!) {
+                                    return Text(
+                                      'Something Went Wrong',
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.green),
+                                    );
+                                  } else {
+                                    return Text(
+                                      'Something Went Wrong',
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.green),
+                                    );
+                                  }
+                                }),
+                              );
+
+                              // final progresssnackBar = SnackBar(
+                              //     backgroundColor: Colors.white,
+                              //     content: CircularProgressIndicator());
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            }
+
+                            // else if (result.isLoadng) {
+                            //   ScaffoldMessenger.of(context)
+                            //       .showSnackBar(progresssnackBar);
+                            // } else if (result.isError) {
+                            //   ScaffoldMessenger.of(context)
+                            //       .showSnackBar(errorsnackBar);
+                            // }
+                          }
+                        }
+                      }
+
                       // if (emailcontroller.text.isEmpty ||
                       //     namecontroller.text.isEmpty ||
                       //     passwordcontroller.text.isEmpty ||

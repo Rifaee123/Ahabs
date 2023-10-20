@@ -2,21 +2,25 @@ import 'dart:developer';
 
 import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
-import 'package:ahbas/data/profile/add_profile_pic_service.dart';
-import 'package:ahbas/data/profile/current_user.dart';
-import 'package:ahbas/data/profile/edit_profile_service.dart';
-import 'package:ahbas/data/search/all_user_service.dart';
 import 'package:ahbas/data/verify_phone/verify_phone_service.dart';
-import 'package:ahbas/model/profile/edit_profile/edit_profile.dart';
-import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
+import 'package:ahbas/provider/register/phone_registration_provider.dart';
+import 'package:ahbas/provider/register/registration_result.dart';
+import 'package:ahbas/provider/verify_phone/verify_phone_provider.dart';
+
 import 'package:ahbas/view/auth_page/auth_page.dart';
+import 'package:ahbas/view/home_page/home_page.dart';
 import 'package:ahbas/view/register_page/register_email_page.dart';
 import 'package:ahbas/view/register_page/widgets/dropdown.dart';
+import 'package:ahbas/view/register_page/widgets/email_varify.dart';
+import 'package:ahbas/view/register_page/widgets/phone_verify.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/register/email_registration_provider.dart';
 
 class RegisterPhonePage extends StatefulWidget {
   const RegisterPhonePage({
@@ -67,7 +71,14 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
               padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
               child: Container(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Provider.of<VerifyPhoneProvider>(context, listen: false)
+                        .sentVerficationMail(phoneNumber: Phonecontroller.text);
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          PhoneVerifyPage(Phone: Phonecontroller.text),
+                    ));
+                  },
                   style: ButtonStyle(
                       shape: const MaterialStatePropertyAll(
                           ContinuousRectangleBorder(
@@ -222,6 +233,111 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
                           ? controller.registerPhonedobvalidate.value = true
                           : controller.registerPhonedobvalidate.value = false;
                       print(controller.selectedGender.value);
+                      if (passwordcontroller.text !=
+                          conpasswordcontroller.text) {
+                        controller.registerEmailrepasswordvalidate.value = true;
+                        print("password not valid");
+                      } else {
+                        controller.registerEmailrepasswordvalidate.value =
+                            false;
+                        if (namecontroller.text.isNotEmpty ||
+                            Phonecontroller.text.isNotEmpty ||
+                            passwordcontroller.text.isNotEmpty) {
+                          String phone = Phonecontroller.text;
+                          String password = passwordcontroller.text;
+                          String gender = controller.selectedGender.string;
+                          String dateOfBirth = controller.dob.value;
+                          String username = namecontroller.text;
+                          Provider.of<PhoneRegistrationProvider>(context,
+                                  listen: false)
+                              .registerWithPhone(
+                                  gender: gender,
+                                  dateOfBirth: dateOfBirth,
+                                  password: password,
+                                  phone: phone,
+                                  username: username);
+                          final RegistrationResult result =
+                              Provider.of<PhoneRegistrationProvider>(context,
+                                      listen: false)
+                                  .resultData;
+
+                          if (result.isRegistarationSuccess == true) {
+                            Future.delayed(Duration.zero);
+                            Navigator.of(context)
+                                .pushReplacement(MaterialPageRoute(
+                              builder: (context) => HomePage(),
+                            ));
+                            Phonecontroller.clear();
+                            passwordcontroller.clear();
+                            namecontroller.clear();
+
+                            conpasswordcontroller.clear();
+                          } else {
+                            final snackBar = SnackBar(
+                              backgroundColor: Colors.white,
+                              content: Consumer<EmailRegistrationProvider>(
+                                  builder: (context, data, _) {
+                                final result = data.resultData;
+
+                                if (result.isRegistarationSuccess == true) {
+                                  return Text(
+                                    'Registration Completed',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.green),
+                                  );
+                                } else if (result.isLoadng) {
+                                  return Text(
+                                    'Loading',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.green),
+                                  );
+                                } else if (result.isError) {
+                                  return Text(
+                                    'Error',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.green),
+                                  );
+                                } else if (result.emailAlreadyExisted != null &&
+                                    result.emailAlreadyExisted!) {
+                                  return Text(
+                                    'Something Went Wrong',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.green),
+                                  );
+                                } else if (result.userNameAlreadyExisted !=
+                                        null &&
+                                    result.userNameAlreadyExisted!) {
+                                  return Text(
+                                    'Something Went Wrong',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.green),
+                                  );
+                                } else {
+                                  return Text(
+                                    'Something Went Wrong',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.green),
+                                  );
+                                }
+                              }),
+                            );
+
+                            // final progresssnackBar = SnackBar(
+                            //     backgroundColor: Colors.white,
+                            //     content: CircularProgressIndicator());
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          }
+
+                          // else if (result.isLoadng) {
+                          //   ScaffoldMessenger.of(context)
+                          //       .showSnackBar(progresssnackBar);
+                          // } else if (result.isError) {
+                          //   ScaffoldMessenger.of(context)
+                          //       .showSnackBar(errorsnackBar);
+                          // }
+                        }
+                      }
                     },
                     child: const Text("Register")),
               ),

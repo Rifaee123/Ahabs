@@ -22,7 +22,7 @@ class VerifyPhoneService {
               'Basic ${base64Encode(utf8.encode('$accountSid:$authToken'))}',
         },
         body: {
-          'To': phoneNumber,
+          'To': "+91$phoneNumber",
           'Channel': 'sms',
         },
       );
@@ -53,7 +53,7 @@ class VerifyPhoneService {
               'Basic ${base64Encode(utf8.encode('$accountSid:$authToken'))}',
         },
         body: {
-          'To': phoneNumber,
+          'To': "+91$phoneNumber",
           'Code': verificationCode,
         },
       );

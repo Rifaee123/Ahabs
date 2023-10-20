@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/view/home_page/home_page.dart';
 import 'package:ahbas/view/login_page/login_email_page.dart';
@@ -17,6 +19,8 @@ class AuthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Authcontrolller controller = Get.put(Authcontrolller());
+    log("rebuild");
+    print("rebuld");
     return Scaffold(
       body: SafeArea(
           child: Obx(() => SingleChildScrollView(
@@ -128,17 +132,12 @@ class RecoverComenPage extends StatelessWidget {
   }
 }
 
-class LoginCommenPage extends StatefulWidget {
+class LoginCommenPage extends StatelessWidget {
   const LoginCommenPage({
     super.key,
   });
   // final ValueNotifier<int> loginCurrentIndex;
 
-  @override
-  State<LoginCommenPage> createState() => _LoginCommenPageState();
-}
-
-class _LoginCommenPageState extends State<LoginCommenPage> {
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
@@ -157,9 +156,8 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
               text: 'Login With Email',
               icon: Icons.mail_outline,
               callback: () {
-                setState(() {
-                  authcontrolller.loginCurrentIndex.value = 1;
-                });
+                authcontrolller.loginCurrentIndex.value = 1;
+
                 print(authcontrolller.loginCurrentIndex.value);
                 // Navigator.of(context).push(MaterialPageRoute(
                 //   builder: (context) => const RegisterPage(),
@@ -173,9 +171,8 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
               text: 'Login With Mobile',
               icon: Icons.phone_android_outlined,
               callback: () {
-                setState(() {
-                  authcontrolller.loginCurrentIndex.value = 2;
-                });
+                authcontrolller.loginCurrentIndex.value = 2;
+
                 print(authcontrolller.loginCurrentIndex.value);
                 // Navigator.of(context).push(MaterialPageRoute(
                 //   builder: (context) => const RegisterPage(),
@@ -189,9 +186,10 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
               text: 'Login as a guest',
               icon: Icons.person_2_rounded,
               callback: () {
-                setState(() {
-                  authcontrolller.loginCurrentIndex.value = 3;
-                });
+                authcontrolller.loginCurrentIndex.value = 3;
+                // setState(() {
+
+                // });
                 print(authcontrolller.loginCurrentIndex.value);
               },
             ),
@@ -210,9 +208,7 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
                   activeColor: const Color.fromARGB(105, 255, 255, 255),
                   value: valuefirst,
                   onChanged: (bool? value) {
-                    setState(() {
-                      valuefirst = valuesecond;
-                    });
+                    valuefirst = valuesecond;
                   },
                 ),
                 Text(
@@ -236,17 +232,22 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
           children: [
             IconButton(
                 onPressed: () {
-                  setState(() {
-                    authcontrolller.loginCurrentIndex.value = 0;
-                  });
+                  authcontrolller.loginCurrentIndex.value = 0;
                 },
                 icon: const Icon(Icons.close)),
             const Text("login As A guest"),
             ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const HomePage(),
-                  ));
+                  authcontrolller.loginCurrentIndex.value = 0;
+                  authcontrolller.registerCurrentIndex.value = 0;
+
+                  // authcontrolller.dispose();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const HomePage(),
+                    ),
+                    (route) => false,
+                  );
                 },
                 child: const Text("go home"))
           ],
@@ -261,9 +262,8 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
               text: 'Login With Email',
               icon: Icons.mail_outline,
               callback: () {
-                setState(() {
-                  authcontrolller.loginCurrentIndex.value = 1;
-                });
+                authcontrolller.loginCurrentIndex.value = 1;
+
                 print(authcontrolller.loginCurrentIndex.value);
                 // Navigator.of(context).push(MaterialPageRoute(
                 //   builder: (context) => const RegisterPage(),
@@ -277,9 +277,8 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
               text: 'Login With Mobile',
               icon: Icons.phone_android_outlined,
               callback: () {
-                setState(() {
-                  authcontrolller.loginCurrentIndex.value = 2;
-                });
+                authcontrolller.loginCurrentIndex.value = 2;
+
                 print(authcontrolller.loginCurrentIndex.value);
                 // Navigator.of(context).push(MaterialPageRoute(
                 //   builder: (context) => const RegisterPage(),
@@ -293,9 +292,8 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
               text: 'Login as a guest',
               icon: Icons.person_2_rounded,
               callback: () {
-                setState(() {
-                  authcontrolller.loginCurrentIndex.value = 3;
-                });
+                authcontrolller.loginCurrentIndex.value = 3;
+
                 print(authcontrolller.loginCurrentIndex.value);
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const HomePage(),
@@ -317,9 +315,7 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
                   activeColor: const Color.fromARGB(105, 255, 255, 255),
                   value: valuefirst,
                   onChanged: (bool? value) {
-                    setState(() {
-                      valuefirst = valuesecond;
-                    });
+                    valuefirst = valuesecond;
                   },
                 ),
                 Text(
@@ -336,12 +332,6 @@ class _LoginCommenPageState extends State<LoginCommenPage> {
   }
 
   // void callbackFunction() {
-  //   print('hallo');
-  //   Navigator.of(context).push(MaterialPageRoute(
-  //     builder: (context) => const RegisterPage(),
-  //   ));
-  // }
-
   Row languageFeald() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
