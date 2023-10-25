@@ -25,16 +25,15 @@ class RegisterEmailPage extends StatefulWidget {
 }
 
 class _RegisterEmailPageState extends State<RegisterEmailPage> {
+  final TabBarController controller = Get.put(TabBarController());
+  final Authcontrolller authcontrolller = Get.put(Authcontrolller());
+  TextEditingController emailcontroller = TextEditingController();
+  // TextEditingController dobcontroller = TextEditingController();
+  TextEditingController namecontroller = TextEditingController();
+  TextEditingController passwordcontroller = TextEditingController();
+  TextEditingController conpasswordcontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final TabBarController controller = Get.put(TabBarController());
-    final Authcontrolller authcontrolller = Get.put(Authcontrolller());
-    TextEditingController emailcontroller = TextEditingController();
-    // TextEditingController dobcontroller = TextEditingController();
-    TextEditingController namecontroller = TextEditingController();
-    TextEditingController passwordcontroller = TextEditingController();
-    TextEditingController conpasswordcontroller = TextEditingController();
-
     return Obx(() => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -461,6 +460,11 @@ class ComenFormFeild extends StatelessWidget {
                 width: 200,
                 child: Form(
                   child: TextFormField(
+                    maxLines: 1,
+                    minLines: 1,
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                     onChanged: onChanged,
                     controller: controller,
                     obscureText: obscureText,

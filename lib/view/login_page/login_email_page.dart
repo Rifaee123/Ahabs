@@ -158,18 +158,18 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
                               } else if (result.isError) {
                                 return Text(
                                   'Error',
-                                  style:
-                                      GoogleFonts.poppins(color: Colors.green),
+                                  style: GoogleFonts.poppins(
+                                      color: Color.fromARGB(255, 248, 0, 25)),
                                 );
                               } else if (result.isPasswordInvalid == true) {
                                 return Text(
                                   'invalid Password',
-                                  style:
-                                      GoogleFonts.poppins(color: Colors.green),
+                                  style: GoogleFonts.poppins(
+                                      color: Color.fromARGB(255, 248, 0, 25)),
                                 );
                               } else {
                                 return Text(
-                                  'Something Went Wrong',
+                                  'Tap login Button',
                                   style:
                                       GoogleFonts.poppins(color: Colors.green),
                                 );
