@@ -1,6 +1,8 @@
 import 'package:ahbas/provider/login/login_provider.dart';
+import 'package:ahbas/provider/profile/current_user_provider.dart';
 import 'package:ahbas/provider/register/email_registration_provider.dart';
 import 'package:ahbas/provider/register/phone_registration_provider.dart';
+import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
 import 'package:ahbas/provider/verify_phone/verify_phone_provider.dart';
 import 'package:ahbas/view/auth_page/auth_page.dart';
@@ -36,6 +38,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => VerifyPhoneProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => SearchPrvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CurrentUserProvider(),
+        ),
       ],
       child: ScreenUtilInit(
         designSize: ScreenUtil.defaultSize,
@@ -47,7 +55,7 @@ class MyApp extends StatelessWidget {
                   ColorScheme.fromSeed(seedColor: const Color(0xff449cc0)),
               useMaterial3: true,
             ),
-            home: const AuthPage()),
+            home: AuthPage()),
       ),
     );
   }

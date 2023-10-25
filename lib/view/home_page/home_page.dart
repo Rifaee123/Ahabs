@@ -1,14 +1,26 @@
+import 'dart:developer';
+
+import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
+import 'package:ahbas/model/search/all_users/datum.dart';
+import 'package:ahbas/provider/login/login_provider.dart';
+import 'package:ahbas/provider/profile/current_user_provider.dart';
+import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:ahbas/view/auth_page/auth_page.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/calls.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/group.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/primary.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/status.dart';
+import 'package:ahbas/view/profile_page/profile-page.dart';
+import 'package:ahbas/view/search_page/search_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,10 +32,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool isprimary = false;
   bool isgroup = false;
+  
+
   @override
   Widget build(BuildContext context) {
     final TabBarController controller = Get.put(TabBarController());
+   
 
+    final token = fetchData();
+
+    log(token.toString());
     TabController tabcontroller =
         TabController(length: 5, initialIndex: 3, vsync: this);
     TabController calltabcontroller =
@@ -45,9 +63,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Image.asset(
-                          "assets/images/more1.png",
-                          height: 14.h,
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ProfilePage(),
+                            ));
+                          },
+                          child: Image.asset(
+                            "assets/images/more1.png",
+                            height: 14.h,
+                          ),
                         ),
                         Text(
                           "Ahabs",
@@ -68,6 +93,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: () {
+                                StorageService.instance.deleteAllSecureData();
                                 Navigator.of(context)
                                     .pushReplacement(MaterialPageRoute(
                                   builder: (context) => AuthPage(),
@@ -81,9 +107,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             SizedBox(
                               width: 26.w,
                             ),
-                            Image.asset(
-                              "assets/images/Group 12.png",
-                              height: 15.h,
+                            InkWell(
+                              onTap: () {
+                                Provider.of<SearchPrvider>(context,
+                                        listen: false)
+                                    .getAllUsers();
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => SearchPage(),
+                                ));
+                              },
+                              child: Image.asset(
+                                "assets/images/Group 12.png",
+                                height: 15.h,
+                              ),
                             ),
                           ],
                         )
@@ -284,7 +320,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         controller.currentindex.value = index;
                       },
                       children: [
-                        const Center(child: Text("Bussiness")),
+                        Column(
+                          children: [
+                            const Center(child: Text("Bussiness")),
+                            Text('')
+                          ],
+                        ),
                         CallsView(calltabcontroller: calltabcontroller),
                         StatusView(statustabcontroller: statustabcontroller),
                         const PrimaryView(),
@@ -622,69 +663,74 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 //   }
 // }
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
+// class HomeScreen extends StatefulWidget {
+//   @override
+//   _HomeScreenState createState() => _HomeScreenState();
+// }
 
-class _HomeScreenState extends State<HomeScreen> {
-  PageController _pageController = PageController();
-  int _currentIndex = 0;
+// class _HomeScreenState extends State<HomeScreen> {
+//   PageController _pageController = PageController();
+//   int _currentIndex = 0;
 
-  void _updatePage(int index) {
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+//   void _updatePage(int index) {
+//     _pageController.animateToPage(
+//       index,
+//       duration: const Duration(milliseconds: 500),
+//       curve: Curves.easeInOut,
+//     );
+//     setState(() {
+//       _currentIndex = index;
+//     });
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('PageView Example'),
-      ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        children: [
-          const Center(
-            child: Text('Screen 1'),
-          ),
-          const Center(
-            child: Text('Screen 2'),
-          ),
-          const Center(
-            child: Text('Screen 3'),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _updatePage,
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Screen 1',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Screen 2',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'Screen 3',
-          ),
-        ],
-      ),
-    );
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('PageView Example'),
+//       ),
+//       body: PageView(
+//         controller: _pageController,
+//         onPageChanged: (index) {
+//           setState(() {
+//             _currentIndex = index;
+//           });
+//         },
+//         children: [
+//           const Center(
+//             child: Text('Screen 1'),
+//           ),
+//           const Center(
+//             child: Text('Screen 2'),
+//           ),
+//           const Center(
+//             child: Text('Screen 3'),
+//           ),
+//         ],
+//       ),
+//       bottomNavigationBar: BottomNavigationBar(
+//         currentIndex: _currentIndex,
+//         onTap: _updatePage,
+//         items: [
+//           const BottomNavigationBarItem(
+//             icon: Icon(Icons.home),
+//             label: 'Screen 1',
+//           ),
+//           const BottomNavigationBarItem(
+//             icon: Icon(Icons.business),
+//             label: 'Screen 2',
+//           ),
+//           const BottomNavigationBarItem(
+//             icon: Icon(Icons.school),
+//             label: 'Screen 3',
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+fetchData() async {
+  final authTokenData =
+      await StorageService.instance.readSecureData('AuthToken');
+  return authTokenData;
 }

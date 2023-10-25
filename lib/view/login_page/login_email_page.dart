@@ -23,12 +23,12 @@ class LoginEmailPage extends StatefulWidget {
 }
 
 class _LoginEmailPageState extends State<LoginEmailPage> {
+  final TabBarController controller = Get.put(TabBarController());
+  TextEditingController loginemailcontroller = TextEditingController();
+  TextEditingController loginemailpasscontroller = TextEditingController();
+  final Authcontrolller authcontrolller = Get.put(Authcontrolller());
   @override
   Widget build(BuildContext context) {
-    final TabBarController controller = Get.put(TabBarController());
-    TextEditingController loginemailcontroller = TextEditingController();
-    TextEditingController loginemailpasscontroller = TextEditingController();
-    final Authcontrolller authcontrolller = Get.put(Authcontrolller());
     return Obx(() => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

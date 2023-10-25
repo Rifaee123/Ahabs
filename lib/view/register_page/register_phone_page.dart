@@ -33,16 +33,15 @@ class RegisterPhonePage extends StatefulWidget {
 }
 
 class _RegisterPhonePageState extends State<RegisterPhonePage> {
+  final Authcontrolller authcontrolller = Get.put(Authcontrolller());
+  final TabBarController controller = Get.put(TabBarController());
+  TextEditingController Phonecontroller = TextEditingController();
+  TextEditingController dobcontroller = TextEditingController();
+  TextEditingController namecontroller = TextEditingController();
+  TextEditingController passwordcontroller = TextEditingController();
+  TextEditingController conpasswordcontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final Authcontrolller authcontrolller = Get.put(Authcontrolller());
-    TextEditingController Phonecontroller = TextEditingController();
-    TextEditingController dobcontroller = TextEditingController();
-    TextEditingController namecontroller = TextEditingController();
-    TextEditingController passwordcontroller = TextEditingController();
-    TextEditingController conpasswordcontroller = TextEditingController();
-    final TabBarController controller = Get.put(TabBarController());
-
     String gender = "male";
     return Obx(() => Column(
           crossAxisAlignment: CrossAxisAlignment.start,

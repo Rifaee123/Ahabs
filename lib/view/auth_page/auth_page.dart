@@ -13,12 +13,11 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AuthPage extends StatelessWidget {
-  const AuthPage({super.key});
-
+  AuthPage({super.key});
+  final Authcontrolller controller = Get.put(Authcontrolller());
   // ValueNotifier<int> registercurntIndex = ValueNotifier<int>(0);
   @override
   Widget build(BuildContext context) {
-    final Authcontrolller controller = Get.put(Authcontrolller());
     log("rebuild");
     print("rebuld");
     return Scaffold(
@@ -63,11 +62,16 @@ class TopTabBar extends StatefulWidget {
 }
 
 class _TopTabBarState extends State<TopTabBar> with TickerProviderStateMixin {
+  final Authcontrolller controller = Get.put(Authcontrolller());
+  late TabController tabcontroller;
+  @override
+  void initState() {
+    super.initState();
+    tabcontroller = TabController(length: 3, initialIndex: 0, vsync: this);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Authcontrolller controller = Get.put(Authcontrolller());
-    TabController tabcontroller =
-        TabController(length: 3, initialIndex: 0, vsync: this);
     return Obx(() => Column(
           children: [
             Container(

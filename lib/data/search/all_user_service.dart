@@ -17,8 +17,14 @@ class AllUserService {
       const url = '$kBaseUrl$getAllUsersEndpoint';
       log(url);
       final uri = Uri.parse(url);
+      // final authToken =
+      //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTFmYWU3M2M0ODA5ZDQ1ZDI1ODA3OGYiLCJpYXQiOjE2OTgxMjc4MTksImV4cCI6MTY5ODIxNDIxOX0.jFcdO5q9Dszp6awXUu16LcNTXDm-znQoxwKi4ILQN8w";
+      // // await StorageService.instance.readSecureData('authToken');
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
+      log('Here');
+      log(authToken.toString());
+      // final userId = convertTokenToId(authToken!);
 
       final response = await http.get(
         uri,
