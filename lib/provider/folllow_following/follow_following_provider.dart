@@ -16,7 +16,6 @@ class FollowFollowingProvider extends ChangeNotifier {
     final result =
         await FollowFollowingService().sentFollowRequest(visitingUserId);
     isFollowRequestSent = result.fold((l) => false, (r) => true);
-
     notifyListeners();
   }
 

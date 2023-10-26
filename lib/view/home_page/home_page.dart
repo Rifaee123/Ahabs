@@ -32,12 +32,29 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool isprimary = false;
   bool isgroup = false;
-  
 
   @override
   Widget build(BuildContext context) {
     final TabBarController controller = Get.put(TabBarController());
-   
+    var authToken;
+    readAuthToken() async {
+      var authToken;
+      try {
+        authToken = await StorageService.instance.readSecureData('AuthToken');
+        // Use the authToken for your authentication logic.
+        print('Authentication Token: $authToken');
+      } catch (e) {
+        print('Error reading authentication token: $e');
+      }
+      return authToken;
+    }
+
+    @override
+    void initState() {
+      // TODO: implement initState
+      authToken = readAuthToken();
+      super.initState();
+    }
 
     final token = fetchData();
 
@@ -92,8 +109,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               width: 26.w,
                             ),
                             InkWell(
-                              onTap: () {
-                                StorageService.instance.deleteAllSecureData();
+                              onTap: () async {
+                                await StorageService.instance
+                                    .deleteAllSecureData();
                                 Navigator.of(context)
                                     .pushReplacement(MaterialPageRoute(
                                   builder: (context) => AuthPage(),
