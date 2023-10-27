@@ -1,4 +1,5 @@
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
+import 'package:ahbas/data/services/socket_io/socket_io.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/calls.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/group.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/primary.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,6 +21,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool isprimary = false;
   bool isgroup = false;
+   late socketio.Socket streamSocket;
+  @override
+  void initState() {
+    
+    streamSocket = SocketIoService.instance.initializeSocket();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     final TabBarController controller = Get.put(TabBarController());
@@ -278,7 +287,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         const Center(child: Text("Bussiness")),
                         CallsView(calltabcontroller: calltabcontroller),
                         StatusView(statustabcontroller: statustabcontroller),
-                        const PrimaryView(),
+                         PrimaryView(
+                          streamSocket:streamSocket
+                        ),
                         const GroupView(),
                       ],
                     ),

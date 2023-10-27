@@ -29,9 +29,8 @@ class _DropdownMenuExampleState extends State<DropdownMenuExample> {
       child: Padding(
         padding: EdgeInsets.only(left: 10.w),
         child: DropdownMenu<String>(
-
-          
-          inputDecorationTheme: const InputDecorationTheme(border: InputBorder.none),
+          inputDecorationTheme:
+              const InputDecorationTheme(border: InputBorder.none),
           hintText: "Gender",
           textStyle: GoogleFonts.poppins(color: Colors.white),
           initialSelection: list.first,

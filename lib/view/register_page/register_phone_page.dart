@@ -4,6 +4,7 @@ import 'package:ahbas/data/profile/add_profile_pic_service.dart';
 import 'package:ahbas/data/profile/current_user.dart';
 import 'package:ahbas/data/profile/edit_profile_service.dart';
 import 'package:ahbas/data/search/all_user_service.dart';
+import 'package:ahbas/data/services/socket_io/socket_io.dart';
 import 'package:ahbas/data/verify_phone/verify_phone_service.dart';
 import 'package:ahbas/model/profile/edit_profile/edit_profile.dart';
 import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
@@ -21,6 +22,13 @@ class RegisterPhonePage extends StatefulWidget {
 }
 
 class _RegisterPhonePageState extends State<RegisterPhonePage> {
+  @override
+  void initState() {
+    log('heyyyyyy');
+   
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     TextEditingController emailcontroller = TextEditingController();

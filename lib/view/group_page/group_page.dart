@@ -318,17 +318,17 @@ class _GroupPageState extends State<GroupPage> {
                   padding: EdgeInsets.all(8.0),
                   child: Text("Today"),
                 ),
-                ChatBubble(message: "sugalle", isMe: true),
-                ChatBubble(message: "ahda sugam", isMe: false),
-                ChatBubble(message: "Nee Eviden Ippo?", isMe: false),
-                ChatBubble(
-                  message: "Njan Vtl Undada",
-                  isMe: true,
-                ),
-                ChatBubble(
-                  message: "Neeee Evida",
-                  isMe: true,
-                )
+                // ChatBubble(message: "sugalle", isMe: true),
+                // ChatBubble(message: "ahda sugam", isMe: false),
+                // ChatBubble(message: "Nee Eviden Ippo?", isMe: false),
+                // ChatBubble(
+                //   message: "Njan Vtl Undada",
+                //   isMe: true,
+                // ),
+                // ChatBubble(
+                //   message: "Neeee Evida",
+                //   isMe: true,
+                // )
               ],
             )),
           ],

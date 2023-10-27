@@ -1,9 +1,28 @@
+import 'dart:developer';
+
+import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
+import 'package:ahbas/data/services/socket_io/socket_io.dart';
+import 'package:ahbas/provider/chat/chat_provider.dart';
+import 'package:ahbas/utils/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  const ChatPage(
+      {super.key,
+      required this.visitingUserId,
+      required this.roomId,
+      required this.userName,
+      required this.profilePic,
+      required this.streamSocket});
+  final String visitingUserId;
+  final String roomId;
+  final String userName;
+  final String profilePic;
+  final socketio.Socket streamSocket;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -14,6 +33,53 @@ class _ChatPageState extends State<ChatPage> {
   TextEditingController chatcontroller = TextEditingController();
   double _containerWidth = 200.0;
   double _containerHeight = 40.0;
+  StreamSocket streamingSocket = StreamSocket();
+  List<ChatDataDTO> chatList = [];
+  final currentUserId = convertTokenToId(sampleToken);
+  late socketio.Socket socket;
+
+  final ScrollController scrollController = ScrollController();
+  dynamic previousMsg = [];
+
+  @override
+  void initState() {
+    // socket = socketio.io(
+    //     'https://ahabs.cyenosure.in',
+    //     socketio.OptionBuilder()
+    //         .setTransports(['websocket'])
+    //         .setQuery({'token': sampleToken})
+    //         .setTimeout(10000)
+    //         .build());
+
+    // initstate(streamingSocket, socket,);
+    // socket.on('chat-message', (message) {
+    //   log('Where is hjk Message');
+    //   log(message.toString());
+    //   // setState(() {
+    //   //   log('but');
+    //   streamingSocket.addResponse(message);
+    //   Provider.of<ChatProvider>(context,listen: false).addSingleChat(Datum(
+    //     message: message['message'],
+    //     senderId: message['senderId'],
+    //     createdAt: DateTime.now(),
+    //   ));
+    //   // });
+    // });
+
+    //new
+
+    SocketIoService.instance
+        .listenMessage(streamingSocket, widget.streamSocket);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    log('dispose');
+    // streamingSocket.dispose(streamingSocket);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -49,17 +115,52 @@ class _ChatPageState extends State<ChatPage> {
                           controller: chatcontroller,
                           onTap: () {
                             print('Tapped');
-                            setState(() {
+                            // setState(() {
                               isTapped.value = 1;
                               isTapped.value == 1
                                   ? _containerWidth = 500.0
                                   : _containerWidth = 200.0;
-                            });
+                            // });
                           },
                           textAlign: TextAlign.start,
                           decoration: InputDecoration(
                               suffixIcon: IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    log('sending...');
+                                    // setState(() {
+                                    Provider.of<ChatProvider>(context,
+                                            listen: false)
+                                        .addSingleChat(ChatDataDTO(
+                                      message: chatcontroller.text,
+                                      senderId: currentUserId,
+                                      createdAt: DateTime.now(),
+                                    ));
+                                    // chatList.add(ChatDataDTO(
+                                    //   message: chatcontroller.text,
+                                    //   senderId: currentUserId,
+                                    //   createdAt: DateTime.now(),
+                                    // ));
+                                    SocketIoService.instance.sendMessage(
+                                        ChatDTO(
+                                            toUserId: widget.visitingUserId,
+                                            message: chatcontroller.text,
+                                            roomid: widget.roomId),
+                                        widget.streamSocket);
+
+                                    // sendMessage(
+                                    //     ChatDTO(
+                                    //         toUserId: widget.visitingUserId,
+                                    //         message: chatcontroller.text,
+                                    //         roomid: widget.roomId),
+                                    //     socket);
+                                    scrollController.animateTo(
+                                        scrollController
+                                            .position.maxScrollExtent,
+                                        duration:
+                                            const Duration(milliseconds: 1),
+                                        curve: Curves.slowMiddle);
+                                    // });
+                                  },
                                   icon: const Icon(Icons.send)),
                               prefixIcon: IconButton(
                                   onPressed: () {},
@@ -217,11 +318,11 @@ class _ChatPageState extends State<ChatPage> {
                       child: TextFormField(
                         autofocus: true,
                         onChanged: (text) {
-                          setState(() {
+                          // setState(() {
                             // Update the height of the container based on text length
                             _containerHeight = 40.0 + text.length / 2;
                             // You can adjust the factor (10.0 in this case) according to your preference
-                          });
+                          // });
                         },
                         onTapOutside: (event) {
                           isTapped.value = 0;
@@ -261,129 +362,193 @@ class _ChatPageState extends State<ChatPage> {
                 }
               },
             )),
-        body: Column(
-          children: [
-            Container(
-              height: 50.h,
-              color: const Color(0xff449cc0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                      )),
-                  Padding(
-                    padding: EdgeInsets.only(top: 8.h, bottom: 8.h),
-                    child: SizedBox(
+        body: StreamBuilder(
+            stream: streamingSocket.getResponse,
+            builder: (context, snapshot) {
+              log('heree');
+              log(snapshot.data.toString());
+              dynamic message;
+              if (snapshot.data != null) {
+                final currentMsg = snapshot.data;
+                if (previousMsg == []) {
+                  previousMsg = snapshot.data;
+                  message = snapshot.data;
+                } else {
+                  if (currentMsg == previousMsg) {
+                    // return const SizedBox();
+                  } else {
+                    message = snapshot.data;
+                  }
+                  previousMsg = currentMsg;
+                }
+
+                // log('Recalled ${message['message']}');
+              if(message!=null) { chatList.add(ChatDataDTO(
+                  message: message['message'],
+                  senderId: message['senderId'],
+                  createdAt: DateTime.parse(message['createdAt']),
+                ));}
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  scrollController.animateTo(
+                      scrollController.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 1),
+                      curve: Curves.slowMiddle);
+                });
+              }
+              return Consumer<ChatProvider>(builder: (context, provider, _) {
+                final response = provider.chatResponse;
+                if (response.isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (response.isError) {
+                  return const Text('Error');
+                }
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  if (scrollController.hasClients) {
+                    scrollController.animateTo(
+                        scrollController.position.maxScrollExtent,
+                        duration: const Duration(milliseconds: 1),
+                        curve: Curves.easeOut);
+                  }
+                });
+
+                chatList = response.chatList;
+
+                return Column(
+                  children: [
+                    Container(
                       height: 50.h,
-                      width: 62.w,
-                      child: Stack(
+                      color: const Color(0xff449cc0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Positioned(
-                            child: CircleAvatar(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 230, 229, 229),
-                              radius: 25.r,
-                              child: Image.asset(
-                                'assets/images/icons8-person-96 2.png',
-                                height: 30.h,
-                                width: 30.w,
+                          IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                              )),
+                          Padding(
+                            padding: EdgeInsets.only(top: 8.h, bottom: 8.h),
+                            child: SizedBox(
+                              height: 50.h,
+                              width: 62.w,
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    child: CircleAvatar(
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 230, 229, 229),
+                                      radius: 25.r,
+                                      child: Image.asset(
+                                        'assets/images/icons8-person-96 2.png',
+                                        height: 30.h,
+                                        width: 30.w,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                      right: 5.w,
+                                      bottom: -1.h,
+                                      child: Image.asset(
+                                        'assets/images/Group 26.png',
+                                        height: 22.h,
+                                      )),
+                                ],
                               ),
                             ),
                           ),
-                          Positioned(
-                              right: 5.w,
-                              bottom: -1.h,
-                              child: Image.asset(
-                                'assets/images/Group 26.png',
-                                height: 22.h,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.userName,
+                                style: GoogleFonts.poppins(
+                                    color: Colors.white, fontSize: 16.sp),
+                              ),
+                              const Text(
+                                "online",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 208, 208, 208)),
+                              )
+                            ],
+                          ),
+                          SizedBox(
+                            width: 10.w,
+                          ),
+                          IconButton(
+                              onPressed: () {},
+                              icon: const Icon(
+                                Icons.call,
+                                color: Colors.white,
                               )),
+                          SizedBox(
+                            width: 10.w,
+                          ),
+                          Image.asset(
+                            "assets/images/bussiness.png",
+                            height: 20.h,
+                          ),
+                          SizedBox(
+                            width: 20.w,
+                          ),
+                          Image.asset(
+                            "assets/images/Group 12.png",
+                            height: 20.h,
+                          )
                         ],
                       ),
                     ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Pachukuttan",
-                        style: GoogleFonts.poppins(
-                            color: Colors.white, fontSize: 16.sp),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return ChatBubble(
+                              dateTimeString:
+                                  chatList[index].createdAt.toString(),
+                              message: chatList[index].message,
+                              isMe: chatList[index].senderId == currentUserId
+                                  ? true
+                                  : false);
+                        },
+                        itemCount: chatList.length,
                       ),
-                      const Text(
-                        "online",
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 208, 208, 208)),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    width: 10.w,
-                  ),
-                  IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.call,
-                        color: Colors.white,
-                      )),
-                  SizedBox(
-                    width: 10.w,
-                  ),
-                  Image.asset(
-                    "assets/images/bussiness.png",
-                    height: 20.h,
-                  ),
-                  SizedBox(
-                    width: 20.w,
-                  ),
-                  Image.asset(
-                    "assets/images/Group 12.png",
-                    height: 20.h,
-                  )
-                ],
-              ),
-            ),
-            const Expanded(
-                child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("Today"),
-                ),
-                ChatBubble(message: "sugalle", isMe: true),
-                ChatBubble(message: "ahda sugam", isMe: false),
-                ChatBubble(message: "Nee Eviden Ippo?", isMe: false),
-                ChatBubble(
-                  message: "Njan Vtl Undada",
-                  isMe: true,
-                ),
-                ChatBubble(
-                  message: "Neeee Evida",
-                  isMe: true,
-                )
-              ],
-            )),
-          ],
-        ),
+                    ),
+                    SizedBox(
+                      height: 55.h,
+                    ),
+                  ],
+                );
+                // });
+              });
+            }),
       ),
     );
   }
 }
+//ChatBubble(message: "sugalle", isMe: true),
 
 class ChatBubble extends StatelessWidget {
   final String message;
   final bool isMe;
+  final String dateTimeString;
 
-  const ChatBubble({super.key, required this.message, required this.isMe});
+  const ChatBubble(
+      {super.key,
+      required this.message,
+      required this.isMe,
+      required this.dateTimeString});
 
   @override
   Widget build(BuildContext context) {
+    DateTime ustDateTime = DateTime.parse(dateTimeString);
+    DateTime dateTime = ustDateTime.add(const Duration(hours: 5, minutes: 30));
     return Row(
       mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
@@ -431,7 +596,7 @@ class ChatBubble extends StatelessWidget {
                             ? Row(
                                 children: [
                                   Text(
-                                    "9.45pm",
+                                    "${dateTime.hour}.${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}pm",
                                     style: TextStyle(
                                         fontSize: 12.sp,
                                         color: const Color.fromARGB(
@@ -443,7 +608,8 @@ class ChatBubble extends StatelessWidget {
                                   )
                                 ],
                               )
-                            : Text("9.45pm",
+                            : Text(
+                                "${dateTime.hour}.${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}pm",
                                 style: TextStyle(
                                     fontSize: 12.sp,
                                     color: const Color.fromARGB(

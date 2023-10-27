@@ -1,3 +1,4 @@
+import 'package:ahbas/provider/chat/chat_provider.dart';
 import 'package:ahbas/provider/login/login_provider.dart';
 import 'package:ahbas/provider/register/email_registration_provider.dart';
 import 'package:ahbas/provider/register/phone_registration_provider.dart';
@@ -9,6 +10,8 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+   WidgetsFlutterBinding.ensureInitialized();
+   
   runApp(const MyApp());
 }
 
@@ -18,7 +21,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -32,6 +34,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => VerifyEmailProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ChatProvider(),
         ),
       ],
       child: ScreenUtilInit(
