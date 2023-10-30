@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:swipe_to/swipe_to.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
 class ChatPage extends StatefulWidget {
@@ -37,6 +38,7 @@ class _ChatPageState extends State<ChatPage> {
   List<ChatDataDTO> chatList = [];
   final currentUserId = convertTokenToId(sampleToken);
   late socketio.Socket socket;
+  bool isReplying = false;
 
   final ScrollController scrollController = ScrollController();
   dynamic previousMsg = [];
@@ -82,230 +84,260 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    log(isReplying.toString());
     return SafeArea(
       child: Scaffold(
         floatingActionButton: Padding(
-            padding: EdgeInsets.only(left: 20.w),
+            padding: EdgeInsets.only(left: 20.w, top: 600.h),
             child: ValueListenableBuilder(
               valueListenable: isTapped,
               builder: (context, value, child) {
                 print('value $isTapped');
                 if (value == 0) {
-                  return Container(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    mainAxisSize: MainAxisSize.max,
+                  return Column(
                     children: [
-                      CircleAvatar(
-                        radius: 17,
-                        backgroundColor: const Color(0xff449cc0),
-                        child: Image.asset(
-                          'assets/images/more.png',
-                          height: 17.h,
-                          width: 17.w,
-                        ),
-                      ),
-                      Container(
-                        height: 35.h,
-                        width: 200.w,
-                        decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(30)),
-                            color: Color(0xffece8e8)),
-                        child: TextFormField(
-                          controller: chatcontroller,
-                          onTap: () {
-                            print('Tapped');
-                            // setState(() {
-                              isTapped.value = 1;
-                              isTapped.value == 1
-                                  ? _containerWidth = 500.0
-                                  : _containerWidth = 200.0;
-                            // });
-                          },
-                          textAlign: TextAlign.start,
-                          decoration: InputDecoration(
-                              suffixIcon: IconButton(
-                                  onPressed: () {
-                                    log('sending...');
-                                    // setState(() {
-                                    Provider.of<ChatProvider>(context,
-                                            listen: false)
-                                        .addSingleChat(ChatDataDTO(
-                                      message: chatcontroller.text,
-                                      senderId: currentUserId,
-                                      createdAt: DateTime.now(),
-                                    ));
-                                    // chatList.add(ChatDataDTO(
-                                    //   message: chatcontroller.text,
-                                    //   senderId: currentUserId,
-                                    //   createdAt: DateTime.now(),
-                                    // ));
-                                    SocketIoService.instance.sendMessage(
-                                        ChatDTO(
-                                            toUserId: widget.visitingUserId,
-                                            message: chatcontroller.text,
-                                            roomid: widget.roomId),
-                                        widget.streamSocket);
+                      isReplying == true
+                          ? Container(
+                            width: 500.w,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: const Column(
+                                children: [
+                                  Text('UserName'),
+                                  Text('Part of the mesage')
+                                ],
+                              ),
+                            )
+                          : SizedBox(
+                              height: 34.h,
+                            ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          CircleAvatar(
+                            radius: 17,
+                            backgroundColor: const Color(0xff449cc0),
+                            child: Image.asset(
+                              'assets/images/more.png',
+                              height: 17.h,
+                              width: 17.w,
+                            ),
+                          ),
+                          Container(
+                            height: 35.h,
+                            width: 200.w,
+                            decoration: const BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30)),
+                                color: Color(0xffece8e8)),
+                            child: TextFormField(
+                              controller: chatcontroller,
+                              onTap: () {
+                                print('Tapped');
+                                // setState(() {
+                                isTapped.value = 1;
+                                isTapped.value == 1
+                                    ? _containerWidth = 500.0
+                                    : _containerWidth = 200.0;
+                                // });
+                              },
+                              textAlign: TextAlign.start,
+                              decoration: InputDecoration(
+                                  suffixIcon: IconButton(
+                                      onPressed: () {
+                                        log('sending...');
+                                        // setState(() {
+                                        Provider.of<ChatProvider>(context,
+                                                listen: false)
+                                            .addSingleChat(ChatDataDTO(
+                                          message: chatcontroller.text,
+                                          senderId: currentUserId,
+                                          createdAt: DateTime.now(),
+                                        ));
+                                        // chatList.add(ChatDataDTO(
+                                        //   message: chatcontroller.text,
+                                        //   senderId: currentUserId,
+                                        //   createdAt: DateTime.now(),
+                                        // ));
+                                        SocketIoService.instance.sendMessage(
+                                            ChatDTO(
+                                                toUserId: widget.visitingUserId,
+                                                message: chatcontroller.text,
+                                                roomid: widget.roomId),
+                                            widget.streamSocket);
 
-                                    // sendMessage(
-                                    //     ChatDTO(
-                                    //         toUserId: widget.visitingUserId,
-                                    //         message: chatcontroller.text,
-                                    //         roomid: widget.roomId),
-                                    //     socket);
-                                    scrollController.animateTo(
-                                        scrollController
-                                            .position.maxScrollExtent,
-                                        duration:
-                                            const Duration(milliseconds: 1),
-                                        curve: Curves.slowMiddle);
-                                    // });
-                                  },
-                                  icon: const Icon(Icons.send)),
-                              prefixIcon: IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.emoji_emotions,
-                                    color: Color.fromARGB(255, 93, 88, 88),
-                                  )),
-                              border: InputBorder.none),
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 17,
-                        backgroundColor: const Color(0xff449cc0),
-                        child: InkWell(
-                          onTap: () {
-                            showModalBottomSheet(
-                              context: context,
-                              enableDrag: true,
-                              isScrollControlled:
-                                  true, // Allows the bottom sheet to take up the full screen
-                              builder: (BuildContext context) {
-                                return Stack(
-                                  children: <Widget>[
-                                    DraggableScrollableSheet(
-                                      expand: false,
+                                        // sendMessage(
+                                        //     ChatDTO(
+                                        //         toUserId: widget.visitingUserId,
+                                        //         message: chatcontroller.text,
+                                        //         roomid: widget.roomId),
+                                        //     socket);
 
-                                      initialChildSize:
-                                          0.5, // Initial size of the bottom sheet
-                                      minChildSize:
-                                          0.25, // Minimum size of the bottom sheet
-                                      maxChildSize:
-                                          0.9, // Maximum size of the bottom sheet
-                                      builder: (BuildContext context,
-                                          ScrollController scrollController) {
-                                        return Container(
-                                            decoration: const BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(15),
-                                                    topRight:
-                                                        Radius.circular(15))),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: GridView.builder(
-                                                controller: scrollController,
-                                                gridDelegate:
-                                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                                        crossAxisSpacing: 4,
-                                                        mainAxisSpacing: 4,
-                                                        crossAxisCount: 3),
-                                                itemBuilder: (context, index) =>
-                                                    Container(
-                                                  height: 30,
-                                                  width: 30,
-                                                  color:
-                                                      const Color(0xff000088),
-                                                ),
-                                              ),
-                                            ));
+                                        scrollController.animateTo(
+                                            scrollController
+                                                .position.maxScrollExtent,
+                                            duration:
+                                                const Duration(milliseconds: 1),
+                                            curve: Curves.slowMiddle);
+                                        //       setState(() {
+                                        //   isReplying == false;
+                                        // });
+                                        // });
                                       },
-                                    ),
-                                    Positioned(
-                                      bottom: 0,
-                                      child: Container(
-                                        height: 70.h,
-                                        width: 360.w,
-                                        color: const Color(0xffbcddea),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            InkWell(
-                                              child: Image.asset(
-                                                "assets/images/Group 46.png",
-                                                height: 40.h,
-                                              ),
-                                            ),
-                                            InkWell(
-                                              child: Image.asset(
-                                                "assets/images/Group 45.png",
-                                                height: 40.h,
-                                              ),
-                                            ),
-                                            InkWell(
-                                              child: Image.asset(
-                                                "assets/images/Group 44.png",
-                                                height: 40.h,
-                                              ),
-                                            ),
-                                            InkWell(
-                                              child: Image.asset(
-                                                "assets/images/Group 43.png",
-                                                height: 40.h,
-                                              ),
-                                            ),
-                                            InkWell(
-                                              child: Image.asset(
-                                                "assets/images/Group 42.png",
-                                                height: 40.h,
-                                              ),
-                                            ),
-                                            InkWell(
-                                              child: Image.asset(
-                                                "assets/images/Group 41.png",
-                                                height: 40.h,
-                                              ),
-                                            ),
-                                          ],
+                                      icon: const Icon(Icons.send)),
+                                  prefixIcon: IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                        Icons.emoji_emotions,
+                                        color: Color.fromARGB(255, 93, 88, 88),
+                                      )),
+                                  border: InputBorder.none),
+                            ),
+                          ),
+                          CircleAvatar(
+                            radius: 17,
+                            backgroundColor: const Color(0xff449cc0),
+                            child: InkWell(
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  enableDrag: true,
+                                  isScrollControlled:
+                                      true, // Allows the bottom sheet to take up the full screen
+                                  builder: (BuildContext context) {
+                                    return Stack(
+                                      children: <Widget>[
+                                        DraggableScrollableSheet(
+                                          expand: false,
+
+                                          initialChildSize:
+                                              0.5, // Initial size of the bottom sheet
+                                          minChildSize:
+                                              0.25, // Minimum size of the bottom sheet
+                                          maxChildSize:
+                                              0.9, // Maximum size of the bottom sheet
+                                          builder: (BuildContext context,
+                                              ScrollController
+                                                  scrollController) {
+                                            return Container(
+                                                decoration: const BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                            topLeft: Radius
+                                                                .circular(15),
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    15))),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: GridView.builder(
+                                                    controller:
+                                                        scrollController,
+                                                    gridDelegate:
+                                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                                            crossAxisSpacing: 4,
+                                                            mainAxisSpacing: 4,
+                                                            crossAxisCount: 3),
+                                                    itemBuilder:
+                                                        (context, index) =>
+                                                            Container(
+                                                      height: 30,
+                                                      width: 30,
+                                                      color: const Color(
+                                                          0xff000088),
+                                                    ),
+                                                  ),
+                                                ));
+                                          },
                                         ),
-                                      ),
-                                    )
-                                  ],
+                                        Positioned(
+                                          bottom: 0,
+                                          child: Container(
+                                            height: 70.h,
+                                            width: 360.w,
+                                            color: const Color(0xffbcddea),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                InkWell(
+                                                  child: Image.asset(
+                                                    "assets/images/Group 46.png",
+                                                    height: 40.h,
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                  child: Image.asset(
+                                                    "assets/images/Group 45.png",
+                                                    height: 40.h,
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                  child: Image.asset(
+                                                    "assets/images/Group 44.png",
+                                                    height: 40.h,
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                  child: Image.asset(
+                                                    "assets/images/Group 43.png",
+                                                    height: 40.h,
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                  child: Image.asset(
+                                                    "assets/images/Group 42.png",
+                                                    height: 40.h,
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                  child: Image.asset(
+                                                    "assets/images/Group 41.png",
+                                                    height: 40.h,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    );
+                                  },
                                 );
                               },
-                            );
-                          },
-                          child: Image.asset(
-                            'assets/images/Upload.png',
-                            height: 17.h,
-                            width: 17.w,
+                              child: Image.asset(
+                                'assets/images/Upload.png',
+                                height: 17.h,
+                                width: 17.w,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 17,
-                        backgroundColor: const Color(0xff449cc0),
-                        child: Image.asset(
-                          'assets/images/camara1.png',
-                          height: 17.h,
-                          width: 17.w,
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 17,
-                        backgroundColor: const Color(0xff449cc0),
-                        child: Image.asset(
-                          'assets/images/voice.png',
-                          height: 17.h,
-                          width: 17.w,
-                        ),
+                          CircleAvatar(
+                            radius: 17,
+                            backgroundColor: const Color(0xff449cc0),
+                            child: Image.asset(
+                              'assets/images/camara1.png',
+                              height: 17.h,
+                              width: 17.w,
+                            ),
+                          ),
+                          CircleAvatar(
+                            radius: 17,
+                            backgroundColor: const Color(0xff449cc0),
+                            child: Image.asset(
+                              'assets/images/voice.png',
+                              height: 17.h,
+                              width: 17.w,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  ));
+                  );
                 } else {
                   if (value == 1) {
                     return AnimatedContainer(
@@ -319,9 +351,9 @@ class _ChatPageState extends State<ChatPage> {
                         autofocus: true,
                         onChanged: (text) {
                           // setState(() {
-                            // Update the height of the container based on text length
-                            _containerHeight = 40.0 + text.length / 2;
-                            // You can adjust the factor (10.0 in this case) according to your preference
+                          // Update the height of the container based on text length
+                          _containerHeight = 40.0 + text.length / 2;
+                          // You can adjust the factor (10.0 in this case) according to your preference
                           // });
                         },
                         onTapOutside: (event) {
@@ -383,11 +415,13 @@ class _ChatPageState extends State<ChatPage> {
                 }
 
                 // log('Recalled ${message['message']}');
-              if(message!=null) { chatList.add(ChatDataDTO(
-                  message: message['message'],
-                  senderId: message['senderId'],
-                  createdAt: DateTime.parse(message['createdAt']),
-                ));}
+                if (message != null) {
+                  chatList.add(ChatDataDTO(
+                    message: message['message'],
+                    senderId: message['senderId'],
+                    createdAt: DateTime.parse(message['createdAt']),
+                  ));
+                }
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   scrollController.animateTo(
                       scrollController.position.maxScrollExtent,
@@ -509,13 +543,22 @@ class _ChatPageState extends State<ChatPage> {
                         controller: scrollController,
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
-                          return ChatBubble(
-                              dateTimeString:
-                                  chatList[index].createdAt.toString(),
-                              message: chatList[index].message,
-                              isMe: chatList[index].senderId == currentUserId
-                                  ? true
-                                  : false);
+                          return SwipeTo(
+                            rightSwipeWidget: const SizedBox(),
+                            onRightSwipe: () {
+                              log('isReplying');
+                              setState(() {
+                                isReplying = true;
+                              });
+                            },
+                            child: ChatBubble(
+                                dateTimeString:
+                                    chatList[index].createdAt.toString(),
+                                message: chatList[index].message,
+                                isMe: chatList[index].senderId == currentUserId
+                                    ? true
+                                    : false),
+                          );
                         },
                         itemCount: chatList.length,
                       ),
