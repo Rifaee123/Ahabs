@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
+import 'package:ahbas/provider/folllow_following/follow_following_provider.dart';
 import 'package:ahbas/provider/login/login_provider.dart';
 import 'package:ahbas/provider/profile/current_user_provider.dart';
 import 'package:ahbas/provider/register/email_registration_provider.dart';
@@ -26,7 +27,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -50,19 +50,22 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => CurrentUserProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => FollowFollowingProvider(),
+        ),
       ],
       child: ScreenUtilInit(
         designSize: ScreenUtil.defaultSize,
         builder: (context, child) => GetMaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
-            theme: ThemeData(
-              colorScheme:
-                  ColorScheme.fromSeed(seedColor: const Color(0xff449cc0)),
-              useMaterial3: true,
-            ),
-            home: SplashScreen(),
+          debugShowCheckedModeBanner: false,
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            colorScheme:
+                ColorScheme.fromSeed(seedColor: const Color(0xff449cc0)),
+            useMaterial3: true,
           ),
+          home: SplashScreen(),
+        ),
       ),
     );
   }

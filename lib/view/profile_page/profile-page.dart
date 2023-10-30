@@ -1,6 +1,8 @@
+import 'package:ahbas/controller/getx/follow_controller.dart';
 import 'package:ahbas/provider/profile/current_user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
@@ -20,6 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
   }
 
+  FolloControlller controlller = Get.put(FolloControlller());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,11 +33,13 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: EdgeInsets.only(left: 18.w, top: 15),
             child:
                 Consumer<CurrentUserProvider>(builder: (context, value, child) {
+              controlller.currentuserid.value =
+                  value.currentUserResult.currentUser!.id!;
               if (value.currentUserResult.isLoading) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               }
               if (value.currentUserResult.currentUser == null) {
-                return Text("null");
+                return const Text("null");
               }
               return Column(
                 children: [
@@ -54,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             size: 24,
                           ),
                         ),
-                        Container(
+                        SizedBox(
                             width: 120.w,
                             child: Text(
                               value.currentUserResult.currentUser!.username
@@ -71,13 +76,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         Row(
                           children: [
-                            ImageIcon(
+                            const ImageIcon(
                                 AssetImage("assets/images/Qr code scanner.png"),
                                 size: 26),
                             SizedBox(
                               width: 10.w,
                             ),
-                            ImageIcon(
+                            const ImageIcon(
                               AssetImage("assets/images/more2.png"),
                               size: 19,
                             ),
@@ -113,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             Column(
                               children: [
-                                Text('Following'),
+                                const Text('Following'),
                                 Text(value.currentUserResult.currentUser!
                                     .following!.length
                                     .toString())
@@ -121,7 +126,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             Column(
                               children: [
-                                Text('Followers'),
+                                const Text('Followers'),
                                 Text(
                                   value.currentUserResult.currentUser!
                                       .followers!.length
@@ -140,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
+                            SizedBox(
                               width: 100.w,
                               child: Text(
                                 value.currentUserResult.currentUser!.id
@@ -148,8 +153,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Icon(Icons.copy),
-                            Container(
+                            const Icon(Icons.copy),
+                            SizedBox(
                                 width: 100.w,
                                 child: Text(
                                   value.currentUserResult.currentUser!.createdAt
@@ -164,7 +169,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20.w),
-                        child: SizedBox(
+                        child: const SizedBox(
                           child: ReadMoreText(
                             'Bio: Captuture Every .......................................................................................................................................................................................................................................................................................................................................................................................',
                             trimLines: 3,
@@ -188,7 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Container(
                               width: 194.w,
                               height: 38.h,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                   color: Color(0xff449cc0),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(30))),
@@ -201,7 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Container(
                               width: 78.w,
                               height: 38.h,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                   color: Color(0xff449cc0),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(30))),
@@ -235,7 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20.w),
-                          child: Text("Wait For Next Update .............."),
+                          child: const Text("Wait For Next Update .............."),
                         ),
                         SizedBox(
                           height: 10.h,

@@ -10,7 +10,6 @@ import 'package:ahbas/model/follow_following/followers_list/followers_list.dart'
 import 'package:ahbas/model/follow_following/following_list/following.dart';
 import 'package:ahbas/model/follow_following/following_list/following_list.dart';
 
-
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,7 +18,7 @@ class FollowFollowingService {
       String visitingUserId) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
       final userId = convertTokenToId(authToken!);
       final url = '$kBaseUrl$followRequestEndPoint$visitingUserId';
       final uri = Uri.parse(url);
@@ -33,7 +32,7 @@ class FollowFollowingService {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': 'Bearer $authToken',
       });
-      log(response.statusCode.toString());
+      log("sentfollow:${response.statusCode.toString()}");
       if (response.statusCode == 200) {
         return const Right(true);
       } else {
@@ -48,7 +47,7 @@ class FollowFollowingService {
       String visitingUserId) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
       final userId = convertTokenToId(authToken!);
       final url = '$kBaseUrl$unFollowRequestEndPoint$visitingUserId';
       final uri = Uri.parse(url);
@@ -62,7 +61,7 @@ class FollowFollowingService {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': 'Bearer $authToken',
       });
-      log(response.statusCode.toString());
+      log("sentUnfollow:${response.statusCode.toString()}");
       if (response.statusCode == 200) {
         return const Right(true);
       } else {
@@ -77,7 +76,7 @@ class FollowFollowingService {
       String visitingUserId) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
       final userId = convertTokenToId(authToken!);
       final url = '$kBaseUrl$followStatusEndPoint$visitingUserId';
       final uri = Uri.parse(url);
@@ -95,6 +94,7 @@ class FollowFollowingService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         String message = responseBody['message'];
+        log(message);
         return Right(message);
       } else {
         return Left(MainFailure.serverFailure());
@@ -104,22 +104,24 @@ class FollowFollowingService {
     }
   }
 
-  Future<Either<MainFailure, List<Follower>>> getFollowersList() async {
+  Future<Either<MainFailure, List<Follower>>> getFollowersList(String userId) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
-      final userId = convertTokenToId(authToken!);
+          await StorageService.instance.readSecureData('AuthToken');
+      // final userId = convertTokenToId(authToken!);
+      log("userid:${userId}");
       final url = '$kBaseUrl$followerListEndPoint$userId';
       final uri = Uri.parse(url);
 
       final response = await http.get(uri, headers: {
         'Authorization': 'Bearer $authToken',
       });
-      log(response.statusCode.toString());
+      log("GetFollowerList:${response.statusCode.toString()}");
       if (response.statusCode == 200) {
         List<Follower> followersList = [];
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         final result = FollowersList.fromJson(responseBody);
+        log(result.followers!.length.toString());
         if (result.followers != null) {
           followersList = result.followers!;
         }
@@ -132,11 +134,11 @@ class FollowFollowingService {
     }
   }
 
-  Future<Either<MainFailure, List<Following>>> getFollowingList() async {
+  Future<Either<MainFailure, List<Following>>> getFollowingList(String userId) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
-      final userId = convertTokenToId(authToken!);
+          await StorageService.instance.readSecureData('AuthToken');
+      // final userId = convertTokenToId(authToken!);
       final url = '$kBaseUrl$followingListEndPoint$userId';
       final uri = Uri.parse(url);
 

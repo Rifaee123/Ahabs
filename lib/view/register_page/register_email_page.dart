@@ -32,6 +32,13 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
   TextEditingController namecontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
   TextEditingController conpasswordcontroller = TextEditingController();
+  Future<void> _verifyEmail() async {
+    await Provider.of<VerifyEmailProvider>(context, listen: false)
+        .sentVerficationMail(email: emailcontroller.text.trim());
+  }
+
+  
+
   @override
   Widget build(BuildContext context) {
     return Obx(() => Column(
@@ -62,9 +69,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
               child: Container(
                 child: ElevatedButton(
                   onPressed: () {
-                    Provider.of<VerifyEmailProvider>(context, listen: false)
-                        .sentVerficationMail(
-                            email: emailcontroller.text.trim());
+                    _verifyEmail(); // Call the verification method here.
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) =>
                           EmailVerifyPage(email: emailcontroller.text.trim()),

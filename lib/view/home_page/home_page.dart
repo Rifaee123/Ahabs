@@ -127,6 +127,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: () {
+                                Provider.of<CurrentUserProvider>(context, listen: false).getCurrentUser();
                                 Provider.of<SearchPrvider>(context,
                                         listen: false)
                                     .getAllUsers();

@@ -1,6 +1,7 @@
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:otp_fields/otp_fields.dart';
 import 'package:provider/provider.dart';
@@ -12,15 +13,9 @@ class EmailVerifyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TabBarController controller = Get.put(TabBarController());
-    Future<void> _navigateToNextScreen() async {
-      await Future.delayed(
-          const Duration(seconds: 1)); // defer the execution to the next frame
-      // ignore: use_build_context_synchronously
-      Navigator.pop(context);
-    }
 
-    void verifyOtp({String? otp}) {
-      Provider.of<VerifyEmailProvider>(context, listen: false)
+    void verifyOtp({String? otp}) async {
+      await Provider.of<VerifyEmailProvider>(context, listen: false)
           .verifyEmailCode(email: email, code: otp!);
       final VerificationStatus result =
           Provider.of<VerifyEmailProvider>(context, listen: false)
@@ -32,16 +27,19 @@ class EmailVerifyPage extends StatelessWidget {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return const AlertDialog(
-              content: Center(child: CircularProgressIndicator()),
-              // actions: <Widget>[
-              //   TextButton(
-              //     child: Text('OK'),
-              //     onPressed: () {
-              //       Navigator.of(context).pop();
-              //     },
-              //   ),
-              // ],
+            return SizedBox(
+              height: 100.h,
+              child: const AlertDialog(
+                content: Center(child: CircularProgressIndicator()),
+                // actions: <Widget>[
+                //   TextButton(
+                //     child: Text('OK'),
+                //     onPressed: () {
+                //       Navigator.of(context).pop();
+                //     },
+                //   ),
+                // ],
+              ),
             );
           },
         );
@@ -94,19 +92,12 @@ class EmailVerifyPage extends StatelessWidget {
                   ///handle otp
                 }),
             const SizedBox(height: 20.0),
-            Consumer<VerifyEmailProvider>(
-              builder: (context, value, child) {
-                if (value.verificationStatus.isVerified == true) {
-                  _navigateToNextScreen();
-                }
-                return ElevatedButton(
-                  onPressed: () {
-                    verifyOtp(otp: controller.otp.value);
-                  },
-                  child: Text('Verify OTP'),
-                );
+            ElevatedButton(
+              onPressed: () {
+                verifyOtp(otp: controller.otp.value);
               },
-            ),
+              child: Text('Verify OTP'),
+            )
           ],
         ),
       ),
