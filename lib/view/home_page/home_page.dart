@@ -2,12 +2,9 @@ import 'dart:developer';
 
 import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
-import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
-import 'package:ahbas/model/search/all_users/datum.dart';
-import 'package:ahbas/provider/login/login_provider.dart';
-import 'package:ahbas/provider/profile/current_user_provider.dart';
-import 'package:ahbas/provider/search/search_provider.dart';
-import 'package:ahbas/view/auth_page/auth_page.dart';
+
+import 'package:ahbas/data/services/socket_io/socket_io.dart';
+
 import 'package:ahbas/view/home_page/widgets/tabbar/calls.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/group.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/primary.dart';
@@ -20,7 +17,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'package:socket_io_client/socket_io_client.dart' as socketio;
+
 import 'package:provider/provider.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,6 +33,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool isprimary = false;
   bool isgroup = false;
+
+   late socketio.Socket streamSocket;
+  @override
+  void initState() {
+    
+    streamSocket = SocketIoService.instance.initializeSocket();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -346,7 +355,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         CallsView(calltabcontroller: calltabcontroller),
                         StatusView(statustabcontroller: statustabcontroller),
-                        const PrimaryView(),
+                         PrimaryView(
+                          streamSocket:streamSocket
+                        ),
                         const GroupView(),
                       ],
                     ),
