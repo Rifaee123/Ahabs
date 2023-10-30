@@ -1,5 +1,5 @@
 const accountSID = 'ACec4626ed68874dbdb3f94444bad40387';
-const twilioAuthToken = '2cdb20f0593eb199976014ef053fa238';
+const twilioAuthToken = '29f5079b563e58b689142ff8826edf6f';
 const verifySID = 'VA24236c12bd443c8652b2a57bb2887ab1';
 const sampleToken =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTFmYWU3M2M0ODA5ZDQ1ZDI1ODA3OGYiLCJpYXQiOjE2OTg2Mzc3NTksImV4cCI6MTY5ODcyNDE1OX0.FXJ0kWzxAgapE8me7onsZiZ1CUs2wGlyv8eyH6dBn_I';

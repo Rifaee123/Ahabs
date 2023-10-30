@@ -20,6 +20,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       verified: json['verified'] as bool?,
       isblocked: json['isblocked'] as bool?,
       profilepicture: json['profilepicture'] as String?,
+      createdAt: json['createdAt'] as String?,
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -34,4 +35,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'verified': instance.verified,
       'isblocked': instance.isblocked,
       'profilepicture': instance.profilepicture,
+      'createdAt': instance.createdAt,
     };

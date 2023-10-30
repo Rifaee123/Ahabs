@@ -11,6 +11,7 @@ class PhoneRegistrationProvider extends ChangeNotifier {
     isError: false,
     isLoadng: true,
     phoneNumberAlreadyExisted: false,
+    isRegistarationSuccess: false,
   );
   Future registerWithPhone({
     required String gender,

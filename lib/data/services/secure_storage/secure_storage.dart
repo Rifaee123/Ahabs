@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class StorageItem {
@@ -25,6 +27,7 @@ class StorageService {
   Future<String?> readSecureData(String key) async {
     var readData =
         await _secureStorage.read(key: key, aOptions: _getAndroidOptions());
+    log(readData.toString());
     return readData;
   }
 

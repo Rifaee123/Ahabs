@@ -14,7 +14,7 @@ class CurrentUserService {
   Future<Either<MainFailure, CurrentUser>> getCurrentUser() async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
 
       final userId = convertTokenToId(authToken!);
       final url = '$kBaseUrl$getcurrentUserEndpoint$userId';

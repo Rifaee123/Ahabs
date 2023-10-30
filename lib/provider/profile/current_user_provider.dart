@@ -6,6 +6,7 @@ class CurrentUserProvider extends ChangeNotifier {
   CurrentUserResult currentUserResult = CurrentUserResult(
     isLoading: true,
     isError: false,
+    
   );
   Future getCurrentUser() async {
     final result = await CurrentUserService().getCurrentUser();
