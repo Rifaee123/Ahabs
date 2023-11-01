@@ -40,32 +40,29 @@ class FollowFollowingProvider extends ChangeNotifier {
         await FollowFollowingService().checkFollowStatus(visitingUserId);
     followStatus = result.fold((l) => 'Failure', (r) => r);
     if (followStatus == 'Neither') {
-      log('isNeither');
+      log('CheckFollow:isNeither');
       controller.isNeither.value = true;
       controller.isFollower.value = false;
       controller.isFollowing.value = false;
       controller.isBoth.value = false;
     } else if (followStatus == 'following') {
-      log('isfollowing');
+      log('CheckFollow:isfollowing');
       controller.isNeither.value = false;
       controller.isFollower.value = false;
       controller.isFollowing.value = true;
       controller.isBoth.value = false;
     } else if (followStatus == "follower") {
-      log('isFollower');
+      log('CheckFollow:isFollower');
       controller.isNeither.value = false;
       controller.isFollower.value = true;
       controller.isFollowing.value = false;
       controller.isBoth.value = false;
-      controller.isFollowback.value = true;
     } else if (followStatus == 'Both') {
-      log('isBoth');
+      log('CheckFollow:isBoth');
       controller.isNeither.value = false;
       controller.isFollower.value = false;
       controller.isFollowing.value = false;
       controller.isBoth.value = true;
-      controller.isBothfollowed.value = true;
-      controller.isFollowback.value = false;
     }
     log(followStatus);
     notifyListeners();

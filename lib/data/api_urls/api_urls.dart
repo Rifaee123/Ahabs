@@ -1,4 +1,5 @@
 const kBaseUrl = 'https://ahabs.cyenosure.in';
+
 const twilioOtpSentingBaseUrl = 'https://verify.twilio.com/v2/Services/';
 const loginEndPoint = '/api/auth/login';
 const registrationEndpoint = '/api/auth/register';
@@ -14,3 +15,6 @@ const unFollowRequestEndPoint = '/api/user/unfollow/';
 const followStatusEndPoint = '/api/user/checkFollowStatus/';
 const followerListEndPoint = '/api/user/listfollowers/';
 const followingListEndPoint = '/api/user/listfollowing/';
+const createChatRoomEndPoint = '/api/chat/createroom/';
+const getPrimaryChatsEndPoint = '/api/chat/chatted-users';
+const getIndividualChatsEndPoint = '/api/chat/messages/';

@@ -19,4 +19,5 @@ class FolloControlller extends GetxController {
   final RxBool isLoading = true.obs;
   final RxBool isError = false.obs;
   RxString currentuserid = ''.obs;
+  RxString authToken = ''.obs;
 }

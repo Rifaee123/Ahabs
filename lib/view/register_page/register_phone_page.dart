@@ -1,7 +1,16 @@
 import 'dart:developer';
 
+
+import 'package:ahbas/data/profile/add_profile_pic_service.dart';
+import 'package:ahbas/data/profile/current_user.dart';
+import 'package:ahbas/data/profile/edit_profile_service.dart';
+import 'package:ahbas/data/search/all_user_service.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
+import 'package:ahbas/data/services/socket_io/socket_io.dart';
+
 import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
+
 import 'package:ahbas/data/verify_phone/verify_phone_service.dart';
 import 'package:ahbas/provider/register/phone_registration_provider.dart';
 import 'package:ahbas/provider/register/registration_result.dart';
@@ -40,6 +49,13 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
   TextEditingController namecontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
   TextEditingController conpasswordcontroller = TextEditingController();
+  @override
+  void initState() {
+    log('heyyyyyy');
+   
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     String gender = "male";
@@ -261,10 +277,12 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
                                   .resultData;
 
                           if (result.isRegistarationSuccess == true) {
+                            final authorizationToken =
+          await StorageService.instance.readSecureData('AuthToken');
                             Future.delayed(Duration.zero);
                             Navigator.of(context)
                                 .pushReplacement(MaterialPageRoute(
-                              builder: (context) => HomePage(),
+                              builder: (context) => HomePage(authorizationToken: authorizationToken!),
                             ));
                             Phonecontroller.clear();
                             passwordcontroller.clear();

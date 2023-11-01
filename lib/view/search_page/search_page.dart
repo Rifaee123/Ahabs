@@ -66,7 +66,7 @@ class _SearchPageState extends State<SearchPage> {
                       icon: Icon(Icons.arrow_back)),
                   Container(
                     height: 50.h,
-                    width: 300.w,
+                    width: 280.w,
                     child: TextFormField(
                       controller: _searchController,
                       onChanged: (query) {

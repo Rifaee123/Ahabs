@@ -6,7 +6,6 @@ import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
@@ -21,71 +20,82 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   final FolloControlller controller = Get.put(FolloControlller());
-  void checkFollowStatus() async {
+
+  @override
+  void initState() {
+    log("initFollowStatus:${controller.isFollow.value.toString()}");
+    log(widget.userData.userId.toString());
+    checkFollowStatus();
+    Provider.of<SearchPrvider>(context, listen: false).getAllUsers();
+    Provider.of<FollowFollowingProvider>(context, listen: false)
+        .getFollowersList(visitingUserId: widget.userData.userId);
+    Provider.of<FollowFollowingProvider>(context, listen: false)
+        .getFollowingList(visitingUserId: widget.userData.userId);
+
+    super.initState();
+  }
+
+  Future<void> checkFollowStatus() async {
     var followProvider =
         Provider.of<FollowFollowingProvider>(context, listen: false);
-
     await followProvider.checkFollowStatus(
         visitingUserId: widget.userData.userId);
     await followProvider.getFollowersList(
         visitingUserId: widget.userData.userId);
-  }
-
-  @override
-  void initState() {
-    log(widget.userData.userId.toString());
-    checkFollowStatus();
-    Provider.of<SearchPrvider>(context, listen: false).getAllUsers();
 
     if (controller.isNeither.value == true) {
       log('isNeither true');
       controller.isFollow.value = true;
+      controller.isFollowback.value = false;
     } else if (controller.isFollowing.value == true) {
       log('isFollowing true');
       controller.isFollow.value = false;
+      controller.isFollowback.value = false;
     } else if (controller.isFollower.value == true) {
       log('follower true');
+      controller.isFollow.value = false;
+      controller.isFollowback.value = true;
     } else if (controller.isBoth.value == true) {
       log('isBoth true');
+      controller.isFollow.value = false;
+      controller.isFollowback.value = false;
     }
+  }
 
-    // TODO: implement initState
-    super.initState();
+  void sentFollow() async {
+    var followProvider =
+        Provider.of<FollowFollowingProvider>(context, listen: false);
+    await followProvider.sentFollowRequest(
+        visitingUserId: widget.userData.userId);
+    log(widget.userData.userId);
+    controller.isFollow.value = false;
+    await followProvider.getFollowersList(
+        visitingUserId: widget.userData.userId);
+    await followProvider.getFollowingList(
+        visitingUserId: widget.userData.userId);
+  }
+
+  void unFollow() async {
+    var followProvider =
+        Provider.of<FollowFollowingProvider>(context, listen: false);
+
+    await followProvider.sentUnFollowRequest(
+        visitingUserId: widget.userData.userId);
+    log(widget.userData.userId);
+    controller.isFollow.value = true;
+    await followProvider.getFollowersList(
+        visitingUserId: widget.userData.userId);
+    await followProvider.getFollowingList(
+        visitingUserId: widget.userData.userId);
   }
 
   @override
   Widget build(BuildContext context) {
-    void sentFollow() async {
-      var followProvider =
-          Provider.of<FollowFollowingProvider>(context, listen: false);
-
-      // Call the sentFollowRequest method when the button is pressed
-      await followProvider.sentFollowRequest(
-          visitingUserId: widget.userData.userId);
-      log(widget.userData.userId);
-      controller.isFollow.value = false;
-      await followProvider.getFollowersList(
-          visitingUserId: widget.userData.userId);
-    }
-
-    void unFollow() async {
-      var followProvider =
-          Provider.of<FollowFollowingProvider>(context, listen: false);
-
-      // Call the sentFollowRequest method when the button is pressed
-      await followProvider.sentUnFollowRequest(
-          visitingUserId: widget.userData.userId);
-      log(widget.userData.userId);
-      controller.isFollow.value = true;
-      await followProvider.getFollowersList(
-          visitingUserId: widget.userData.userId);
-    }
-
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        body: SafeArea(
-          child: SingleChildScrollView(
-              child: Padding(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Obx(
               () => Column(
@@ -238,40 +248,76 @@ class _UserProfileState extends State<UserProfile> {
                                           style: GoogleFonts.poppins(
                                               color: Colors.white),
                                         )))
-                                    : controller.isFollowback.value == true
+                                    : controller.isFollowback.value == true &&
+                                            controller.isFollow.value == false
                                         ? InkWell(
                                             onTap: () {
-                                              sentFollow();
-
-                                              log("result ${controller.checkresult.value}");
-                                              checkFollowStatus();
-                                              Provider.of<SearchPrvider>(
-                                                      context,
-                                                      listen: false)
-                                                  .getAllUsers();
-                                              print(controller.checkresult.value
-                                                  .toString());
-                                              if (controller.isNeither.value ==
-                                                  true) {
-                                                log('hai');
-                                                controller.isFollow.value =
-                                                    true;
-                                              } else if (controller
-                                                      .isFollowing.value ==
-                                                  true) {
-                                                log('hallo');
-                                                controller.isFollow.value =
-                                                    false;
-                                              } else if (controller
-                                                      .isFollower.value ==
-                                                  true) {
-                                                log('hallo');
-                                                controller.isFollowback.value =
-                                                    false;
-                                              }
                                               controller.isFollow.value = false;
                                               controller.isFollowback.value =
                                                   false;
+                                              sentFollow();
+
+                                              // if (controller.isNeither.value ==
+                                              //     true) {
+                                              //   log('isNeither true');
+                                              //   controller.isFollow.value =
+                                              //       true;
+                                              //   controller.isFollowback.value =
+                                              //       false;
+                                              // } else if (controller
+                                              //         .isFollowing.value ==
+                                              //     true) {
+                                              //   log('isFollowing true');
+                                              //   controller.isFollow.value =
+                                              //       false;
+                                              //   controller.isFollowback.value =
+                                              //       false;
+                                              // } else if (controller
+                                              //         .isFollower.value ==
+                                              //     true) {
+                                              //   log('follower true');
+                                              //   controller.isFollow.value =
+                                              //       false;
+                                              //   controller.isFollowback.value =
+                                              //       true;
+                                              // } else if (controller
+                                              //         .isBoth.value ==
+                                              //     true) {
+                                              //   log('isBoth true');
+                                              //   controller.isFollow.value =
+                                              //       false;
+                                              //   controller.isFollowback.value =
+                                              //       false;
+                                              // }
+                                              // // log("result ${controller.checkresult.value}");
+                                              // checkFollowStatus();
+                                              // Provider.of<SearchPrvider>(
+                                              //         context,
+                                              //         listen: false)
+                                              //     .getAllUsers();
+                                              // print(controller.checkresult.value
+                                              //     .toString());
+                                              // if (controller.isNeither.value ==
+                                              //     true) {
+                                              //   log('hai');
+                                              //   controller.isFollow.value =
+                                              //       true;
+                                              // } else if (controller
+                                              //         .isFollowing.value ==
+                                              //     true) {
+                                              //   log('hallo');
+                                              //   controller.isFollow.value =
+                                              //       false;
+                                              // } else if (controller
+                                              //         .isFollower.value ==
+                                              //     true) {
+                                              //   log('hallo');
+                                              //   controller.isFollowback.value =
+                                              //       false;
+                                              // }
+                                              // controller.isFollow.value = false;
+                                              // controller.isFollowback.value =
+                                              //     false;
                                             },
                                             child: AnimatedContainer(
                                               duration:
@@ -290,33 +336,58 @@ class _UserProfileState extends State<UserProfile> {
                                                     color: Colors.white),
                                               )),
                                             ))
-                                        : controller.isFollow.value == true
+                                        : controller.isFollow.value == true &&
+                                                controller.isFollowback.value ==
+                                                    false
                                             ? InkWell(
                                                 onTap: () async {
                                                   sentFollow();
-
                                                   log("result ${controller.checkresult.value}");
-                                                  checkFollowStatus();
-                                                  Provider.of<SearchPrvider>(
-                                                          context,
-                                                          listen: false)
-                                                      .getAllUsers();
+                                                  // checkFollowStatus();
+                                                  controller.isFollow.value =
+                                                      false;
+                                                  controller.isFollowback
+                                                      .value = false;
+                                                  // Provider.of<SearchPrvider>(
+                                                  //         context,
+                                                  //         listen: false)
+                                                  //     .getAllUsers();
                                                   print(controller
                                                       .checkresult.value
                                                       .toString());
-                                                  if (controller
-                                                          .isNeither.value ==
-                                                      true) {
-                                                    log('hai');
-                                                    controller.isFollow.value =
-                                                        true;
-                                                  } else if (controller
-                                                          .isFollowing.value ==
-                                                      true) {
-                                                    log('hallo');
-                                                    controller.isFollow.value =
-                                                        false;
-                                                  }
+                                                  // if (controller
+                                                  //         .isNeither.value ==
+                                                  //     true) {
+                                                  //   log('isNeither true');
+                                                  //   controller.isFollow.value =
+                                                  //       true;
+                                                  //   controller.isFollowback
+                                                  //       .value = false;
+                                                  // } else if (controller
+                                                  //         .isFollowing.value ==
+                                                  //     true) {
+                                                  //   log('isFollowing true');
+                                                  //   controller.isFollow.value =
+                                                  //       false;
+                                                  //   controller.isFollowback
+                                                  //       .value = false;
+                                                  // } else if (controller
+                                                  //         .isFollower.value ==
+                                                  //     true) {
+                                                  //   log('follower true');
+                                                  //   controller.isFollow.value =
+                                                  //       false;
+                                                  //   controller.isFollowback
+                                                  //       .value = true;
+                                                  // } else if (controller
+                                                  //         .isBoth.value ==
+                                                  //     true) {
+                                                  //   log('isBoth true');
+                                                  //   controller.isFollow.value =
+                                                  //       false;
+                                                  //   controller.isFollowback
+                                                  //       .value = false;
+                                                  // }
                                                 },
                                                 child: AnimatedContainer(
                                                   duration: Duration(
@@ -373,19 +444,49 @@ class _UserProfileState extends State<UserProfile> {
                                                       if (newValue ==
                                                           'Unfollow') {
                                                         // Handle unfollow logic
+
                                                         unFollow();
                                                         print('unfollow');
-                                                        controller.isFollower
-                                                            .value = true;
-                                                        controller.isFollow
-                                                            .value = true;
                                                         checkFollowStatus();
-                                                        controller.isFollow
-                                                            .value = true;
-                                                        controller.isFollowback
-                                                            .value = true;
-                                                        // log(controller.isUnFollow.value
-                                                        //     .toString());
+                                                        // if (controller.isNeither
+                                                        //         .value ==
+                                                        //     true) {
+                                                        //   log('isNeither true');
+                                                        //   controller.isFollow
+                                                        //       .value = true;
+                                                        //   controller
+                                                        //       .isFollowback
+                                                        //       .value = false;
+                                                        // } else if (controller
+                                                        //         .isFollowing
+                                                        //         .value ==
+                                                        //     true) {
+                                                        //   log('isFollowing true');
+                                                        //   controller.isFollow
+                                                        //       .value = false;
+                                                        //   controller
+                                                        //       .isFollowback
+                                                        //       .value = false;
+                                                        // } else if (controller
+                                                        //         .isFollower
+                                                        //         .value ==
+                                                        //     true) {
+                                                        //   log('follower true');
+                                                        //   controller.isFollow
+                                                        //       .value = false;
+                                                        //   controller
+                                                        //       .isFollowback
+                                                        //       .value = true;
+                                                        // } else if (controller
+                                                        //         .isBoth.value ==
+                                                        //     true) {
+                                                        //   log('isBoth true');
+                                                        //   controller.isFollow
+                                                        //       .value = false;
+                                                        //   controller
+                                                        //       .isFollowback
+                                                        //       .value = false;
+                                                        // }
                                                       }
                                                     },
                                                   ),
@@ -455,10 +556,13 @@ class _UserProfileState extends State<UserProfile> {
                   SizedBox(
                     height: 20.h,
                   ),
+                  // ... rest of your code remains unchanged
                 ],
               ),
             ),
-          )),
-        ));
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -1,13 +1,16 @@
 import 'dart:developer';
 
+import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/data/login/login_service.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/model/login/login/login.dart';
 import 'package:ahbas/model/login/login_response/login_response.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LoginProvider extends ChangeNotifier {
+  final Authcontrolller getxController = Get.put(Authcontrolller());
   LoginResult resultData =
       LoginResult(isError: false, isLoading: true, isPasswordInvalid: false);
   Future login({required String identifier, required String pasword}) async {
@@ -17,15 +20,17 @@ class LoginProvider extends ChangeNotifier {
     final result = await LoginService().login(loginBody);
     isAnyError = result.fold((l) => true, (r) {
       loginResponse = r;
+
       return false;
     });
+
     if (isAnyError == false) {
       if (loginResponse!.status == 'true') {
         log(loginResponse!.token.toString());
         final StorageItem newItem =
             StorageItem('AuthToken', loginResponse!.token ??= '');
         StorageService.instance.writeSecureData(newItem);
-
+        getxController.isLogin.value = true;
         resultData =
             LoginResult(isError: false, isAuthorized: true, isLoading: false);
       } else if (loginResponse!.message == "Invalid password") {

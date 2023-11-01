@@ -3,11 +3,12 @@ import 'dart:developer';
 import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
-import 'package:ahbas/model/search/all_users/datum.dart';
-import 'package:ahbas/provider/login/login_provider.dart';
+
+import 'package:ahbas/data/services/socket_io/socket_io.dart';
 import 'package:ahbas/provider/profile/current_user_provider.dart';
 import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:ahbas/view/auth_page/auth_page.dart';
+
 import 'package:ahbas/view/home_page/widgets/tabbar/calls.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/group.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/primary.dart';
@@ -20,10 +21,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'package:socket_io_client/socket_io_client.dart' as socketio;
+
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required this.authorizationToken});
+  final String authorizationToken;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -32,29 +37,27 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool isprimary = false;
   bool isgroup = false;
+  late socketio.Socket streamSocket;
 
-  @override
-  Widget build(BuildContext context) {
+
+   Authcontrolller authcontrolller = Get.put(Authcontrolller());
     final TabBarController controller = Get.put(TabBarController());
-    var authToken;
-    readAuthToken() async {
-      var authToken;
-      try {
-        authToken = await StorageService.instance.readSecureData('AuthToken');
-        // Use the authToken for your authentication logic.
-        print('Authentication Token: $authToken');
-      } catch (e) {
-        print('Error reading authentication token: $e');
-      }
-      return authToken;
-    }
+  
+   
 
-    @override
+   @override
     void initState() {
       // TODO: implement initState
-      authToken = readAuthToken();
+
+     
+       streamSocket = SocketIoService.instance.initializeSocket(widget.authorizationToken );
       super.initState();
     }
+ 
+  @override
+  Widget build(BuildContext context) {
+   
+   
 
     final token = fetchData();
 
@@ -110,6 +113,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: () async {
+                                authcontrolller.isRegister.value = false;
                                 await StorageService.instance
                                     .deleteAllSecureData();
                                 Navigator.of(context)
@@ -127,7 +131,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: () {
-                                Provider.of<CurrentUserProvider>(context, listen: false).getCurrentUser();
+                                Provider.of<CurrentUserProvider>(context,
+                                        listen: false)
+                                    .getCurrentUser();
                                 Provider.of<SearchPrvider>(context,
                                         listen: false)
                                     .getAllUsers();
@@ -347,7 +353,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         CallsView(calltabcontroller: calltabcontroller),
                         StatusView(statustabcontroller: statustabcontroller),
-                        const PrimaryView(),
+                        PrimaryView(streamSocket: streamSocket),
                         const GroupView(),
                       ],
                     ),
