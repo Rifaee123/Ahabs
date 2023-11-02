@@ -21,13 +21,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool isprimary = false;
   bool isgroup = false;
-   late socketio.Socket streamSocket;
+  late socketio.Socket streamSocket;
   @override
   void initState() {
-    
     streamSocket = SocketIoService.instance.initializeSocket();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     final TabBarController controller = Get.put(TabBarController());
@@ -287,9 +287,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         const Center(child: Text("Bussiness")),
                         CallsView(calltabcontroller: calltabcontroller),
                         StatusView(statustabcontroller: statustabcontroller),
-                         PrimaryView(
-                          streamSocket:streamSocket
-                        ),
+                        PrimaryView(streamSocket: streamSocket),
                         const GroupView(),
                       ],
                     ),

@@ -6,10 +6,10 @@ part 'primary_chatters.g.dart';
 
 @JsonSerializable()
 class PrimaryChatters {
-  bool? success;
+  String? status;
   List<Datum>? data;
 
-  PrimaryChatters({this.success, this.data});
+  PrimaryChatters({this.status, this.data});
 
   factory PrimaryChatters.fromJson(Map<String, dynamic> json) {
     return _$PrimaryChattersFromJson(json);

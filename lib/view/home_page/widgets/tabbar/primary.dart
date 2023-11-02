@@ -1,3 +1,5 @@
+
+
 import 'package:ahbas/data/chat/chat_service.dart';
 import 'package:ahbas/model/chat/primary_chatters/datum.dart';
 import 'package:ahbas/model/chat/primary_chatters/primary_chatters.dart';
@@ -15,6 +17,7 @@ class PrimaryView extends StatelessWidget {
     required this.streamSocket,
   });
   final socketio.Socket streamSocket;
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -34,16 +37,20 @@ class PrimaryView extends StatelessWidget {
             itemBuilder: (context, index) => InkWell(
               onTap: () {
                 Provider.of<ChatProvider>(context, listen: false)
-                    .getIndividualChats(roomId: dataList[index].roomId ??= '');
-
+                    .getIndividualChats(
+                        roomId: dataList[index].latestmessage!.roomId ??= '');
+                Provider.of<ChatProvider>(context, listen: false)
+                    .clearAllMessages();
+                Provider.of<ChatProvider>(context, listen: false)
+                    .isReply(false);
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ChatPage(
                     streamSocket: streamSocket,
-                    profilePic: dataList[index].sendeduser!.profilepicture ??=
+                    profilePic: dataList[index].members![0].profilepicture ??=
                         '',
-                    userName: dataList[index].sendeduser!.username ??= '',
-                    roomId: dataList[index].roomId ??= '',
-                    visitingUserId: dataList[index].sendeduser!.id ??= '',
+                    userName: dataList[index].members![0].username ??= '',
+                    roomId: dataList[index].latestmessage!.roomId ??= '',
+                    visitingUserId: dataList[index].members![0].id ??= '',
                   ),
                 ));
               },
@@ -62,12 +69,13 @@ class PrimaryView extends StatelessWidget {
                         bool isOnline = false;
                         if (provider.onlineUserList.isNotEmpty) {
                           if (provider.onlineUserList.any((element) =>
-                              element == dataList[index].sendeduser!.id)) {
+                              element == dataList[index].members![0].id)) {
                             isOnline = true;
                           }
                         }
                         return CircleAvatar(
-                          backgroundColor:isOnline?Colors.green: const Color(0xff449cc0),
+                          backgroundColor:
+                              isOnline ? Colors.green : const Color(0xff449cc0),
                           radius: 12.r,
                           child: Center(
                             child: Text(
@@ -94,12 +102,12 @@ class PrimaryView extends StatelessWidget {
                     ],
                   ),
                 ),
-                subtitle: Text("How are You Today ?",
+                subtitle: Text(dataList[index].latestmessage!.message ??= '',
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.poppins(
                         fontSize: 13.sp, color: Colors.grey)),
                 title: Text(
-                  dataList[index].sendeduser!.username ??= '',
+                  dataList[index].members![0].username ??= '',
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
                       fontSize: 19.sp, fontWeight: FontWeight.w500),

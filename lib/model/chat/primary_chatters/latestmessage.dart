@@ -1,37 +1,36 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import 'reply_id.dart';
-
-part 'datum.g.dart';
+part 'latestmessage.g.dart';
 
 @JsonSerializable()
-class ChatData {
+class Latestmessage {
   @JsonKey(name: '_id')
   String? id;
   String? senderId;
   String? message;
   String? roomId;
+  dynamic replyId;
+  List<String>? deleteduser;
   DateTime? createdAt;
   DateTime? updatedAt;
-  ReplyId? replyId;
-  List<String>? deleteduser;
   @JsonKey(name: '__v')
   int? v;
 
-  ChatData({
+  Latestmessage({
     this.id,
     this.senderId,
     this.message,
     this.roomId,
+    this.replyId,
+    this.deleteduser,
     this.createdAt,
     this.updatedAt,
     this.v,
-    this.replyId,
-    this.deleteduser
   });
 
-  factory ChatData.fromJson(Map<String, dynamic> json) =>
-      _$ChatDataFromJson(json);
+  factory Latestmessage.fromJson(Map<String, dynamic> json) {
+    return _$LatestmessageFromJson(json);
+  }
 
-  Map<String, dynamic> toJson() => _$ChatDataToJson(this);
+  Map<String, dynamic> toJson() => _$LatestmessageToJson(this);
 }
