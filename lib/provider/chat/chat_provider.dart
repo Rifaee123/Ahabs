@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:ahbas/data/api_urls/api_urls.dart';
 import 'package:ahbas/data/chat/chat_service.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/model/chat/individual_chats/datum.dart';
 import 'package:ahbas/model/chat/primary_chatters/datum.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,9 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void connectSocketIO() {
+  void connectSocketIO()async {
+    final authToken =
+          await StorageService.instance.readSecureData('AuthToken');
     socketio.Socket socket = socketio.io(
         kBaseUrl,
         socketio.OptionBuilder()

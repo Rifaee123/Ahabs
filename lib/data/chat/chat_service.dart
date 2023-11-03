@@ -26,6 +26,7 @@ class ChatService {
       });
       log(response.statusCode.toString());
       if (response.statusCode == 200) {
+        log('chat Created');
         return const Right(true);
       } else {
         return Left(MainFailure.serverFailure());

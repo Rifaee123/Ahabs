@@ -1,8 +1,10 @@
 import 'dart:developer';
 
 import 'package:ahbas/controller/getx/follow_controller.dart';
+import 'package:ahbas/provider/chat/chat_provider.dart';
 import 'package:ahbas/provider/folllow_following/follow_following_provider.dart';
 import 'package:ahbas/provider/search/search_provider.dart';
+import 'package:ahbas/view/chat_page/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -192,7 +194,8 @@ class _UserProfileState extends State<UserProfile> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text("ID:13882459"),
-                            ImageIcon(AssetImage("assets/images/copyicon.png")),
+                            ImageIcon(
+                                AssetImage('assets/images/copyIcone.png')),
                             Text("Created 2023 March 8")
                           ],
                         ),
@@ -508,6 +511,60 @@ class _UserProfileState extends State<UserProfile> {
                                 )
                               ],
                             )),
+                      ),
+                      SizedBox(
+                        height: 10.h,
+                      ),
+                      InkWell(
+                        onTap: () async {
+                          await Provider.of<ChatProvider>(context,
+                                  listen: false)
+                              .createChatRoom(
+                                  visitingUserId: widget.userData.userId);
+                          final response =
+                              Provider.of<ChatProvider>(context, listen: false)
+                                  .chatResponse;
+                          if (response.isLoading == true) {
+                           
+                            showDialog(
+                              context: context,
+                              builder: (context) { 
+                                return AlertDialog(
+                                    content: SizedBox(
+                                        width: 50.w,
+                                        child: const CircularProgressIndicator()));
+                              },
+                            );
+                          } else if (response.isError == true) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  content: Text("'Failed to create chat room'"),
+                                );
+                              },
+                            );
+                          } else {
+                            // Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(visitingUserId: widget.userData.userId, roomId: , userName: widget.userData.userName, profilePic: widget.userData.profilePic, streamSocket: streamSocket),))
+                          }
+                        },
+                        child: controller.currentuserid.value !=
+                                widget.userData.userId
+                            ? Container(
+                                width: 300.w,
+                                height: 38.h,
+                                decoration: const BoxDecoration(
+                                    color: Color(0xff449cc0),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                child: Center(
+                                    child: Text(
+                                  "Message",
+                                  style:
+                                      GoogleFonts.poppins(color: Colors.white),
+                                )),
+                              )
+                            : SizedBox(),
                       ),
                       SizedBox(
                         height: 10.h,

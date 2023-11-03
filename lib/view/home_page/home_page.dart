@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:ahbas/controller/getx/auth_controller.dart';
+import 'package:ahbas/controller/getx/notification_controller.dart';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 
@@ -13,6 +14,7 @@ import 'package:ahbas/view/home_page/widgets/tabbar/calls.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/group.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/primary.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/status.dart';
+import 'package:ahbas/view/notification_page/notification_page.dart';
 import 'package:ahbas/view/profile_page/profile-page.dart';
 import 'package:ahbas/view/search_page/search_page.dart';
 
@@ -39,26 +41,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool isgroup = false;
   late socketio.Socket streamSocket;
 
+  Authcontrolller authcontrolller = Get.put(Authcontrolller());
+  final TabBarController controller = Get.put(TabBarController());
 
-   Authcontrolller authcontrolller = Get.put(Authcontrolller());
-    final TabBarController controller = Get.put(TabBarController());
-  
-   
+  final NotificationsController _notificationsController =
+      Get.put(NotificationsController());
 
-   @override
-    void initState() {
-      // TODO: implement initState
+  @override
+  void initState() {
+    // TODO: implement initState
 
-     
-       streamSocket = SocketIoService.instance.initializeSocket(widget.authorizationToken );
-      super.initState();
-    }
- 
+    _notificationsController.fetchNotifications();
+    streamSocket =
+        SocketIoService.instance.initializeSocket(widget.authorizationToken);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-   
-   
-
     final token = fetchData();
 
     log(token.toString());
@@ -104,9 +104,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         Row(
                           children: [
-                            Image.asset(
-                              "assets/images/🦆 icon _notification_.png",
-                              height: 15.h,
+                            InkWell(
+                              onTap: () {
+                                _notificationsController.fetchNotifications();
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => NotificationsScreen(),
+                                ));
+                              },
+                              child: Image.asset(
+                                "assets/images/🦆 icon _notification_.png",
+                                height: 15.h,
+                              ),
                             ),
                             SizedBox(
                               width: 26.w,
