@@ -7,13 +7,34 @@ part of 'datum.dart';
 // **************************************************************************
 
 Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
-      roomId: json['roomId'] as String?,
-      sendeduser: json['sendeduser'] == null
+      id: json['_id'] as String?,
+      createdBy: json['createdBy'] as String?,
+      members: (json['members'] as List<dynamic>?)
+          ?.map((e) => Member.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      name: json['name'] as String?,
+      createdAt: json['createdAt'] == null
           ? null
-          : Sendeduser.fromJson(json['sendeduser'] as Map<String, dynamic>),
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
+      v: json['__v'] as int?,
+      latestmessage: json['latestmessage'] == null
+          ? null
+          : Latestmessage.fromJson(
+              json['latestmessage'] as Map<String, dynamic>),
+      messageCount: json['messageCount'] as int?,
     );
 
 Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
-      'roomId': instance.roomId,
-      'sendeduser': instance.sendeduser,
+      '_id': instance.id,
+      'createdBy': instance.createdBy,
+      'members': instance.members,
+      'name': instance.name,
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
+      '__v': instance.v,
+      'latestmessage': instance.latestmessage,
+      'messageCount': instance.messageCount,
     };

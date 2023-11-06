@@ -47,6 +47,7 @@ class SocketIoService {
   getOnlineStatus(socketio.Socket socket, BuildContext context) {
     List<String> onlineUserList = [];
     socket.on('get-users', (userList) {
+      log('userList:${userList.toString()}');
       for (var user in userList) {
         onlineUserList.add(user['userId']);
       }
@@ -58,11 +59,16 @@ class SocketIoService {
   sendMessage(ChatDTO chat, socketio.Socket socket) async {
     final authToken = await StorageService.instance.readSecureData('AuthToken');
     final userId = convertTokenToId(authToken!);
+
     socket.emit('chat-message', {
-      'to': chat.toUserId,
-      'message': chat.message,
+      'to': chat['to'],
+      'message': chat['message'],
       'userId': userId,
-      'roomid': chat.roomid,
+      'roomid': chat['roomId'],
+      'chatId': chat['_id'],
+      'createdAt': chat['createdAt'],
+      'replyId': chat['replyId'],
+      'replyMessage': replyMsg,
     });
   }
 
@@ -155,6 +161,9 @@ class StreamSocket {
   void Function(dynamic) get addResponse => _socketResponse.sink.add;
 
   Stream<dynamic> get getResponse => _socketResponse.stream;
+  void clear() {
+    _socketResponse.sink.add('Clear');
+  }
 
   void dispose(StreamSocket socket) {
     socket._socketResponse.close();
@@ -177,9 +186,15 @@ class ChatDTO {
   final String message;
 
   final String roomid;
+  final String? replyId;
+  final String? replyMessage;
 
   ChatDTO(
-      {required this.toUserId, required this.message, required this.roomid});
+      {this.replyId,
+      required this.replyMessage,
+      required this.toUserId,
+      required this.message,
+      required this.roomid});
 }
 
 Stream<dynamic> createChatMessageStream(socketio.Socket socket) {

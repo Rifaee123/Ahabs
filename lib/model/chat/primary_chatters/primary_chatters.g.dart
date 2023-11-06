@@ -8,7 +8,7 @@ part of 'primary_chatters.dart';
 
 PrimaryChatters _$PrimaryChattersFromJson(Map<String, dynamic> json) =>
     PrimaryChatters(
-      success: json['success'] as bool?,
+      status: json['status'] as String?,
       data: (json['data'] as List<dynamic>?)
           ?.map((e) => Datum.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -16,6 +16,6 @@ PrimaryChatters _$PrimaryChattersFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$PrimaryChattersToJson(PrimaryChatters instance) =>
     <String, dynamic>{
-      'success': instance.success,
+      'status': instance.status,
       'data': instance.data,
     };

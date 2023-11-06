@@ -52,7 +52,7 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
   @override
   void initState() {
     log('heyyyyyy');
-   
+
     super.initState();
   }
 

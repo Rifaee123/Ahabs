@@ -6,7 +6,9 @@ import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
+
 import 'package:ahbas/provider/profile/current_user_provider.dart';
+
 import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:ahbas/view/auth_page/auth_page.dart';
 
@@ -47,6 +49,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final NotificationsController _notificationsController =
       Get.put(NotificationsController());
 
+
+  late socketio.Socket streamSocket;
+
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -54,6 +61,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _notificationsController.fetchNotifications();
     streamSocket =
         SocketIoService.instance.initializeSocket(widget.authorizationToken);
+
     super.initState();
   }
 
@@ -139,15 +147,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: () {
+
                                 Provider.of<CurrentUserProvider>(context,
                                         listen: false)
                                     .getCurrentUser();
+
                                 Provider.of<SearchPrvider>(context,
                                         listen: false)
                                     .getAllUsers();
                                 Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => SearchPage(),
                                 ));
+
                               },
                               child: Image.asset(
                                 "assets/images/Group 12.png",
