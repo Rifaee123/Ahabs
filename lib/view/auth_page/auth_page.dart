@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/view/home_page/home_page.dart';
 import 'package:ahbas/view/login_page/login_email_page.dart';
 import 'package:ahbas/view/login_page/login_phone_page.dart';
@@ -5,50 +8,44 @@ import 'package:ahbas/view/register_page/register_email_page.dart';
 import 'package:ahbas/view/register_page/register_phone_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AuthPage extends StatefulWidget {
-  const AuthPage({super.key});
-
-  @override
-  State<AuthPage> createState() => _AuthPageState();
-}
-
-class _AuthPageState extends State<AuthPage> {
-  ValueNotifier<int> registercurntIndex = ValueNotifier<int>(0);
-  ValueNotifier<int> logincurntIndex = ValueNotifier<int>(0);
+class AuthPage extends StatelessWidget {
+  AuthPage({super.key});
+  final Authcontrolller controller = Get.put(Authcontrolller());
+  // ValueNotifier<int> registercurntIndex = ValueNotifier<int>(0);
   @override
   Widget build(BuildContext context) {
+    log("rebuild");
+    print("rebuld");
     return Scaffold(
       body: SafeArea(
-          child: SingleChildScrollView(
-              child: ValueListenableBuilder(
-        valueListenable: registercurntIndex,
-        builder: (context, value, child) => Container(
-          height: registercurntIndex.value == 1 || registercurntIndex.value == 2
-              ? 950.h
-              : 680.h,
-          width: 500,
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [Color(0xffbfdde9), Color(0xff479ec1)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              const LoginTopText(),
-              SizedBox(
-                height: 20.h,
-              ),
-              TopTabBar(
-                  registercurntIndex: registercurntIndex,
-                  logincurntIndex: logincurntIndex),
-            ],
-          ),
-        ),
-      ))),
+          child: Obx(() => SingleChildScrollView(
+                  child: Container(
+                height: controller.registerCurrentIndex.value == 1 ||
+                        controller.registerCurrentIndex.value == 2
+                    ? 1030.h
+                    : 680.h,
+                width: 500,
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                  colors: [Color(0xffbfdde9), Color(0xff479ec1)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                )),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const LoginTopText(),
+                    SizedBox(
+                      height: 20.h,
+                    ),
+                    TopTabBar()
+                  ],
+                ),
+              )))),
     );
   }
 }
@@ -56,70 +53,71 @@ class _AuthPageState extends State<AuthPage> {
 class TopTabBar extends StatefulWidget {
   const TopTabBar({
     super.key,
-    required this.registercurntIndex,
-    required this.logincurntIndex,
   });
-  final ValueNotifier<int> registercurntIndex;
-  final ValueNotifier<int> logincurntIndex;
+  // final ValueNotifier<int> registercurntIndex;
+  // final ValueNotifier<int> logincurntIndex;
 
   @override
   State<TopTabBar> createState() => _TopTabBarState();
 }
 
 class _TopTabBarState extends State<TopTabBar> with TickerProviderStateMixin {
+  final Authcontrolller controller = Get.put(Authcontrolller());
+  late TabController tabcontroller;
+  @override
+  void initState() {
+    super.initState();
+    tabcontroller = TabController(length: 3, initialIndex: 0, vsync: this);
+  }
+
   @override
   Widget build(BuildContext context) {
-    TabController tabcontroller =
-        TabController(length: 3, initialIndex: 0, vsync: this);
-    return Column(
-      children: [
-        Container(
-          height: 55.h,
-          width: 326.w,
-          decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: const Color(0xff7abbd6),
-              borderRadius: BorderRadius.all(Radius.circular(15.r))),
-          child: TabBar(
-              // isScrollable: true,
-              controller: tabcontroller,
-              dividerColor: const Color.fromARGB(0, 255, 214, 64),
-              splashBorderRadius: const BorderRadius.all(Radius.circular(30)),
-              indicatorSize: TabBarIndicatorSize.tab,
-              // labelPadding: EdgeInsets.symmetric(horizontal: 34.w),
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.black,
-              indicator: const BoxDecoration(
-                  color: Color(0xff449cc0),
-                  borderRadius: BorderRadius.all(Radius.circular(15))),
-              tabs: const [
-                Tab(
-                  text: 'Register',
-                ),
-                Tab(
-                  text: 'Login',
-                ),
-                Tab(
-                  text: 'Recover',
-                )
-              ]),
-        ),
-        ValueListenableBuilder(
-          valueListenable: widget.registercurntIndex,
-          builder: (context, value, child) => SizedBox(
-              height: widget.registercurntIndex.value == 1 ||
-                      widget.registercurntIndex.value == 2
-                  ? 750.h
-                  : 350.h,
-              child: TabBarView(controller: tabcontroller, children: [
-                RegisterComenpage(
-                    registercurntIndex: widget.registercurntIndex),
-                LoginCommenPage(loginCurrentIndex: widget.logincurntIndex),
-                const RecoverComenPage(),
-              ])),
-        )
-      ],
-    );
+    return Obx(() => Column(
+          children: [
+            Container(
+              height: 55.h,
+              width: 326.w,
+              decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: const Color(0xff7abbd6),
+                  borderRadius: BorderRadius.all(Radius.circular(15.r))),
+              child: TabBar(
+                  // isScrollable: true,
+                  controller: tabcontroller,
+                  dividerColor: const Color.fromARGB(0, 255, 214, 64),
+                  splashBorderRadius:
+                      const BorderRadius.all(Radius.circular(30)),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  // labelPadding: EdgeInsets.symmetric(horizontal: 34.w),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.black,
+                  indicator: const BoxDecoration(
+                      color: Color(0xff449cc0),
+                      borderRadius: BorderRadius.all(Radius.circular(15))),
+                  tabs: const [
+                    Tab(
+                      text: 'Register',
+                    ),
+                    Tab(
+                      text: 'Login',
+                    ),
+                    Tab(
+                      text: 'Recover',
+                    )
+                  ]),
+            ),
+            SizedBox(
+                height: controller.registerCurrentIndex.value == 1 ||
+                        controller.registerCurrentIndex.value == 2
+                    ? 850.h
+                    : 350.h,
+                child: TabBarView(controller: tabcontroller, children: [
+                  RegisterComenpage(),
+                  LoginCommenPage(),
+                  const RecoverComenPage(),
+                ]))
+          ],
+        ));
   }
 }
 
@@ -138,228 +136,206 @@ class RecoverComenPage extends StatelessWidget {
   }
 }
 
-class LoginCommenPage extends StatefulWidget {
+class LoginCommenPage extends StatelessWidget {
   const LoginCommenPage({
     super.key,
-    required this.loginCurrentIndex,
   });
-  final ValueNotifier<int> loginCurrentIndex;
+  // final ValueNotifier<int> loginCurrentIndex;
 
-  @override
-  State<LoginCommenPage> createState() => _LoginCommenPageState();
-}
-
-class _LoginCommenPageState extends State<LoginCommenPage> {
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
+    final Authcontrolller authcontrolller = Get.put(Authcontrolller());
 
     bool? valuefirst = true;
     bool valuesecond = false;
+    return Obx(() {
+      if (authcontrolller.loginCurrentIndex.value == 0) {
+        return Column(
+          children: [
+            SizedBox(
+              height: 30.h,
+            ),
+            ComenButton(
+              text: 'Login With Email',
+              icon: Icons.mail_outline,
+              callback: () {
+                authcontrolller.loginCurrentIndex.value = 1;
 
-    return ValueListenableBuilder(
-      valueListenable: widget.loginCurrentIndex,
-      builder: (context, value, child) {
-        if (widget.loginCurrentIndex.value == 0) {
-          return Column(
-            children: [
-              SizedBox(
-                height: 30.h,
-              ),
-              ComenButton(
-                text: 'Login With Email',
-                icon: Icons.mail_outline,
-                callback: () {
-                  setState(() {
-                    widget.loginCurrentIndex.value = 1;
-                  });
-                  print(widget.loginCurrentIndex.value);
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //   builder: (context) => const RegisterPage(),
-                  // ));
-                },
-              ),
-              SizedBox(
-                height: 30.h,
-              ),
-              ComenButton(
-                text: 'Login With Mobile',
-                icon: Icons.phone_android_outlined,
-                callback: () {
-                  setState(() {
-                    widget.loginCurrentIndex.value = 2;
-                  });
-                  print(widget.loginCurrentIndex.value);
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //   builder: (context) => const RegisterPage(),
-                  // ));
-                },
-              ),
-              SizedBox(
-                height: 30.h,
-              ),
-              ComenButton(
-                text: 'Login as a guest',
-                icon: Icons.person_2_rounded,
-                callback: () {
-                  setState(() {
-                    widget.loginCurrentIndex.value = 3;
-                  });
-                  print(widget.loginCurrentIndex.value);
-                },
-              ),
-              SizedBox(
-                height: 30.h,
-              ),
-              languageFeald(),
-              SizedBox(
-                height: 20.h,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Checkbox(
-                    checkColor: const Color.fromARGB(255, 255, 255, 255),
-                    activeColor: const Color.fromARGB(105, 255, 255, 255),
-                    value: valuefirst,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        valuefirst = valuesecond;
-                      });
-                    },
-                  ),
-                  Text(
-                    'Agree Terms And Conditions',
-                    style: GoogleFonts.poppins(
-                        color: Colors.white, fontSize: 16.sp),
-                  )
-                ],
-              )
-            ],
-          );
-        }
-        if (widget.loginCurrentIndex.value == 1) {
-          return LoginEmailPage(
-            loginCurrentIndex: widget.loginCurrentIndex,
-          );
-        }
-        if (widget.loginCurrentIndex.value == 2) {
-          return LoginPhonePage(
-            loginCurrentIndex: widget.loginCurrentIndex,
-          );
-        }
-        if (widget.loginCurrentIndex.value == 3) {
-          return Column(
-            children: [
-              IconButton(
-                  onPressed: () {
-                    setState(() {
-                      widget.loginCurrentIndex.value = 0;
-                    });
+                print(authcontrolller.loginCurrentIndex.value);
+                // Navigator.of(context).push(MaterialPageRoute(
+                //   builder: (context) => const RegisterPage(),
+                // ));
+              },
+            ),
+            SizedBox(
+              height: 30.h,
+            ),
+            ComenButton(
+              text: 'Login With Mobile',
+              icon: Icons.phone_android_outlined,
+              callback: () {
+                authcontrolller.loginCurrentIndex.value = 2;
+
+                print(authcontrolller.loginCurrentIndex.value);
+                // Navigator.of(context).push(MaterialPageRoute(
+                //   builder: (context) => const RegisterPage(),
+                // ));
+              },
+            ),
+            SizedBox(
+              height: 30.h,
+            ),
+            ComenButton(
+              text: 'Login as a guest',
+              icon: Icons.person_2_rounded,
+              callback: () {
+                authcontrolller.loginCurrentIndex.value = 3;
+                // setState(() {
+
+                // });
+                print(authcontrolller.loginCurrentIndex.value);
+              },
+            ),
+            SizedBox(
+              height: 30.h,
+            ),
+            languageFeald(),
+            SizedBox(
+              height: 20.h,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Checkbox(
+                  checkColor: const Color.fromARGB(255, 255, 255, 255),
+                  activeColor: const Color.fromARGB(105, 255, 255, 255),
+                  value: valuefirst,
+                  onChanged: (bool? value) {
+                    valuefirst = valuesecond;
                   },
-                  icon: const Icon(Icons.close)),
-              const Text("login As A guest"),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
+                ),
+                Text(
+                  'Agree Terms And Conditions',
+                  style:
+                      GoogleFonts.poppins(color: Colors.white, fontSize: 16.sp),
+                )
+              ],
+            )
+          ],
+        );
+      }
+      if (authcontrolller.loginCurrentIndex.value == 1) {
+        return LoginEmailPage();
+      }
+      if (authcontrolller.loginCurrentIndex.value == 2) {
+        return LoginPhonePage();
+      }
+      if (authcontrolller.loginCurrentIndex.value == 3) {
+        return Column(
+          children: [
+            IconButton(
+                onPressed: () {
+                  authcontrolller.loginCurrentIndex.value = 0;
+                },
+                icon: const Icon(Icons.close)),
+            const Text("login As A guest"),
+            ElevatedButton(
+                onPressed: () {
+                  authcontrolller.loginCurrentIndex.value = 0;
+                  authcontrolller.registerCurrentIndex.value = 0;
+
+                  // authcontrolller.dispose();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
                       builder: (context) => const HomePage(),
-                    ));
+                    ),
+                    (route) => false,
+                  );
+                },
+                child: const Text("go home"))
+          ],
+        );
+      } else {
+        return Column(
+          children: [
+            SizedBox(
+              height: 30.h,
+            ),
+            ComenButton(
+              text: 'Login With Email',
+              icon: Icons.mail_outline,
+              callback: () {
+                authcontrolller.loginCurrentIndex.value = 1;
+
+                print(authcontrolller.loginCurrentIndex.value);
+                // Navigator.of(context).push(MaterialPageRoute(
+                //   builder: (context) => const RegisterPage(),
+                // ));
+              },
+            ),
+            SizedBox(
+              height: 30.h,
+            ),
+            ComenButton(
+              text: 'Login With Mobile',
+              icon: Icons.phone_android_outlined,
+              callback: () {
+                authcontrolller.loginCurrentIndex.value = 2;
+
+                print(authcontrolller.loginCurrentIndex.value);
+                // Navigator.of(context).push(MaterialPageRoute(
+                //   builder: (context) => const RegisterPage(),
+                // ));
+              },
+            ),
+            SizedBox(
+              height: 30.h,
+            ),
+            ComenButton(
+              text: 'Login as a guest',
+              icon: Icons.person_2_rounded,
+              callback: () {
+                authcontrolller.loginCurrentIndex.value = 3;
+
+                print(authcontrolller.loginCurrentIndex.value);
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ));
+              },
+            ),
+            SizedBox(
+              height: 30.h,
+            ),
+            languageFeald(),
+            SizedBox(
+              height: 20.h,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Checkbox(
+                  checkColor: const Color.fromARGB(255, 255, 255, 255),
+                  activeColor: const Color.fromARGB(105, 255, 255, 255),
+                  value: valuefirst,
+                  onChanged: (bool? value) {
+                    valuefirst = valuesecond;
                   },
-                  child: const Text("go home"))
-            ],
-          );
-        } else {
-          return Column(
-            children: [
-              SizedBox(
-                height: 30.h,
-              ),
-              ComenButton(
-                text: 'Login With Email',
-                icon: Icons.mail_outline,
-                callback: () {
-                  setState(() {
-                    widget.loginCurrentIndex.value = 1;
-                  });
-                  print(widget.loginCurrentIndex.value);
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //   builder: (context) => const RegisterPage(),
-                  // ));
-                },
-              ),
-              SizedBox(
-                height: 30.h,
-              ),
-              ComenButton(
-                text: 'Login With Mobile',
-                icon: Icons.phone_android_outlined,
-                callback: () {
-                  setState(() {
-                    widget.loginCurrentIndex.value = 2;
-                  });
-                  print(widget.loginCurrentIndex.value);
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //   builder: (context) => const RegisterPage(),
-                  // ));
-                },
-              ),
-              SizedBox(
-                height: 30.h,
-              ),
-              ComenButton(
-                text: 'Login as a guest',
-                icon: Icons.person_2_rounded,
-                callback: () {
-                  setState(() {
-                    widget.loginCurrentIndex.value = 3;
-                  });
-                  print(widget.loginCurrentIndex.value);
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const HomePage(),
-                  ));
-                },
-              ),
-              SizedBox(
-                height: 30.h,
-              ),
-              languageFeald(),
-              SizedBox(
-                height: 20.h,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Checkbox(
-                    checkColor: const Color.fromARGB(255, 255, 255, 255),
-                    activeColor: const Color.fromARGB(105, 255, 255, 255),
-                    value: valuefirst,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        valuefirst = valuesecond;
-                      });
-                    },
-                  ),
-                  Text(
-                    'Agree Terms And Conditions',
-                    style: GoogleFonts.poppins(
-                        color: Colors.white, fontSize: 16.sp),
-                  )
-                ],
-              )
-            ],
-          );
-        }
-      },
-    );
+                ),
+                Text(
+                  'Agree Terms And Conditions',
+                  style:
+                      GoogleFonts.poppins(color: Colors.white, fontSize: 16.sp),
+                )
+              ],
+            )
+          ],
+        );
+      }
+    });
   }
 
   // void callbackFunction() {
-  //   print('hallo');
-  //   Navigator.of(context).push(MaterialPageRoute(
-  //     builder: (context) => const RegisterPage(),
-  //   ));
-  // }
-
   Row languageFeald() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -466,43 +442,34 @@ class WhiteTextFormFeild extends StatelessWidget {
 class RegisterComenpage extends StatefulWidget {
   const RegisterComenpage({
     super.key,
-    required this.registercurntIndex,
   });
-  final ValueNotifier<int> registercurntIndex;
+  // final ValueNotifier<int> registercurntIndex;
 
   @override
   State<RegisterComenpage> createState() => _RegisterComenpageState();
 }
 
 class _RegisterComenpageState extends State<RegisterComenpage> {
+  final Authcontrolller controller = Get.put(Authcontrolller());
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
     bool? valuefirst = true;
     bool valuesecond = false;
-    return ValueListenableBuilder(
-      valueListenable: widget.registercurntIndex,
-      builder: (context, value, child) {
-        if (widget.registercurntIndex.value == 0) {
-          return comenregisterContainer(valuefirst, valuesecond);
-        }
-        if (widget.registercurntIndex.value == 1) {
-          return RegisterEmailPage(
-            registercurntIndex: widget.registercurntIndex,
-          );
-        }
-        if (widget.registercurntIndex.value == 2) {
-          return RegisterPhonePage(
-            registercurntIndex: widget.registercurntIndex,
-          );
-        }
-        if (widget.registercurntIndex.value == 3) {
-          return const Text("Register As A guest");
-        } else {
-          return comenregisterContainer(valuefirst, valuesecond);
-        }
-      },
-    );
+    if (controller.registerCurrentIndex.value == 0) {
+      return comenregisterContainer(valuefirst, valuesecond);
+    }
+    if (controller.registerCurrentIndex.value == 1) {
+      return RegisterEmailPage();
+    }
+    if (controller.registerCurrentIndex.value == 2) {
+      return RegisterPhonePage();
+    }
+    if (controller.registerCurrentIndex.value == 3) {
+      return const Text("Register As A guest");
+    } else {
+      return comenregisterContainer(valuefirst, valuesecond);
+    }
   }
 
   Column comenregisterContainer(bool? valuefirst, bool valuesecond) {
@@ -516,9 +483,9 @@ class _RegisterComenpageState extends State<RegisterComenpage> {
           icon: Icons.mail_outline,
           callback: () {
             setState(() {
-              widget.registercurntIndex.value = 1;
+              controller.registerCurrentIndex.value = 1;
             });
-            print(widget.registercurntIndex.value);
+            print(controller.registerCurrentIndex.value);
             // Navigator.of(context).push(MaterialPageRoute(
             //   builder: (context) => const RegisterPage(),
             // ));
@@ -532,7 +499,7 @@ class _RegisterComenpageState extends State<RegisterComenpage> {
           icon: Icons.phone_android_outlined,
           callback: () {
             setState(() {
-              widget.registercurntIndex.value = 2;
+              controller.registerCurrentIndex.value = 2;
             });
             // Navigator.of(context).push(MaterialPageRoute(
             //   builder: (context) => const RegisterPage(),
@@ -547,7 +514,7 @@ class _RegisterComenpageState extends State<RegisterComenpage> {
           icon: Icons.person_2_rounded,
           callback: () {
             setState(() {
-              widget.registercurntIndex.value = 3;
+              controller.registerCurrentIndex.value = 3;
             });
             // Navigator.of(context).push(MaterialPageRoute(
             //   builder: (context) => const RegisterPage(),

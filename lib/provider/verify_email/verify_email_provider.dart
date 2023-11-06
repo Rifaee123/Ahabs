@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class VerifyEmailProvider extends ChangeNotifier {
   bool isVerificationMailSent = true;
   VerificationStatus verificationStatus =
-      VerificationStatus(isError: false, isVerified: false);
+      VerificationStatus(isError: false, isVerified: false,isLoding: true);
   Future sentVerficationMail({required String email}) async {
     final result = await VerifyEmailService().sentVerificationMail(email);
     isVerificationMailSent = result.fold((l) => false, (r) {
@@ -23,11 +23,11 @@ class VerifyEmailProvider extends ChangeNotifier {
       code: code,
     ));
     verificationStatus = result
-        .fold((l) => VerificationStatus(isError: true, isVerified: false), (r) {
+        .fold((l) => VerificationStatus(isError: true, isVerified: false,isLoding: false), (r) {
       if (r == true) {
-        return VerificationStatus(isError: false, isVerified: true);
+        return VerificationStatus(isError: false, isVerified: true,isLoding: false);
       } else {
-        return VerificationStatus(isError: false, isVerified: false);
+        return VerificationStatus(isError: false, isVerified: false,isLoding: false);
       }
     });
 
@@ -38,6 +38,9 @@ class VerifyEmailProvider extends ChangeNotifier {
 class VerificationStatus {
   final bool isError;
   final bool isVerified;
+  final bool isLoding;
 
-  VerificationStatus({required this.isError, required this.isVerified});
+  VerificationStatus( {required this.isError, required this.isVerified,required this.isLoding});
+
+  get resultData => null;
 }

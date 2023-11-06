@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ahbas/data/login/login_service.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/model/login/login/login.dart';
@@ -19,6 +21,7 @@ class LoginProvider extends ChangeNotifier {
     });
     if (isAnyError == false) {
       if (loginResponse!.status == 'true') {
+        log(loginResponse!.token.toString());
         final StorageItem newItem =
             StorageItem('AuthToken', loginResponse!.token ??= '');
         StorageService.instance.writeSecureData(newItem);

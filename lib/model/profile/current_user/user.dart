@@ -16,6 +16,7 @@ class User {
   bool? verified;
   bool? isblocked;
   String? profilepicture;
+  String? createdAt;
 
   User({
     this.id,
@@ -29,6 +30,7 @@ class User {
     this.verified,
     this.isblocked,
     this.profilepicture,
+    this.createdAt,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
