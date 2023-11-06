@@ -134,10 +134,12 @@ class LoginButton extends StatelessWidget {
         Future.microtask(() async {
           final authorizationToken =
               await StorageService.instance.readSecureData('AuthToken');
-          return Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) =>
-                HomePage(authorizationToken: authorizationToken!),
-          ));
+          if (authorizationToken!.isNotEmpty) {
+            return Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) =>
+                  HomePage(authorizationToken: authorizationToken),
+            ));
+          }
         });
       }
       return ElevatedButton(

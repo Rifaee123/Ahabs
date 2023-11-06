@@ -5,7 +5,7 @@ import 'package:ahbas/controller/getx/follow_controller.dart';
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
-import 'package:ahbas/utils/strings.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -22,8 +22,7 @@ class SocketIoService {
 ///////////////////////////////////////////
   late socketio.Socket socket;
 
-  socketio.Socket initializeSocket(String authToken){
-       
+  socketio.Socket initializeSocket(String authToken) {
     socket = socketio.io(
         'https://ahabs.cyenosure.in',
         socketio.OptionBuilder()
@@ -45,20 +44,19 @@ class SocketIoService {
     return socket;
   }
 
-  getOnlineStatus(socketio.Socket socket,BuildContext context) {
+  getOnlineStatus(socketio.Socket socket, BuildContext context) {
     List<String> onlineUserList = [];
     socket.on('get-users', (userList) {
       for (var user in userList) {
         onlineUserList.add(user['userId']);
-      
       }
-        Provider.of<ChatProvider>(context,listen: false).getOnlineStatus(userList);
+      Provider.of<ChatProvider>(context, listen: false)
+          .getOnlineStatus(userList);
     });
   }
 
-  sendMessage(ChatDTO chat, socketio.Socket socket)async {
-     final authToken =
-          await StorageService.instance.readSecureData('AuthToken');
+  sendMessage(ChatDTO chat, socketio.Socket socket) async {
+    final authToken = await StorageService.instance.readSecureData('AuthToken');
     final userId = convertTokenToId(authToken!);
     socket.emit('chat-message', {
       'to': chat.toUserId,
@@ -124,11 +122,10 @@ connectSocket(
   socket.onDisconnect((data) => log('DisConnected'));
 }
 
-sendMessage(ChatDTO chat, socketio.Socket socket)async {
+sendMessage(ChatDTO chat, socketio.Socket socket) async {
   FolloControlller controlller = Get.put(FolloControlller());
   // Emit the message to the server using the socket
-   final authToken =
-          await StorageService.instance.readSecureData('AuthToken');
+  final authToken = await StorageService.instance.readSecureData('AuthToken');
   final userId = convertTokenToId(authToken!);
   socket.emit('chat-message', {
     'to': chat.toUserId,

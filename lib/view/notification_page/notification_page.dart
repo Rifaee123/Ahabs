@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class NotificationsScreen extends StatelessWidget {
-  final NotificationsController _notificationsController = Get.put(NotificationsController());
+  final NotificationsController _notificationsController =
+      Get.put(NotificationsController());
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +24,13 @@ class NotificationsScreen extends StatelessWidget {
             return ListView.builder(
               itemCount: _notificationsController.notifications.length,
               itemBuilder: (context, index) {
-                var notification = _notificationsController.notifications[index];
+                var notification =
+                    _notificationsController.notifications[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    // backgroundImage: NetworkImage(notification.user.profilePicture),
-                  ),
-                  title: Text(notification.user.username),
+                      // backgroundImage: NetworkImage(notification.user.profilePicture),
+                      ),
+                  title: Text(notification.user.username.toString()),
                   subtitle: Text(notification.content),
                   onTap: () {
                     // Handle notification tap
