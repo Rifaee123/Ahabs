@@ -8,7 +8,7 @@ part of 'chat_length.dart';
 
 class ChatLengthModelAdapter extends TypeAdapter<ChatLengthModel> {
   @override
-  final int typeId = 4;
+  final int typeId = 0;
 
   @override
   ChatLengthModel read(BinaryReader reader) {
@@ -17,6 +17,9 @@ class ChatLengthModelAdapter extends TypeAdapter<ChatLengthModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ChatLengthModel(
+      latestMsg: fields[2] as String?,
+      latestTime: fields[3] as DateTime?,
+      latestCount: fields[4] as int?,
       roomId: fields[0] as String?,
       chatLength: fields[1] as int?,
     );
@@ -25,11 +28,17 @@ class ChatLengthModelAdapter extends TypeAdapter<ChatLengthModel> {
   @override
   void write(BinaryWriter writer, ChatLengthModel obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.roomId)
       ..writeByte(1)
-      ..write(obj.chatLength);
+      ..write(obj.chatLength)
+      ..writeByte(2)
+      ..write(obj.latestMsg)
+      ..writeByte(3)
+      ..write(obj.latestTime)
+      ..writeByte(4)
+      ..write(obj.latestCount);
   }
 
   @override

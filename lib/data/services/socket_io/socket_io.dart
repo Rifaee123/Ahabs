@@ -44,6 +44,7 @@ class SocketIoService {
   getOnlineStatus(socketio.Socket socket, BuildContext context) {
     List<String> onlineUserList = [];
     socket.on('get-users', (userList) {
+      log('userList:${userList.toString()}');
       for (var user in userList) {
         onlineUserList.add(user['userId']);
       }
@@ -54,6 +55,7 @@ class SocketIoService {
 
   sendMessage(Map chat, socketio.Socket socket, String? replyMsg) {
     final userId = convertTokenToId(sampleToken);
+    log('Hurray');
     socket.emit('chat-message', {
       'to': chat['to'],
       'message': chat['message'],

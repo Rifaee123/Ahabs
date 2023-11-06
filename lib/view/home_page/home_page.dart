@@ -81,9 +81,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             SizedBox(
                               width: 26.w,
                             ),
-                            Image.asset(
-                              "assets/images/Group 12.png",
-                              height: 15.h,
+                            InkWell(
+                              onTap: () {
+                                
+                              },
+                              child: Image.asset(
+                                "assets/images/Group 12.png",
+                                height: 15.h,
+                              ),
                             ),
                           ],
                         )

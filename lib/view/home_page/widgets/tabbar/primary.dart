@@ -1,6 +1,7 @@
-
+import 'dart:developer';
 
 import 'package:ahbas/data/chat/chat_service.dart';
+import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
 import 'package:ahbas/model/chat/primary_chatters/datum.dart';
 import 'package:ahbas/model/chat/primary_chatters/primary_chatters.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
@@ -21,36 +22,31 @@ class PrimaryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: ChatService().getPrimaryChats(),
-        builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return const Text('Null');
+      future: Provider.of<ChatProvider>(context,listen: false).getPrimaryChats(),
+      builder: (context,snapshot) {
+        return Consumer<ChatProvider>(builder: (context, provider, _) {
+          if (provider.primrychatResponse.isLoading) {
+            return const CircularProgressIndicator();
           }
-          PrimaryChatters? data;
-          data = snapshot.data!.fold((l) => null, (r) => r);
-          if (data == null) {
-            return const Text('Null');
-          }
-          List<Datum> dataList = data.data!;
+
+          List<PrimaryChattersDTO> dataList = provider.primrychatResponse.chatList;
           return ListView.builder(
             itemCount: dataList.length,
             itemBuilder: (context, index) => InkWell(
               onTap: () {
                 Provider.of<ChatProvider>(context, listen: false)
                     .getIndividualChats(
-                        roomId: dataList[index].latestmessage!.roomId ??= '');
+                        roomId: dataList[index].roomId );
                 Provider.of<ChatProvider>(context, listen: false)
                     .clearAllMessages();
-                Provider.of<ChatProvider>(context, listen: false)
-                    .isReply(false);
+                Provider.of<ChatProvider>(context, listen: false).isReply(false);
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ChatPage(
                     streamSocket: streamSocket,
-                    profilePic: dataList[index].members![0].profilepicture ??=
-                        '',
-                    userName: dataList[index].members![0].username ??= '',
-                    roomId: dataList[index].latestmessage!.roomId ??= '',
-                    visitingUserId: dataList[index].members![0].id ??= '',
+                    profilePic: dataList[index].profilepicture ,
+                    userName: dataList[index].username ,
+                    roomId: dataList[index].roomId ,
+                    visitingUserId: dataList[index].id ,
                   ),
                 ));
               },
@@ -59,7 +55,7 @@ class PrimaryView extends StatelessWidget {
                   width: 90.w,
                   child: Row(
                     children: [
-                      Text("2 Min ago",
+                      Text(latestChatTime(dataList[index].latestMsgTime),
                           style: GoogleFonts.poppins(
                               fontSize: 10.sp, color: Colors.grey)),
                       SizedBox(
@@ -69,9 +65,15 @@ class PrimaryView extends StatelessWidget {
                         bool isOnline = false;
                         if (provider.onlineUserList.isNotEmpty) {
                           if (provider.onlineUserList.any((element) =>
-                              element == dataList[index].members![0].id)) {
+                              element == dataList[index].id)) {
                             isOnline = true;
                           }
+                        }
+                        final numOfUnread = numberOfUnread(
+                            dataList[index].messageCount,
+                            dataList[index].roomId );
+                        if (numOfUnread == 0 || numOfUnread < 1) {
+                          return const SizedBox();
                         }
                         return CircleAvatar(
                           backgroundColor:
@@ -79,7 +81,7 @@ class PrimaryView extends StatelessWidget {
                           radius: 12.r,
                           child: Center(
                             child: Text(
-                              "4",
+                              numOfUnread.toString(),
                               style: GoogleFonts.poppins(
                                   color: Colors.black, fontSize: 12.sp),
                             ),
@@ -102,12 +104,12 @@ class PrimaryView extends StatelessWidget {
                     ],
                   ),
                 ),
-                subtitle: Text(dataList[index].latestmessage!.message ??= '',
+                subtitle: Text(dataList[index].latestMessage ,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.poppins(
-                        fontSize: 13.sp, color: Colors.grey)),
+                    style:
+                        GoogleFonts.poppins(fontSize: 13.sp, color: Colors.grey)),
                 title: Text(
-                  dataList[index].members![0].username ??= '',
+                  dataList[index].username ,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
                       fontSize: 19.sp, fontWeight: FontWeight.w500),
@@ -119,8 +121,7 @@ class PrimaryView extends StatelessWidget {
                     children: [
                       Positioned(
                         child: CircleAvatar(
-                          backgroundColor:
-                              const Color.fromARGB(255, 230, 229, 229),
+                          backgroundColor: const Color.fromARGB(255, 230, 229, 229),
                           radius: 25.r,
                           child: Image.asset(
                             'assets/images/icons8-person-96 2.png',
@@ -143,5 +144,46 @@ class PrimaryView extends StatelessWidget {
             ),
           );
         });
+      }
+    );
+  }
+
+  int numberOfUnread(int currentChatLength, String roomId) {
+    final previousLength = ChatLengthService.instance.getChatListLength(roomId);
+
+    if (previousLength == null || previousLength == -1) {
+      return currentChatLength;
+    } else if (previousLength == currentChatLength ||
+        previousLength > currentChatLength) {
+      return 0;
+    } else {
+      return currentChatLength - previousLength;
+    }
+  }
+
+  String latestChatTime(DateTime? createdAt) {
+    if (createdAt != null) {
+      DateTime dateTime = createdAt.toLocal();
+      int hour = dateTime.hour;
+
+      if (hour > 12) {
+        hour = hour - 12;
+      }
+
+      log(dateTime.toString());
+      log(DateTime.now().toUtc().toString());
+      Duration difference = DateTime.now().difference(dateTime);
+      log(difference.inMinutes.toString());
+      if (difference.inMinutes > 10) {
+        return '$hour:${dateTime.minute}';
+      } else {
+        if (difference.inMinutes == 0) {
+          return 'just now';
+        }
+        return '${difference.inMinutes} Min ago';
+      }
+    } else {
+      return '';
+    }
   }
 }

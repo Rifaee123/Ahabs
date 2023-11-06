@@ -1,5 +1,6 @@
-import 'package:ahbas/data/services/hive/chat_length_service.dart';
-import 'package:ahbas/data/services/hive/models/chat_length.dart';
+import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
+import 'package:ahbas/data/services/hive/chat_length/models/chat_length.dart';
+
 
 import 'package:ahbas/provider/chat/chat_provider.dart';
 import 'package:ahbas/provider/login/login_provider.dart';
@@ -7,7 +8,7 @@ import 'package:ahbas/provider/register/email_registration_provider.dart';
 import 'package:ahbas/provider/register/phone_registration_provider.dart';
 import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
 import 'package:ahbas/view/auth_page/auth_page.dart';
-import 'package:ahbas/view/home_page/widgets/tabbar/primary.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -51,7 +52,6 @@ class MyApp extends StatelessWidget {
       child: ScreenUtilInit(
         designSize: ScreenUtil.defaultSize,
         builder: (context, child) => GetMaterialApp(
-     
             debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
             theme: ThemeData(

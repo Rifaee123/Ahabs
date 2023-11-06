@@ -17,6 +17,7 @@ class Datum {
   @JsonKey(name: '__v')
   int? v;
   Latestmessage? latestmessage;
+  int? messageCount;
 
   Datum({
     this.id,
@@ -27,6 +28,7 @@ class Datum {
     this.updatedAt,
     this.v,
     this.latestmessage,
+    this.messageCount,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => _$DatumFromJson(json);

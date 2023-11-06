@@ -24,6 +24,7 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
           ? null
           : Latestmessage.fromJson(
               json['latestmessage'] as Map<String, dynamic>),
+      messageCount: json['messageCount'] as int?,
     );
 
 Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
@@ -35,4 +36,5 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       'updatedAt': instance.updatedAt?.toIso8601String(),
       '__v': instance.v,
       'latestmessage': instance.latestmessage,
+      'messageCount': instance.messageCount,
     };

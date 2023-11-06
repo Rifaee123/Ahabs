@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:ahbas/data/api_urls/api_urls.dart';
 import 'package:ahbas/data/chat/chat_service.dart';
-import 'package:ahbas/data/services/hive/chat_length_service.dart';
+import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
@@ -14,17 +14,23 @@ import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
 class ChatProvider extends ChangeNotifier {
   bool isCreatedChatRoom = false;
+  dynamic currentChatDay = 0;
   IndividualChatResponse chatResponse =
       IndividualChatResponse(chatList: [], isLoading: true, isError: false);
   PrimaryChattersResponse primrychatResponse =
       PrimaryChattersResponse(chatList: [], isLoading: true, isError: false);
   List<ChatDataDTO> chatList = [];
 
-  List<String> chatUserIdList = [];
+  // List<String> chatUserIdList = [];
   List<String> onlineUserList = [];
   bool isReplying = false;
   String replyId = '';
   Map<String, String> replyMessage = {};
+  changeTheCurrentChatDay(dynamic day) {
+    currentChatDay = day;
+    notifyListeners();
+  }
+
   clearAllMessages() {
     chatList.clear();
     notifyListeners();
@@ -81,9 +87,10 @@ class ChatProvider extends ChangeNotifier {
     chatResponse = result.fold(
         (l) => IndividualChatResponse(
             chatList: [], isError: true, isLoading: false), (r) {
-      final dtoList = convertChatDataToDTO(r.data ??= [], currentUserId);
+      final dtoList =
+          convertChatDataToDTO(r.data ??= [], currentUserId, roomId);
       chatList = dtoList;
-      ChatLengthService.instance.addChatListLength(chatList.length, roomId);
+
       return IndividualChatResponse(
           chatList: dtoList, isError: false, isLoading: false);
     });
@@ -99,7 +106,7 @@ class ChatProvider extends ChangeNotifier {
         (l) => PrimaryChattersResponse(
             chatList: [], isError: true, isLoading: false), (r) {
       final dto = convertPrimaryChatDataToDTO(r.data ??= [], currentUserId);
-      chatUserIdList = dto['userList'];
+
       return PrimaryChattersResponse(
           chatList: dto['chatDTO'], isError: false, isLoading: false);
     });
@@ -118,18 +125,20 @@ class ChatProvider extends ChangeNotifier {
       log(sendedChat.replyId.toString());
       sendedChat.addTo(chat.toUserId);
       final sendingChat = sendedChat.toJson();
-      addSingleChat(ChatDataDTO(
-        id: sendedChat.id,
-        replyId: sendedChat.replyId != null
-            ? ReplyId(
-                message: sendedChat.replyId!.message ??= '',
-                replyId: sendedChat.replyId!.id ??= '')
-            : null,
-        isReply: sendedChat.replyId != null ? true : false,
-        message: sendedChat.message ??= '',
-        senderId: sendedChat.senderId ??= '',
-        createdAt: sendedChat.createdAt!,
-      ),sendedChat.roomId??='');
+      addSingleChat(
+          ChatDataDTO(
+            id: sendedChat.id,
+            replyId: sendedChat.replyId != null
+                ? ReplyId(
+                    message: sendedChat.replyId!.message ??= '',
+                    replyId: sendedChat.replyId!.id ??= '')
+                : null,
+            isReply: sendedChat.replyId != null ? true : false,
+            message: sendedChat.message ??= '',
+            senderId: sendedChat.senderId ??= '',
+            createdAt: sendedChat.createdAt!,
+          ),
+          sendedChat.roomId ??= '');
 
       SocketIoService.instance
           .sendMessage(sendingChat, socket, chat.replyMessage);
@@ -138,11 +147,11 @@ class ChatProvider extends ChangeNotifier {
   }
 
   getOnlineStatus(List<String> allOnlineUsers) {
-    for (var user in chatUserIdList) {
-      if (allOnlineUsers.any((element) => element == user)) {
-        onlineUserList.add(user);
-      }
-    }
+    // for (var user in chatUserIdList) {
+    //   if (allOnlineUsers.any((element) => element == user)) {
+    onlineUserList.addAll(allOnlineUsers);
+    //   }
+    // }
     notifyListeners();
   }
 
@@ -150,7 +159,12 @@ class ChatProvider extends ChangeNotifier {
     final result = await ChatService().deleteForMe(messageId: messageId);
     result.fold((l) => null, (r) {
       chatList.removeWhere((element) => element.id == messageId);
-      ChatLengthService.instance.addChatListLength(chatList.length, roomId);
+      final getlength = ChatLengthService.instance.getChatListLength(roomId);
+      ChatLengthService.instance.addChatListLength(
+          getlength != null ? getlength - 1 : 0,
+          roomId,
+          chatList.last.message,
+          chatList.last.createdAt);
     });
     notifyListeners();
   }
@@ -159,7 +173,12 @@ class ChatProvider extends ChangeNotifier {
     final result = await ChatService().deleteForEveryOne(messageId: messageId);
     result.fold((l) => null, (r) {
       chatList.removeWhere((element) => element.id == messageId);
-      ChatLengthService.instance.addChatListLength(chatList.length, roomId);
+      final getlength = ChatLengthService.instance.getChatListLength(roomId);
+      ChatLengthService.instance.addChatListLength(
+          getlength != null ? getlength - 1 : 0,
+          roomId,
+          chatList.last.message,
+          chatList.last.createdAt);
     });
     notifyListeners();
   }
@@ -169,12 +188,33 @@ class ChatProvider extends ChangeNotifier {
     result.fold((l) => null, (r) {
       chatList.clear();
     });
+    final getlength = ChatLengthService.instance.getChatListLength(roomId);
+    ChatLengthService.instance.addChatListLength(
+        getlength != null ? getlength - chatList.length : 0,
+        roomId,
+        null,
+        null);
     notifyListeners();
+  }
+
+  void addToPrimarylatest(String message, String roomId, DateTime createdAt) {
+    final index = primrychatResponse.chatList
+        .indexWhere((element) => element.roomId == roomId);
+    primrychatResponse.chatList[index].latestMessage = message;
+    primrychatResponse.chatList[index].latestMsgTime = createdAt;
+    final msgCount = primrychatResponse.chatList[index].messageCount;
+    primrychatResponse.chatList[index].messageCount = msgCount + 1;
   }
 
   void addSingleChat(ChatDataDTO chat, String roomId) {
     chatList.add(chat);
-    ChatLengthService.instance.addChatListLength(chatList.length, roomId);
+    final getlength = ChatLengthService.instance.getChatListLength(roomId);
+    addToPrimarylatest(chat.message, roomId, chat.createdAt);
+    ChatLengthService.instance.addChatListLength(
+        getlength != null ? getlength + 1 : 1,
+        roomId,
+        chat.message,
+        chat.createdAt);
     notifyListeners();
   }
 
@@ -198,11 +238,13 @@ class PrimaryChattersDTO {
   final String username;
   final String profilepicture;
   final String roomId;
-  final String latestMessage;
-  final DateTime latestMsgTime;
+  String latestMessage;
+  DateTime latestMsgTime;
   final bool isDeletedLatestMsg;
+  int messageCount;
 
   PrimaryChattersDTO({
+    required this.messageCount,
     required this.id,
     required this.username,
     required this.profilepicture,
@@ -243,8 +285,10 @@ class ChatDataDTO {
 }
 
 List<ChatDataDTO> convertChatDataToDTO(
-    List<ChatData> chatDataList, String currentUserId) {
+    List<ChatData> chatDataList, String currentUserId, String roomId) {
   List<ChatDataDTO> chatDTOList = [];
+  ChatLengthService.instance.addChatListLength(chatDataList.length, roomId,
+      chatDataList.last.message, chatDataList.last.createdAt);
 
   for (var chat in chatDataList) {
     if (chat.deleteduser != null && chat.deleteduser!.contains(currentUserId)) {
@@ -268,21 +312,21 @@ List<ChatDataDTO> convertChatDataToDTO(
         roomId: chat.roomId ??= '',
         createdAt: chat.createdAt ??= DateTime.now()));
   }
+
   return chatDTOList;
 }
 
 Map<String, dynamic> convertPrimaryChatDataToDTO(
     List<Datum> chatDataList, String currentUserId) {
   List<PrimaryChattersDTO> chatDTOList = [];
-  List<String> chattersUserIdList = [];
 
   for (var chat in chatDataList) {
-    chattersUserIdList.add(chat.members![0].id ??= '');
     bool isDeleted = false;
     if (chat.latestmessage!.deleteduser!.contains(currentUserId)) {
       isDeleted = true;
     }
     chatDTOList.add(PrimaryChattersDTO(
+        messageCount: chat.messageCount ??= -1,
         latestMessage: chat.latestmessage!.message ??= '',
         latestMsgTime: chat.latestmessage!.createdAt!,
         isDeletedLatestMsg: isDeleted,
@@ -291,7 +335,7 @@ Map<String, dynamic> convertPrimaryChatDataToDTO(
         profilepicture: chat.members![0].profilepicture ??= '',
         roomId: chat.latestmessage!.roomId ??= ''));
   }
-  return {'chatDTO': chatDTOList, 'userList': chattersUserIdList};
+  return {'chatDTO': chatDTOList};
 }
 
 class ReplyId {

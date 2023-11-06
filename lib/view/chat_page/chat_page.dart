@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:ahbas/data/services/hive/chat_length_service.dart';
+import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
@@ -41,6 +41,7 @@ class _ChatPageState extends State<ChatPage> {
   // late socketio.Socket socket;
 
   final ScrollController scrollController = ScrollController();
+  var currentChatDay = 0;
   dynamic previousMsg = [];
 
   @override
@@ -79,9 +80,6 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    ChatLengthService.instance
-        .addChatListLength(chatList.length, widget.roomId);
-
     super.dispose();
   }
 
@@ -617,7 +615,6 @@ class _ChatPageState extends State<ChatPage> {
         body: StreamBuilder(
             stream: streamingSocket.getResponse,
             builder: (context, snapshot) {
-              log('heree');
               log(snapshot.data.toString());
               if (snapshot.data == 'Clear') {
                 return const Center(
@@ -656,6 +653,10 @@ class _ChatPageState extends State<ChatPage> {
                         : null,
                     id: message['chatId'],
                   ));
+                  Provider.of<ChatProvider>(context).addToPrimarylatest(
+                      message['message'],
+                      widget.roomId,
+                      DateTime.parse(message['createdAt']));
                 }
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   scrollController.animateTo(
@@ -780,81 +781,98 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                     ),
                     Expanded(
-                      child: ListView.builder(
+                      child: ListView(
                         controller: scrollController,
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          String senderId = '';
-                          if (chatList[index].isReply) {
-                            final replyedToChat = chatList
-                                .where((element) =>
-                                    element.id ==
-                                    chatList[index].replyId!.replyId)
-                                .toList();
-                            if (replyedToChat.isNotEmpty) {
-                              senderId = replyedToChat[0].senderId;
-                            } else {
-                              senderId = 'Deleted';
+                        children: List.generate(
+                          chatList.length,
+                          (index) {
+                            log('currenDayListView');
+                            String senderId = '';
+                            if (chatList[index].isReply) {
+                              final replyedToChat = chatList
+                                  .where((element) =>
+                                      element.id ==
+                                      chatList[index].replyId!.replyId)
+                                  .toList();
+                              if (replyedToChat.isNotEmpty) {
+                                senderId = replyedToChat[0].senderId;
+                              } else {
+                                senderId = 'Deleted';
+                              }
                             }
-                          }
-                          GlobalKey buttonKey = GlobalKey();
-                          return InkWell(
-                            key: buttonKey,
-                            onLongPress: () {
-                              showDeleteMenu(
-                                  buttonKey,
-                                  chatList[index].id!,
-                                  chatList[index].senderId == currentUserId
-                                      ? true
-                                      : false);
-                            },
-                            child: SwipeTo(
-                              rightSwipeWidget: const SizedBox(),
-                              onRightSwipe: () {
-                                log('isReplying');
-                                Provider.of<ChatProvider>(context,
-                                        listen: false)
-                                    .replyToMessage(
-                                        chatList[index].message,
+                            GlobalKey buttonKey = GlobalKey();
+                            final dateTime = chatList[index]
+                                .createdAt
+                                .add(const Duration(hours: 5, minutes: 30));
+                            if (index == 0) {
+                              currentChatDay = dateTime.day;
+                            }
+                            return Column(
+                              children: [
+                                chatDay(index, currentChatDay, dateTime),
+                                InkWell(
+                                  key: buttonKey,
+                                  onLongPress: () {
+                                    showDeleteMenu(
+                                        buttonKey,
+                                        chatList[index].id!,
                                         chatList[index].senderId ==
                                                 currentUserId
-                                            ? "You"
-                                            : widget.userName);
-                                Provider.of<ChatProvider>(context,
-                                        listen: false)
-                                    .getReplyId(chatList[index].id!);
+                                            ? true
+                                            : false);
+                                  },
+                                  child: SwipeTo(
+                                    rightSwipeWidget: const SizedBox(),
+                                    onRightSwipe: () {
+                                      log('currenDayisReplying');
+                                      Provider.of<ChatProvider>(context,
+                                              listen: false)
+                                          .replyToMessage(
+                                              chatList[index].message,
+                                              chatList[index].senderId ==
+                                                      currentUserId
+                                                  ? "You"
+                                                  : widget.userName);
+                                      Provider.of<ChatProvider>(context,
+                                              listen: false)
+                                          .getReplyId(chatList[index].id!);
 
-                                Provider.of<ChatProvider>(context,
-                                        listen: false)
-                                    .isReply(true);
-                              },
-                              child: Column(
-                                children: [
-                                  ChatBubble(
-                                      isReply: chatList[index].isReply,
-                                      replyMessage: chatList[index].isReply
-                                          ? {
-                                              'currentUserId': currentUserId,
-                                              'userName': widget.userName,
-                                              'message': chatList[index]
-                                                  .replyId!
-                                                  .message,
-                                              'replyUserId': senderId
-                                            }
-                                          : {},
-                                      dateTimeString:
-                                          chatList[index].createdAt.toString(),
-                                      message: chatList[index].message,
-                                      isMe: chatList[index].senderId ==
-                                              currentUserId
-                                          ? true
-                                          : false),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                        itemCount: chatList.length,
+                                      Provider.of<ChatProvider>(context,
+                                              listen: false)
+                                          .isReply(true);
+                                    },
+                                    child: Column(
+                                      children: [
+                                        ChatBubble(
+                                            isReply: chatList[index].isReply,
+                                            replyMessage: chatList[index]
+                                                    .isReply
+                                                ? {
+                                                    'currentUserId':
+                                                        currentUserId,
+                                                    'userName': widget.userName,
+                                                    'message': chatList[index]
+                                                        .replyId!
+                                                        .message,
+                                                    'replyUserId': senderId
+                                                  }
+                                                : {},
+                                            dateTimeString: chatList[index]
+                                                .createdAt
+                                                .toString(),
+                                            message: chatList[index].message,
+                                            isMe: chatList[index].senderId ==
+                                                    currentUserId
+                                                ? true
+                                                : false),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -910,6 +928,43 @@ class _ChatPageState extends State<ChatPage> {
           }, !isMe, context),
         ]);
   }
+
+  Widget chatDay(int index, int currenChatDay, DateTime dateTime) {
+    if (index == 0 || currenChatDay != dateTime.day) {
+      log('currenDay${currenChatDay.toString()}');
+      currentChatDay = dateTime.day;
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        child: Row(
+          children: [
+            const Expanded(
+                child: Divider(
+              color: Colors.black,
+              thickness: .2,
+            )),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    DateTime.now().day == dateTime.day
+                        ? 'Today'
+                        : '${dateTime.day}/${dateTime.month}',
+                    style: const TextStyle(fontSize: 11),
+                  )),
+            ),
+            const Expanded(
+                child: Divider(
+              thickness: .2,
+              color: Colors.black,
+            )),
+          ],
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
+  }
 }
 
 PopupMenuItem buildPopupMenuItem(
@@ -941,20 +996,27 @@ class ChatBubble extends StatelessWidget {
   final bool isReply;
   final Map<String, String> replyMessage;
 
-  const ChatBubble(
-      {super.key,
-      required this.message,
-      required this.isMe,
-      required this.dateTimeString,
-      required this.isReply,
-      required this.replyMessage});
+  const ChatBubble({
+    super.key,
+    required this.message,
+    required this.isMe,
+    required this.dateTimeString,
+    required this.isReply,
+    required this.replyMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
     log(replyMessage['currentUserId'].toString());
     log(replyMessage.toString());
+
     DateTime ustDateTime = DateTime.parse(dateTimeString);
     DateTime dateTime = ustDateTime.add(const Duration(hours: 5, minutes: 30));
+    int hour = dateTime.hour;
+
+    if (hour > 12) {
+      hour = hour - 12;
+    }
     return Row(
       mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
@@ -1043,7 +1105,7 @@ class ChatBubble extends StatelessWidget {
                             ? Row(
                                 children: [
                                   Text(
-                                    "${dateTime.hour}.${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}pm",
+                                    "$hour.${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}pm",
                                     style: TextStyle(
                                         fontSize: 12.sp,
                                         color: const Color.fromARGB(
