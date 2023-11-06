@@ -1,10 +1,14 @@
 import 'dart:developer';
 
 import 'package:ahbas/controller/getx/auth_controller.dart';
+import 'package:ahbas/controller/getx/notification_controller.dart';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
+
+import 'package:ahbas/provider/profile/current_user_provider.dart';
+
 import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:ahbas/view/auth_page/auth_page.dart';
 
@@ -12,6 +16,7 @@ import 'package:ahbas/view/home_page/widgets/tabbar/calls.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/group.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/primary.dart';
 import 'package:ahbas/view/home_page/widgets/tabbar/status.dart';
+import 'package:ahbas/view/notification_page/notification_page.dart';
 import 'package:ahbas/view/profile_page/profile-page.dart';
 import 'package:ahbas/view/search_page/search_page.dart';
 
@@ -25,9 +30,9 @@ import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
 import 'package:provider/provider.dart';
 
-
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required this.authorizationToken});
+  final String authorizationToken;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -36,39 +41,32 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool isprimary = false;
   bool isgroup = false;
+  late socketio.Socket streamSocket;
+
+  Authcontrolller authcontrolller = Get.put(Authcontrolller());
+  final TabBarController controller = Get.put(TabBarController());
+
+  final NotificationsController _notificationsController =
+      Get.put(NotificationsController());
+
 
   late socketio.Socket streamSocket;
 
 
+
   @override
   void initState() {
-    streamSocket = SocketIoService.instance.initializeSocket();
+    // TODO: implement initState
+
+    _notificationsController.fetchNotifications();
+    streamSocket =
+        SocketIoService.instance.initializeSocket(widget.authorizationToken);
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final TabBarController controller = Get.put(TabBarController());
-    var authToken;
-    readAuthToken() async {
-      var authToken;
-      try {
-        authToken = await StorageService.instance.readSecureData('AuthToken');
-        // Use the authToken for your authentication logic.
-        print('Authentication Token: $authToken');
-      } catch (e) {
-        print('Error reading authentication token: $e');
-      }
-      return authToken;
-    }
-
-    @override
-    void initState() {
-      // TODO: implement initState
-      authToken = readAuthToken();
-      super.initState();
-    }
-
     final token = fetchData();
 
     log(token.toString());
@@ -114,15 +112,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         Row(
                           children: [
-                            Image.asset(
-                              "assets/images/🦆 icon _notification_.png",
-                              height: 15.h,
+                            InkWell(
+                              onTap: () {
+                                _notificationsController.fetchNotifications();
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => NotificationsScreen(),
+                                ));
+                              },
+                              child: Image.asset(
+                                "assets/images/🦆 icon _notification_.png",
+                                height: 15.h,
+                              ),
                             ),
                             SizedBox(
                               width: 26.w,
                             ),
                             InkWell(
                               onTap: () async {
+                                authcontrolller.isRegister.value = false;
                                 await StorageService.instance
                                     .deleteAllSecureData();
                                 Navigator.of(context)
@@ -140,6 +147,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: () {
+
+                                Provider.of<CurrentUserProvider>(context,
+                                        listen: false)
+                                    .getCurrentUser();
 
                                 Provider.of<SearchPrvider>(context,
                                         listen: false)

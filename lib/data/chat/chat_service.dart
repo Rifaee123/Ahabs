@@ -18,7 +18,7 @@ class ChatService {
       String visitingUserId) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
 
       final url = '$kBaseUrl$createChatRoomEndPoint$visitingUserId';
       final uri = Uri.parse(url);
@@ -29,6 +29,7 @@ class ChatService {
       });
       log(response.statusCode.toString());
       if (response.statusCode == 200) {
+        log('chat Created');
         return const Right(true);
       } else {
         return Left(MainFailure.serverFailure());
@@ -41,13 +42,15 @@ class ChatService {
   Future<Either<MainFailure, PrimaryChatters>> getPrimaryChats() async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
 
       const url = '$kBaseUrl$getPrimaryChatsEndPoint';
       final uri = Uri.parse(url);
 
       final response = await http.get(uri, headers: {
-        'Authorization': 'Bearer $sampleToken'
+
+        'Authorization': 'Bearer $authToken'
+
         //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTI3YmZjYTU3N2Y5YzlmMTg5MGM2Y2EiLCJpYXQiOjE2OTgxNDU3ODMsImV4cCI6MTY5ODIzMjE4M30.hngWcSu6DJsFMn3WDJCNTZZkZgo-VdW7zeBEwcWWHQg'
         //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTFmYWU3M2M0ODA5ZDQ1ZDI1ODA3OGYiLCJpYXQiOjE2OTgxMjIxODcsImV4cCI6MTY5ODIwODU4N30.cnAsaA4NOEBEgGLC52RfUEFWOHivRqecXhhHZXsSwME',
       });
@@ -69,13 +72,15 @@ class ChatService {
       String roomId) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
 
       final url = '$kBaseUrl$getIndividualChatsEndPoint$roomId';
       final uri = Uri.parse(url);
 
       final response = await http.get(uri, headers: {
-        'Authorization': 'Bearer $sampleToken'
+
+        'Authorization': 'Bearer $authToken'
+
         //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTI3YmZjYTU3N2Y5YzlmMTg5MGM2Y2EiLCJpYXQiOjE2OTgxNDU3ODMsImV4cCI6MTY5ODIzMjE4M30.hngWcSu6DJsFMn3WDJCNTZZkZgo-VdW7zeBEwcWWHQg'
         //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTFmYWU3M2M0ODA5ZDQ1ZDI1ODA3OGYiLCJpYXQiOjE2OTgxMjIxODcsImV4cCI6MTY5ODIwODU4N30.cnAsaA4NOEBEgGLC52RfUEFWOHivRqecXhhHZXsSwME',
       });

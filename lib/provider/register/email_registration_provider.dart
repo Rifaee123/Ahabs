@@ -1,3 +1,4 @@
+import 'package:ahbas/controller/getx/auth_controller.dart';
 import 'package:ahbas/data/register/email_registration_service.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/model/register/email_registration/email_registration.dart';
@@ -5,8 +6,10 @@ import 'package:ahbas/model/register/email_registration/email_registration.dart'
 import 'package:ahbas/model/register/register_response/register_response.dart';
 import 'package:ahbas/provider/register/registration_result.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class EmailRegistrationProvider extends ChangeNotifier {
+  final Authcontrolller authcontrolller = Get.put(Authcontrolller());
   RegistrationResult resultData = RegistrationResult(
       isError: false,
       isLoadng: true,
@@ -36,6 +39,7 @@ class EmailRegistrationProvider extends ChangeNotifier {
     });
     if (isAnyError == false) {
       if (registerResponse!.status == 'true') {
+        authcontrolller.isRegister.value = true;
         final StorageItem newItem =
             StorageItem('AuthToken', registerResponse!.token ??= '');
         StorageService.instance.writeSecureData(newItem);

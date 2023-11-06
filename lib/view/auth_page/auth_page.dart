@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:ahbas/controller/getx/auth_controller.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/view/home_page/home_page.dart';
 import 'package:ahbas/view/login_page/login_email_page.dart';
 import 'package:ahbas/view/login_page/login_phone_page.dart';
@@ -241,14 +242,16 @@ class LoginCommenPage extends StatelessWidget {
                 icon: const Icon(Icons.close)),
             const Text("login As A guest"),
             ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   authcontrolller.loginCurrentIndex.value = 0;
                   authcontrolller.registerCurrentIndex.value = 0;
-
+                  final authorizationToken =
+                      await StorageService.instance.readSecureData('AuthToken');
                   // authcontrolller.dispose();
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                      builder: (context) => const HomePage(),
+                      builder: (context) =>
+                          HomePage(authorizationToken: authorizationToken!),
                     ),
                     (route) => false,
                   );
@@ -297,11 +300,10 @@ class LoginCommenPage extends StatelessWidget {
               icon: Icons.person_2_rounded,
               callback: () {
                 authcontrolller.loginCurrentIndex.value = 3;
-
                 print(authcontrolller.loginCurrentIndex.value);
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const HomePage(),
-                ));
+                // Navigator.of(context).push(MaterialPageRoute(
+                //   builder: (context) => const HomePage(),
+                // ));
               },
             ),
             SizedBox(

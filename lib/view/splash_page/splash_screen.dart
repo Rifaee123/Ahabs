@@ -31,10 +31,12 @@ class _SplashScreenState extends State<SplashScreen> {
     // Simulate a time-consuming operation, such as initializing some data
     Future.delayed(Duration(seconds: 3), () async {
       authToken = await readAuthToken();
+       final authorizationToken =
+          await StorageService.instance.readSecureData('AuthToken');
       // Navigate to the next screen after the splash screen
       print(authToken);
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => authToken == true ? HomePage() : AuthPage(),
+        builder: (context) => authToken == true ? HomePage(authorizationToken: authorizationToken!,) : AuthPage(),
       )); // Replace '/home' with your home screen route
     });
   }

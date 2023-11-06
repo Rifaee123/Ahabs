@@ -1,12 +1,18 @@
 import 'dart:developer';
 
+
 import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
+
+import 'package:ahbas/controller/getx/follow_controller.dart';
+
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
 import 'package:ahbas/utils/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
@@ -31,14 +37,19 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  FolloControlller followcontroller = Get.put(FolloControlller());
   ValueNotifier<int> isTapped = ValueNotifier(0);
   TextEditingController chatcontroller = TextEditingController();
   double _containerWidth = 200.0;
   double _containerHeight = 40.0;
   StreamSocket streamingSocket = StreamSocket();
   List<ChatDataDTO> chatList = [];
+
   final currentUserId = convertTokenToId(sampleToken);
   // late socketio.Socket socket;
+
+
+
 
   final ScrollController scrollController = ScrollController();
   var currentChatDay = 0;
@@ -72,7 +83,8 @@ class _ChatPageState extends State<ChatPage> {
     // });
 
     //new
-
+    log('Hereeeee');
+    log(Provider.of<ChatProvider>(context, listen: false).chatList.toString());
     SocketIoService.instance
         .listenMessage(streamingSocket, widget.streamSocket);
     super.initState();
@@ -80,11 +92,13 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return SafeArea(
       child: Scaffold(
         floatingActionButton:
@@ -150,6 +164,7 @@ class _ChatPageState extends State<ChatPage> {
                               )
                             : SizedBox(
                                 height: 69.h,
+
                               ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -736,10 +751,14 @@ class _ChatPageState extends State<ChatPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                widget.userName,
-                                style: GoogleFonts.poppins(
-                                    color: Colors.white, fontSize: 16.sp),
+                              SizedBox(
+                                width: 100.w,
+                                child: Text(
+                                  widget.userName,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.poppins(
+                                      color: Colors.white, fontSize: 16.sp),
+                                ),
                               ),
                               const Text(
                                 "online",

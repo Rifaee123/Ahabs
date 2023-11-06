@@ -1,4 +1,5 @@
 import 'package:ahbas/controller/getx/auth_controller.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/model/login/login_response/login_response.dart';
 import 'package:ahbas/view/home_page/home_page.dart';
 import 'package:ahbas/view/register_page/register_email_page.dart';
@@ -114,7 +115,7 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
                             const MaterialStatePropertyAll(Colors.white),
                         textStyle:
                             MaterialStatePropertyAll(GoogleFonts.poppins())),
-                    onPressed: () {
+                    onPressed: () async{
                       loginphonecontroller.text.isEmpty
                           ? controller.loginphonevalidate.value = true
                           : controller.loginphonevalidate.value = false;
@@ -134,11 +135,13 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
                             Provider.of<LoginProvider>(context, listen: false)
                                 .resultData;
                         if (result.isAuthorized == true) {
+                          final authorizationToken =
+          await StorageService.instance.readSecureData('AuthToken');
                           Future.delayed(Duration.zero);
                           loginphonecontroller.clear();
                           loginphonepasscontroller.clear();
                           Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const HomePage(),
+                            builder: (context) =>  HomePage(authorizationToken: authorizationToken!),
                           ));
                           authcontrolller.registerCurrentIndex.value = 0;
                           authcontrolller.loginCurrentIndex.value = 0;

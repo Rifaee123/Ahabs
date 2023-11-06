@@ -34,7 +34,9 @@ class LoginService {
 
       log(response.statusCode.toString());
       if (response.statusCode == 200) {
+        // log(response.body);
         final responseBody = jsonDecode(response.body);
+        // log(responseBody);
         final result = LoginResponse.fromJson(responseBody);
 
         return Right(result);

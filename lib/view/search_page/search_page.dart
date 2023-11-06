@@ -1,10 +1,13 @@
 import 'dart:developer';
 
+import 'package:ahbas/controller/getx/follow_controller.dart';
 import 'package:ahbas/model/search/all_users/datum.dart';
+import 'package:ahbas/provider/folllow_following/follow_following_provider.dart';
 import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:ahbas/view/user_profile/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
@@ -18,6 +21,9 @@ class _SearchPageState extends State<SearchPage> {
   late TextEditingController _searchController;
   late List<UserDTO> _searchResults;
   List<UserDTO> displayedUsers = [];
+  getallUsers() async {
+    await Provider.of<SearchPrvider>(context, listen: false).getAllUsers();
+  }
 
   void _performSearch(String query, List<UserDTO> allUserData) {
     List<UserDTO> results = [];
@@ -31,9 +37,12 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+  final FolloControlller controller = Get.put(FolloControlller());
+
   @override
   void initState() {
     super.initState();
+    getallUsers();
     _searchController = TextEditingController();
     _searchResults = Provider.of<SearchPrvider>(context, listen: false)
         .resultData
@@ -48,23 +57,32 @@ class _SearchPageState extends State<SearchPage> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              Container(
-                height: 70,
-                width: 300,
-                child: TextFormField(
-                  controller: _searchController,
-                  onChanged: (query) {
-                    _performSearch(
-                        query,
-                        Provider.of<SearchPrvider>(context, listen: false)
-                            .resultData
-                            .allUsersList);
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Search',
-                    border: OutlineInputBorder(),
+              Row(
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      icon: Icon(Icons.arrow_back)),
+                  Container(
+                    height: 50.h,
+                    width: 280.w,
+                    child: TextFormField(
+                      controller: _searchController,
+                      onChanged: (query) {
+                        _performSearch(
+                            query,
+                            Provider.of<SearchPrvider>(context, listen: false)
+                                .resultData
+                                .allUsersList);
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Search',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
               Expanded(
                 child: _searchResults.isNotEmpty
@@ -72,10 +90,27 @@ class _SearchPageState extends State<SearchPage> {
                         shrinkWrap: true,
                         itemCount: _searchResults.length,
                         itemBuilder: (context, index) {
+                          void checkFollowStatus1() async {
+                            var followProvider =
+                                Provider.of<FollowFollowingProvider>(context,
+                                    listen: false);
+
+                            await followProvider.checkFollowStatus(
+                                visitingUserId: _searchResults[index].userId);
+                            if (controller.isNeither.value == true) {
+                              log('hai');
+                              controller.isFollow.value = true;
+                            } else if (controller.isFollowing.value == true) {
+                              log('hallo');
+                              controller.isFollow.value = false;
+                            }
+                          }
+
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: InkWell(
                               onTap: () {
+                                checkFollowStatus1();
                                 Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => UserProfile(
                                       userData: _searchResults[index]),
@@ -100,29 +135,51 @@ class _SearchPageState extends State<SearchPage> {
 
                           log(displayedUsers.toString());
                           return ListView.builder(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            itemCount: displayedUsers.length,
-                            itemBuilder: (context, index) => Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => UserProfile(
-                                        userData: displayedUsers[index]),
-                                  ));
-                                },
-                                child: Container(
-                                  width: 326.w,
-                                  height: 70.h,
-                                  color: Colors.blue,
-                                  child: Center(
-                                      child:
-                                          Text(displayedUsers[index].userName)),
-                                ),
-                              ),
-                            ),
-                          );
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              itemCount: displayedUsers.length,
+                              itemBuilder: (context, index) {
+                                void checkFollowStatus() async {
+                                  var followProvider =
+                                      Provider.of<FollowFollowingProvider>(
+                                          context,
+                                          listen: false);
+
+                                  await followProvider.checkFollowStatus(
+                                      visitingUserId:
+                                          displayedUsers[index].userId);
+                                  if (controller.isNeither.value == true) {
+                                    log('hai');
+                                    controller.isFollow.value = true;
+                                  } else if (controller.isFollowing.value ==
+                                      true) {
+                                    log('hallo');
+                                    controller.isFollow.value = false;
+                                  }
+                                }
+
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: InkWell(
+                                    onTap: () {
+                                      checkFollowStatus();
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                        builder: (context) => UserProfile(
+                                            userData: displayedUsers[index]),
+                                      ));
+                                    },
+                                    child: Container(
+                                      width: 326.w,
+                                      height: 70.h,
+                                      color: Colors.blue,
+                                      child: Center(
+                                          child: Text(
+                                              displayedUsers[index].userName)),
+                                    ),
+                                  ),
+                                );
+                              });
                         },
                       ),
               ),

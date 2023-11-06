@@ -2,10 +2,12 @@ import 'dart:developer';
 
 import 'package:ahbas/data/api_urls/api_urls.dart';
 import 'package:ahbas/data/chat/chat_service.dart';
+
 import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
+
 import 'package:ahbas/model/chat/individual_chats/datum.dart';
 import 'package:ahbas/model/chat/primary_chatters/datum.dart';
 import 'package:ahbas/utils/strings.dart';
@@ -62,7 +64,14 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void connectSocketIO() {
+  initializeChatList() {
+    chatList = [];
+    notifyListeners();
+  }
+
+  void connectSocketIO()async {
+    final authToken =
+          await StorageService.instance.readSecureData('AuthToken');
     socketio.Socket socket = socketio.io(
         kBaseUrl,
         socketio.OptionBuilder()
@@ -147,11 +156,13 @@ class ChatProvider extends ChangeNotifier {
   }
 
   getOnlineStatus(List<String> allOnlineUsers) {
+
     // for (var user in chatUserIdList) {
     //   if (allOnlineUsers.any((element) => element == user)) {
     onlineUserList.addAll(allOnlineUsers);
     //   }
     // }
+
     notifyListeners();
   }
 

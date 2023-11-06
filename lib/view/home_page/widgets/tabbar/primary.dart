@@ -22,11 +22,13 @@ class PrimaryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
+
       future: Provider.of<ChatProvider>(context,listen: false).getPrimaryChats(),
       builder: (context,snapshot) {
         return Consumer<ChatProvider>(builder: (context, provider, _) {
           if (provider.primrychatResponse.isLoading) {
             return const CircularProgressIndicator();
+
           }
 
           List<PrimaryChattersDTO> dataList = provider.primrychatResponse.chatList;
@@ -35,6 +37,7 @@ class PrimaryView extends StatelessWidget {
             itemBuilder: (context, index) => InkWell(
               onTap: () {
                 Provider.of<ChatProvider>(context, listen: false)
+
                     .getIndividualChats(
                         roomId: dataList[index].roomId );
                 Provider.of<ChatProvider>(context, listen: false)
@@ -48,6 +51,7 @@ class PrimaryView extends StatelessWidget {
                     roomId: dataList[index].roomId ,
                     visitingUserId: dataList[index].id ,
                   ),
+
                 ));
               },
               child: ListTile(
@@ -109,7 +113,9 @@ class PrimaryView extends StatelessWidget {
                     style:
                         GoogleFonts.poppins(fontSize: 13.sp, color: Colors.grey)),
                 title: Text(
+
                   dataList[index].username ,
+
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
                       fontSize: 19.sp, fontWeight: FontWeight.w500),
