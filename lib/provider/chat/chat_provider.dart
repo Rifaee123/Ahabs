@@ -10,13 +10,17 @@ import 'package:ahbas/data/services/socket_io/socket_io.dart';
 
 import 'package:ahbas/model/chat/individual_chats/datum.dart';
 import 'package:ahbas/model/chat/primary_chatters/datum.dart';
+
 import 'package:ahbas/model/chatroom_response/data.dart';
 import 'package:ahbas/utils/strings.dart';
+
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
 class ChatProvider extends ChangeNotifier {
+  int numOfUnreadChats = 0;
   bool isCreatedChatRoom = false;
+  bool isEmojiShowing = false;
   dynamic currentChatDay = 0;
   CreateChatResponse chatRoomResponse =
       CreateChatResponse(isError: false, isLoading: true, roomId: '');
@@ -37,6 +41,12 @@ class ChatProvider extends ChangeNotifier {
   bool isReplying = false;
   String replyId = '';
   Map<String, String> replyMessage = {};
+
+  showEmoji(bool isShow) {
+    isEmojiShowing = isShow;
+    notifyListeners();
+  }
+
   changeTheCurrentChatDay(dynamic day) {
     currentChatDay = day;
     notifyListeners();
@@ -87,10 +97,7 @@ class ChatProvider extends ChangeNotifier {
         kBaseUrl,
         socketio.OptionBuilder()
             .setTransports(['websocket'])
-            .setQuery({
-              'token':
-                  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTFmYWU3M2M0ODA5ZDQ1ZDI1ODA3OGYiLCJpYXQiOjE2OTc1MzgxMjQsImV4cCI6MTY5NzU0MTcyNH0.h_HOivrjiBSXjUd6ijrg6DP1mQQCqqhALJpzxS-WNy4'
-            })
+            .setQuery({'token': authToken})
             .setTimeout(10000)
             .build());
     socket.onConnect((data) => log('Connection Established'));
@@ -168,12 +175,15 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  getOnlineStatus(List<String> allOnlineUsers) {
-    // for (var user in chatUserIdList) {
-    //   if (allOnlineUsers.any((element) => element == user)) {
-    onlineUserList.addAll(allOnlineUsers);
-    //   }
-    // }
+
+  getOnlineStatus(List<dynamic> allOnlineUsers) {
+    List<String> usersList = [];
+    for (var element in allOnlineUsers) {
+      usersList.add(element['userId'].toString());
+    }
+    onlineUserList.clear();
+    onlineUserList.addAll(usersList);
+
 
     notifyListeners();
   }
@@ -204,6 +214,18 @@ class ChatProvider extends ChangeNotifier {
           chatList.last.createdAt);
     });
     notifyListeners();
+  }
+
+  listenToDelete(String deleteMessageId,String roomId){
+       chatList.removeWhere((element) => element.id == deleteMessageId);
+      final getlength = ChatLengthService.instance.getChatListLength(roomId);
+      ChatLengthService.instance.addChatListLength(
+          getlength != null ? getlength - 1 : 0,
+          roomId,
+          chatList.last.message,
+          chatList.last.createdAt);
+          
+          notifyListeners();
   }
 
   Future clearChat(String roomId) async {
@@ -356,6 +378,7 @@ Map<String, dynamic> convertPrimaryChatDataToDTO(
 
   for (var chat in chatDataList) {
     bool isDeleted = false;
+   
     if (chat.latestmessage!.deleteduser!.contains(currentUserId)) {
       isDeleted = true;
     }
