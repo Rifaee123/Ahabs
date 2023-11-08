@@ -102,8 +102,9 @@ class ChatLengthService {
               latestCount: chatsLengthList[index].latestCount,
               roomId: chatsLengthList[index].roomId,
               chatLength: chatsLengthList[index].chatLength));
-    } 
+    }
   }
+
   updateLatestCount(int count, String roomId) {
     List<ChatLengthModel> chatsLengthList = [];
     chatsLengthList = chatLengthBox.values.toList();
@@ -120,7 +121,7 @@ class ChatLengthService {
               latestCount: count,
               roomId: chatsLengthList[index].roomId,
               chatLength: chatsLengthList[index].chatLength));
-    } 
+    }
   }
 }
 

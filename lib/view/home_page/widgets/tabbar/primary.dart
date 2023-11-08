@@ -4,7 +4,9 @@ import 'package:ahbas/controller/getx/chat_controller.dart';
 import 'package:ahbas/data/chat/chat_service.dart';
 import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
+
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
+
 import 'package:ahbas/model/chat/primary_chatters/datum.dart';
 import 'package:ahbas/model/chat/primary_chatters/primary_chatters.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
@@ -46,6 +48,7 @@ class _PrimaryViewState extends State<PrimaryView> {
         future:
             Provider.of<ChatProvider>(context, listen: false).getPrimaryChats(),
         builder: (context, snapshot) {
+
           return StreamBuilder(
               stream: streamingSocket.getResponse,
               builder: (context, snapshot) {
@@ -239,6 +242,7 @@ class _PrimaryViewState extends State<PrimaryView> {
                   );
                 });
               });
+
         });
   }
 

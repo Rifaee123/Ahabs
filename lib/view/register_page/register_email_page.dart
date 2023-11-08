@@ -42,11 +42,12 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
   Widget build(BuildContext context) {
     return Obx(() {
       if (authcontrolller.isRegister.value == true) {
-        Future.microtask(()async {
+        Future.microtask(() async {
           final authorizationToken =
-          await StorageService.instance.readSecureData('AuthToken');
+              await StorageService.instance.readSecureData('AuthToken');
           return Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => HomePage(authorizationToken: authorizationToken!),
+            builder: (context) =>
+                HomePage(authorizationToken: authorizationToken!),
           ));
         });
       }

@@ -1,6 +1,8 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:ahbas/controller/getx/follow_controller.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
 import 'package:ahbas/provider/folllow_following/follow_following_provider.dart';
 import 'package:ahbas/provider/search/search_provider.dart';
@@ -11,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
+import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key, required this.userData});
@@ -22,6 +25,7 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   final FolloControlller controller = Get.put(FolloControlller());
+  // final socketio.Socket streamSocket;
 
   @override
   void initState() {
@@ -68,7 +72,10 @@ class _UserProfileState extends State<UserProfile> {
     var followProvider =
         Provider.of<FollowFollowingProvider>(context, listen: false);
     await followProvider.sentFollowRequest(
-        visitingUserId: widget.userData.userId);
+        userName: widget.userData.userName,
+        visitingUserId: widget.userData.userId,
+        socket: Provider.of<ChatProvider>(context, listen: false)
+            .initializedSocket);
     log(widget.userData.userId);
     controller.isFollow.value = false;
     await followProvider.getFollowersList(
@@ -523,16 +530,16 @@ class _UserProfileState extends State<UserProfile> {
                                   visitingUserId: widget.userData.userId);
                           final response =
                               Provider.of<ChatProvider>(context, listen: false)
-                                  .chatResponse;
+                                  .chatRoomResponse;
                           if (response.isLoading == true) {
-                           
                             showDialog(
                               context: context,
-                              builder: (context) { 
+                              builder: (context) {
                                 return AlertDialog(
                                     content: SizedBox(
                                         width: 50.w,
-                                        child: const CircularProgressIndicator()));
+                                        child:
+                                            const CircularProgressIndicator()));
                               },
                             );
                           } else if (response.isError == true) {
@@ -545,7 +552,28 @@ class _UserProfileState extends State<UserProfile> {
                               },
                             );
                           } else {
-                            // Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(visitingUserId: widget.userData.userId, roomId: , userName: widget.userData.userName, profilePic: widget.userData.profilePic, streamSocket: streamSocket),))
+                            Provider.of<ChatProvider>(context, listen: false)
+                                .getIndividualChats(roomId: response.roomId);
+                            Provider.of<ChatProvider>(context, listen: false)
+                                .clearAllMessages();
+                            Provider.of<ChatProvider>(context, listen: false)
+                                .isReply(false);
+
+                            final authToken = await StorageService.instance
+                                .readSecureData('AuthToken');
+
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                  authToken: authToken,
+                                  visitingUserId: widget.userData.userId,
+                                  roomId: response.roomId,
+                                  userName: widget.userData.userName,
+                                  profilePic: widget.userData.profilePic,
+                                  streamSocket: Provider.of<ChatProvider>(
+                                          context,
+                                          listen: false)
+                                      .initializedSocket),
+                            ));
                           }
                         },
                         child: controller.currentuserid.value !=

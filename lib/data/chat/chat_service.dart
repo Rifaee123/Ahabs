@@ -9,11 +9,12 @@ import 'package:ahbas/model/chat/individual_chats/individual_chats.dart';
 import 'package:ahbas/model/chat/primary_chatters/primary_chatters.dart';
 import 'package:ahbas/model/chat/send_chat/chat_message.dart';
 import 'package:ahbas/model/chat/send_chat/send_chat.dart';
+
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 
 class ChatService {
-  Future<Either<MainFailure, bool>> createChatRoom(
+  Future<Either<MainFailure, Data?>> createChatRoom(
       String visitingUserId) async {
     try {
       final authToken =
@@ -27,9 +28,19 @@ class ChatService {
         'Authorization': 'Bearer $authToken',
       });
       log(response.statusCode.toString());
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+      
+
+        final responseData = jsonDecode(response.body);
+
+        log(responseData.toString());
+
+        final result = ChatroomResponse.fromJson(responseData);
+
+        log(result.data!.id.toString());
+        //  chatRoom.value = ChatRoom.fromJson(responseData);
         log('chat Created');
-        return const Right(true);
+        return Right(result.data);
       } else {
         return Left(MainFailure.serverFailure());
       }
@@ -169,14 +180,18 @@ class ChatService {
       log('id$messageId');
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');
+
       log('Auther${authToken.toString()}');
+
 
       final url = '$kBaseUrl$deleteForEveryOneEndPoint$messageId';
       log('Url:$url');
       final uri = Uri.parse(url);
       final response = await http
           .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
+
       log('Delete${response.statusCode.toString()}');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);
       } else {

@@ -7,6 +7,7 @@ import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
+import 'package:ahbas/provider/chat/chat_provider.dart';
 
 import 'package:ahbas/provider/profile/current_user_provider.dart';
 
@@ -53,8 +54,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       Get.put(NotificationsController());
 
 
-  
-
+  // late socketio.Socket streamSocket;
 
 
   @override
@@ -118,9 +118,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           children: [
                             InkWell(
                               onTap: () {
+                                Provider.of<ChatProvider>(context,
+                                        listen: false)
+                                    .initializedSocket = streamSocket;
                                 _notificationsController.fetchNotifications();
                                 Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => NotificationsScreen(),
+                                  builder: (context) => NotificationsScreen(streamSocket: streamSocket),
                                 ));
                               },
                               child: Image.asset(
@@ -151,7 +154,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: () {
-
+                                Provider.of<ChatProvider>(context,
+                                        listen: false)
+                                    .initializedSocket = streamSocket;
                                 Provider.of<CurrentUserProvider>(context,
                                         listen: false)
                                     .getCurrentUser();
@@ -162,7 +167,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => SearchPage(),
                                 ));
-
                               },
                               child: Image.asset(
                                 "assets/images/Group 12.png",

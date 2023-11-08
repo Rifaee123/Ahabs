@@ -1,5 +1,9 @@
 import 'dart:developer';
 
+
+import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
+
+
 import 'package:ahbas/controller/getx/follow_controller.dart';
 
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
@@ -29,7 +33,9 @@ class ChatPage extends StatefulWidget {
   final String userName;
   final String profilePic;
   final socketio.Socket streamSocket;
+
   final String authToken;
+
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -54,6 +60,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
+    currentUserId = convertTokenToId(widget.authToken!);
+
     log('Visiting');
     log(widget.roomId.toString());
     currentUserId = convertTokenToId(widget.authToken);
@@ -103,8 +111,10 @@ class _ChatPageState extends State<ChatPage> {
             Consumer<ChatProvider>(builder: (context, provider, _) {
           final isreplying = provider.isReplying;
           return Padding(
+
               padding: EdgeInsets.only(
                   left: 20.w, top: provider.isEmojiShowing ? 330.h : 560.h),
+
               child: ValueListenableBuilder(
                 valueListenable: isTapped,
                 builder: (context, value, child) {

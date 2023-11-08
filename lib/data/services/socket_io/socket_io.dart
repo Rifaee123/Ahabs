@@ -4,7 +4,9 @@ import 'dart:developer';
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
+
 import 'package:ahbas/utils/strings.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socketio;
@@ -37,7 +39,11 @@ class SocketIoService {
 
     socket.onConnectError((data) => log('Connection Failed$data,'));
 
-    socket.onDisconnect((data) => log('DisConnected'));
+    socket.onDisconnect((data) => log('DisConnected ${data.toString()}'));
+    socket.on('error', (error) {
+      // Handle socket error
+      print('Socket error: $error');
+    });
 
     return socket;
   }
@@ -55,9 +61,11 @@ class SocketIoService {
     });
   }
 
+
   sendMessage(Map chat, socketio.Socket socket, String? replyMsg) async {
     final authToken = await StorageService.instance.readSecureData('AuthToken');
     final userId = convertTokenToId(authToken!);
+
     log('Hurray');
     socket.emit('chat-message', {
       'to': chat['to'],
@@ -71,6 +79,34 @@ class SocketIoService {
     });
   }
 
+  sendFollowNotification(socketio.Socket socket, String? receverid,
+      String? senderid, String? userName, String? profilePicture) async {
+    // final authToken = await StorageService.instance.readSecureData('AuthToken');
+    // final newsocket = socketio.io(
+    //     'https://ahabs.cyenosure.in',
+    //     socketio.OptionBuilder()
+    //         .setTransports(['websocket'])
+    //         .setQuery({'token': authToken})
+    //         .setTimeout(10000)
+    //         .build());
+    log('Happened1');
+    try {
+      socket.emit('send-notification', {
+        'sender_id': senderid,
+        'username': userName??='',
+        'profilepicture': profilePicture,
+        'receiver': receverid, // Receiver user ID
+        'content': "started to following you.",
+        'createdAt': DateTime.now().toString(),
+        // Notification message
+        // Add other notification data here as needed
+      });
+      log('Happened');
+    } catch (e) {
+      log('Error:${e.toString()}');
+    }
+  }
+
   listenMessage(
     StreamSocket streamingSocket,
     socketio.Socket socket,
@@ -81,6 +117,7 @@ class SocketIoService {
       streamingSocket.addResponse(message);
     });
   }
+
 
   deleteForEveryOneNotify(socketio.Socket socket, String msgId, String roomId,String recieverId) {
     log('Notify');
@@ -95,6 +132,17 @@ class SocketIoService {
         Provider.of<ChatProvider>(context, listen: false)
             .listenToDelete(deleteMessage['deleteMessagId'], roomId);
       }
+
+  getFollowNotification(
+    NotificationStream notificationStream,
+    socketio.Socket socket,
+  ) async {
+    log('Where is Notification1');
+    socket.on('receive-notification', (notification) {
+      log('Where is Notification');
+      log(notification.toString());
+      notificationStream.addfollowResponse(notification);
+
     });
   }
 }
@@ -143,10 +191,11 @@ connectSocket(
   socket.onDisconnect((data) => log('DisConnected'));
 }
 
-sendMessage(ChatDTO chat, socketio.Socket socket) async {
+
+sendMessage(ChatDTO chat, socketio.Socket socket, String authToken) {
+
   // Emit the message to the server using the socket
-  final authToken = await StorageService.instance.readSecureData('AuthToken');
-  final userId = convertTokenToId(authToken!);
+  final userId = convertTokenToId(authToken);
   socket.emit('chat-message', {
     'to': chat.toUserId,
     'message': chat.message,
@@ -166,6 +215,13 @@ listenMessage(StreamSocket streamingSocket, socketio.Socket socket,
   });
 
   // socket.on('chat-message', (message) => streamingSocket.addResponse(message));
+}
+
+class NotificationStream {
+  final StreamController<dynamic> socketfollowResponse =
+      StreamController.broadcast();
+  void Function(dynamic) get addfollowResponse => socketfollowResponse.sink.add;
+  Stream<dynamic> get getfollowResponse => socketfollowResponse.stream;
 }
 
 // STEP1:  Stream setup

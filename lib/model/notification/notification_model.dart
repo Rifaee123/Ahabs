@@ -1,4 +1,4 @@
-class Notification {
+class Notifications {
   final String id;
   final String receiver;
   final User user;
@@ -7,7 +7,7 @@ class Notification {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Notification({
+  Notifications({
     required this.id,
     required this.receiver,
     required this.user,
@@ -17,8 +17,8 @@ class Notification {
     required this.updatedAt,
   });
 
-  factory Notification.fromJson(Map<String, dynamic> json) {
-    return Notification(
+  factory Notifications.fromJson(Map<String, dynamic> json) {
+    return Notifications(
       id: json['_id'],
       receiver: json['receiver'],
       user: User.fromJson(json['user']),
