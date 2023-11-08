@@ -9,7 +9,6 @@ import 'package:ahbas/model/chat/individual_chats/individual_chats.dart';
 import 'package:ahbas/model/chat/primary_chatters/primary_chatters.dart';
 import 'package:ahbas/model/chat/send_chat/chat_message.dart';
 import 'package:ahbas/model/chat/send_chat/send_chat.dart';
-import 'package:ahbas/utils/strings.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 
@@ -46,9 +45,8 @@ class ChatService {
 
       const url = '$kBaseUrl$getPrimaryChatsEndPoint';
       final uri = Uri.parse(url);
-
+      log('authToken$authToken');
       final response = await http.get(uri, headers: {
-
         'Authorization': 'Bearer $authToken'
 
         //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTI3YmZjYTU3N2Y5YzlmMTg5MGM2Y2EiLCJpYXQiOjE2OTgxNDU3ODMsImV4cCI6MTY5ODIzMjE4M30.hngWcSu6DJsFMn3WDJCNTZZkZgo-VdW7zeBEwcWWHQg'
@@ -78,7 +76,6 @@ class ChatService {
       final uri = Uri.parse(url);
 
       final response = await http.get(uri, headers: {
-
         'Authorization': 'Bearer $authToken'
 
         //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTI3YmZjYTU3N2Y5YzlmMTg5MGM2Y2EiLCJpYXQiOjE2OTgxNDU3ODMsImV4cCI6MTY5ODIzMjE4M30.hngWcSu6DJsFMn3WDJCNTZZkZgo-VdW7zeBEwcWWHQg'
@@ -104,8 +101,8 @@ class ChatService {
       String? replyId}) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
-      final userId = convertTokenToId(sampleToken);
+          await StorageService.instance.readSecureData('AuthToken');
+      final userId = convertTokenToId(authToken!);
       const url = '$kBaseUrl$sendMessgeEndpoint';
       final uri = Uri.parse(url);
       Map data = {};
@@ -127,7 +124,7 @@ class ChatService {
 
       final response = await http.post(uri, body: newbody, headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Bearer $sampleToken'
+        'Authorization': 'Bearer $authToken'
       });
 
       log(response.statusCode.toString());
@@ -151,11 +148,11 @@ class ChatService {
       {required String messageId}) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
       final url = '$kBaseUrl$deleteForMeEndPoint$messageId';
       final uri = Uri.parse(url);
-      final response = await http
-          .put(uri, headers: {'Authorization': 'Bearer $sampleToken'});
+      final response =
+          await http.put(uri, headers: {'Authorization': 'Bearer $authToken'});
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);
       } else {
@@ -169,13 +166,17 @@ class ChatService {
   Future<Either<MainFailure, bool>> deleteForEveryOne(
       {required String messageId}) async {
     try {
+      log('id$messageId');
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
+      log('Auther${authToken.toString()}');
 
       final url = '$kBaseUrl$deleteForEveryOneEndPoint$messageId';
+      log('Url:$url');
       final uri = Uri.parse(url);
       final response = await http
-          .delete(uri, headers: {'Authorization': 'Bearer $sampleToken'});
+          .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
+      log('Delete${response.statusCode.toString()}');
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);
       } else {
@@ -189,12 +190,12 @@ class ChatService {
   Future<Either<MainFailure, bool>> clearChat({required String roomId}) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
 
       final url = '$kBaseUrl$clearChatEndPoint$roomId';
       final uri = Uri.parse(url);
-      final response = await http
-          .get(uri, headers: {'Authorization': 'Bearer $sampleToken'});
+      final response =
+          await http.get(uri, headers: {'Authorization': 'Bearer $authToken'});
       log(response.statusCode.toString());
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);

@@ -1,15 +1,10 @@
 import 'dart:developer';
 
-
-import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
-
 import 'package:ahbas/controller/getx/follow_controller.dart';
 
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
-import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
-import 'package:ahbas/utils/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -17,6 +12,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socketio;
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/foundation.dart' as foundation;
 
 class ChatPage extends StatefulWidget {
   const ChatPage(
@@ -25,12 +22,14 @@ class ChatPage extends StatefulWidget {
       required this.roomId,
       required this.userName,
       required this.profilePic,
-      required this.streamSocket});
+      required this.streamSocket,
+      required this.authToken});
   final String visitingUserId;
   final String roomId;
   final String userName;
   final String profilePic;
   final socketio.Socket streamSocket;
+  final String authToken;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -44,12 +43,10 @@ class _ChatPageState extends State<ChatPage> {
   double _containerHeight = 40.0;
   StreamSocket streamingSocket = StreamSocket();
   List<ChatDataDTO> chatList = [];
+  bool emojiShowing = false;
 
-  final currentUserId = convertTokenToId(sampleToken);
+  late String currentUserId;
   // late socketio.Socket socket;
-
-
-
 
   final ScrollController scrollController = ScrollController();
   var currentChatDay = 0;
@@ -59,6 +56,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     log('Visiting');
     log(widget.roomId.toString());
+    currentUserId = convertTokenToId(widget.authToken);
     // socket = socketio.io(
     //     'https://ahabs.cyenosure.in',
     //     socketio.OptionBuilder()
@@ -87,25 +85,26 @@ class _ChatPageState extends State<ChatPage> {
     log(Provider.of<ChatProvider>(context, listen: false).chatList.toString());
     SocketIoService.instance
         .listenMessage(streamingSocket, widget.streamSocket);
+    SocketIoService.instance
+        .listenToDelete(widget.streamSocket, widget.roomId, context);
     super.initState();
   }
 
   @override
   void dispose() {
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return SafeArea(
       child: Scaffold(
         floatingActionButton:
             Consumer<ChatProvider>(builder: (context, provider, _) {
           final isreplying = provider.isReplying;
           return Padding(
-              padding: EdgeInsets.only(left: 20.w, top: 560.h),
+              padding: EdgeInsets.only(
+                  left: 20.w, top: provider.isEmojiShowing ? 330.h : 560.h),
               child: ValueListenableBuilder(
                 valueListenable: isTapped,
                 builder: (context, value, child) {
@@ -164,7 +163,6 @@ class _ChatPageState extends State<ChatPage> {
                               )
                             : SizedBox(
                                 height: 69.h,
-
                               ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -187,6 +185,7 @@ class _ChatPageState extends State<ChatPage> {
                                       BorderRadius.all(Radius.circular(30)),
                                   color: Color(0xffece8e8)),
                               child: TextFormField(
+                                onTapOutside: (point) {},
                                 controller: chatcontroller,
                                 style: const TextStyle(
                                     overflow: TextOverflow.ellipsis),
@@ -284,7 +283,10 @@ class _ChatPageState extends State<ChatPage> {
                                         },
                                         icon: const Icon(Icons.send)),
                                     prefixIcon: IconButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          provider.showEmoji(
+                                              !provider.isEmojiShowing);
+                                        },
                                         icon: const Icon(
                                           Icons.emoji_emotions,
                                           color:
@@ -438,6 +440,50 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                           ],
                         ),
+                        Offstage(
+                          offstage: !provider.isEmojiShowing,
+                          child: SizedBox(
+                              height: 250,
+                              child: EmojiPicker(
+                                textEditingController: chatcontroller,
+                                onBackspacePressed: onBackspacePressed,
+                                config: Config(
+                                  columns: 7,
+                                  // Issue: https://github.com/flutter/flutter/issues/28894
+                                  emojiSizeMax: 32 *
+                                      (foundation.defaultTargetPlatform ==
+                                              TargetPlatform.iOS
+                                          ? 1.30
+                                          : 1.0),
+                                  verticalSpacing: 0,
+                                  horizontalSpacing: 0,
+                                  gridPadding: EdgeInsets.zero,
+                                  initCategory: Category.RECENT,
+                                  bgColor: const Color(0xFFF2F2F2),
+                                  indicatorColor: Colors.blue,
+                                  iconColor: Colors.grey,
+                                  iconColorSelected: Colors.blue,
+                                  backspaceColor: Colors.blue,
+                                  skinToneDialogBgColor: Colors.white,
+                                  skinToneIndicatorColor: Colors.grey,
+                                  enableSkinTones: true,
+                                  recentTabBehavior: RecentTabBehavior.RECENT,
+                                  recentsLimit: 28,
+                                  replaceEmojiOnLimitExceed: false,
+                                  noRecents: const Text(
+                                    'No Recents',
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.black26),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  loadingIndicator: const SizedBox.shrink(),
+                                  tabIndicatorAnimDuration: kTabScrollDuration,
+                                  categoryIcons: const CategoryIcons(),
+                                  buttonMode: ButtonMode.MATERIAL,
+                                  checkPlatformCompatibility: true,
+                                ),
+                              )),
+                        ),
                       ],
                     );
                   } else {
@@ -517,6 +563,7 @@ class _ChatPageState extends State<ChatPage> {
                                 },
                                 onTapOutside: (event) {
                                   isTapped.value = 0;
+                                  provider.showEmoji(false);
                                 },
                                 maxLines: null,
                                 minLines: 5,
@@ -701,206 +748,249 @@ class _ChatPageState extends State<ChatPage> {
 
                 chatList = response.chatList;
 
-                return Column(
-                  children: [
-                    Container(
-                      height: 50.h,
-                      color: const Color(0xff449cc0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                Navigator.pop(context);
+                return GestureDetector(
+                  onTap: () {
+                    provider.showEmoji(false);
+                  },
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 50.h,
+                        color: const Color(0xff449cc0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.white,
+                                )),
+                            Padding(
+                              padding: EdgeInsets.only(top: 8.h, bottom: 8.h),
+                              child: SizedBox(
+                                height: 50.h,
+                                width: 62.w,
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      child: CircleAvatar(
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 230, 229, 229),
+                                        radius: 25.r,
+                                        child: Image.asset(
+                                          'assets/images/icons8-person-96 2.png',
+                                          height: 30.h,
+                                          width: 30.w,
+                                        ),
+                                      ),
+                                    ),
+                                    Consumer<ChatProvider>(
+                                        builder: (context, provider, _) {
+                                      bool isOnline = false;
+                                      if (provider.onlineUserList.isNotEmpty) {
+                                        if (provider.onlineUserList.any(
+                                            (element) =>
+                                                element ==
+                                                widget.visitingUserId)) {
+                                          isOnline = true;
+                                        } else {
+                                          isOnline = false;
+                                        }
+                                      } else {
+                                        isOnline = false;
+                                      }
+                                      return Positioned(
+                                          right: 5.w,
+                                          bottom: -1.h,
+                                          child: Image.asset(
+                                            isOnline
+                                                ? 'assets/images/online.png'
+                                                : 'assets/images/Group 26.png',
+                                            height: 22.h,
+                                          ));
+                                    }),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 100.w,
+                                  child: Text(
+                                    widget.userName,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white, fontSize: 16.sp),
+                                  ),
+                                ),
+                                Consumer<ChatProvider>(
+                                    builder: (context, provider, _) {
+                                  bool isOnline = false;
+                                  if (provider.onlineUserList.isNotEmpty) {
+                                    if (provider.onlineUserList.any((element) =>
+                                        element == widget.visitingUserId)) {
+                                      isOnline = true;
+                                    } else {
+                                      isOnline = false;
+                                    }
+                                  } else {
+                                    isOnline = false;
+                                  }
+                                  return Text(
+                                    isOnline ? "online" : "offline",
+                                    style: const TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 208, 208, 208)),
+                                  );
+                                })
+                              ],
+                            ),
+                            SizedBox(
+                              width: 10.w,
+                            ),
+                            IconButton(
+                                onPressed: () {},
+                                icon: const Icon(
+                                  Icons.call,
+                                  color: Colors.white,
+                                )),
+                            SizedBox(
+                              width: 10.w,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Provider.of<ChatProvider>(context,
+                                        listen: false)
+                                    .clearChat(widget.roomId);
                               },
-                              icon: const Icon(
-                                Icons.arrow_back,
-                                color: Colors.white,
-                              )),
-                          Padding(
-                            padding: EdgeInsets.only(top: 8.h, bottom: 8.h),
-                            child: SizedBox(
-                              height: 50.h,
-                              width: 62.w,
-                              child: Stack(
+                              child: Image.asset(
+                                "assets/images/bussiness.png",
+                                height: 20.h,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20.w,
+                            ),
+                            Image.asset(
+                              "assets/images/Group 12.png",
+                              height: 20.h,
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView(
+                          controller: scrollController,
+                          children: List.generate(
+                            chatList.length,
+                            (index) {
+                              log('currenDayListView');
+                              String senderId = '';
+                              if (chatList[index].isReply) {
+                                final replyedToChat = chatList
+                                    .where((element) =>
+                                        element.id ==
+                                        chatList[index].replyId!.replyId)
+                                    .toList();
+                                if (replyedToChat.isNotEmpty) {
+                                  senderId = replyedToChat[0].senderId;
+                                } else {
+                                  senderId = 'Deleted';
+                                }
+                              }
+                              GlobalKey buttonKey = GlobalKey();
+                              final dateTime = chatList[index]
+                                  .createdAt
+                                  .add(const Duration(hours: 5, minutes: 30));
+                              if (index == 0) {
+                                currentChatDay = dateTime.day;
+                              }
+                              return Column(
                                 children: [
-                                  Positioned(
-                                    child: CircleAvatar(
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 230, 229, 229),
-                                      radius: 25.r,
-                                      child: Image.asset(
-                                        'assets/images/icons8-person-96 2.png',
-                                        height: 30.h,
-                                        width: 30.w,
+                                  chatDay(index, currentChatDay, dateTime),
+                                  InkWell(
+                                    key: buttonKey,
+                                    onTap: () {
+                                      provider.showEmoji(false);
+                                    },
+                                    onLongPress: () {
+                                      showDeleteMenu(
+                                          buttonKey,
+                                          chatList[index].id!,
+                                          chatList[index].senderId ==
+                                                  currentUserId
+                                              ? true
+                                              : false);
+                                    },
+                                    child: SwipeTo(
+                                      rightSwipeWidget: const SizedBox(),
+                                      onRightSwipe: () {
+                                        log('currenDayisReplying');
+                                        Provider.of<ChatProvider>(context,
+                                                listen: false)
+                                            .replyToMessage(
+                                                chatList[index].message,
+                                                chatList[index].senderId ==
+                                                        currentUserId
+                                                    ? "You"
+                                                    : widget.userName);
+                                        Provider.of<ChatProvider>(context,
+                                                listen: false)
+                                            .getReplyId(chatList[index].id!);
+
+                                        Provider.of<ChatProvider>(context,
+                                                listen: false)
+                                            .isReply(true);
+                                      },
+                                      child: Column(
+                                        children: [
+                                          ChatBubble(
+                                              isReply: chatList[index].isReply,
+                                              replyMessage: chatList[index]
+                                                      .isReply
+                                                  ? {
+                                                      'currentUserId':
+                                                          currentUserId,
+                                                      'userName':
+                                                          widget.userName,
+                                                      'message': chatList[index]
+                                                          .replyId!
+                                                          .message,
+                                                      'replyUserId': senderId
+                                                    }
+                                                  : {},
+                                              dateTimeString: chatList[index]
+                                                  .createdAt
+                                                  .toString(),
+                                              message: chatList[index].message,
+                                              isMe: chatList[index].senderId ==
+                                                      currentUserId
+                                                  ? true
+                                                  : false),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                  Positioned(
-                                      right: 5.w,
-                                      bottom: -1.h,
-                                      child: Image.asset(
-                                        'assets/images/Group 26.png',
-                                        height: 22.h,
-                                      )),
                                 ],
-                              ),
-                            ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: 100.w,
-                                child: Text(
-                                  widget.userName,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.poppins(
-                                      color: Colors.white, fontSize: 16.sp),
-                                ),
-                              ),
-                              const Text(
-                                "online",
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 208, 208, 208)),
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            width: 10.w,
-                          ),
-                          IconButton(
-                              onPressed: () {},
-                              icon: const Icon(
-                                Icons.call,
-                                color: Colors.white,
-                              )),
-                          SizedBox(
-                            width: 10.w,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Provider.of<ChatProvider>(context, listen: false)
-                                  .clearChat(widget.roomId);
+                              );
                             },
-                            child: Image.asset(
-                              "assets/images/bussiness.png",
-                              height: 20.h,
-                            ),
                           ),
-                          SizedBox(
-                            width: 20.w,
-                          ),
-                          Image.asset(
-                            "assets/images/Group 12.png",
-                            height: 20.h,
-                          )
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView(
-                        controller: scrollController,
-                        children: List.generate(
-                          chatList.length,
-                          (index) {
-                            log('currenDayListView');
-                            String senderId = '';
-                            if (chatList[index].isReply) {
-                              final replyedToChat = chatList
-                                  .where((element) =>
-                                      element.id ==
-                                      chatList[index].replyId!.replyId)
-                                  .toList();
-                              if (replyedToChat.isNotEmpty) {
-                                senderId = replyedToChat[0].senderId;
-                              } else {
-                                senderId = 'Deleted';
-                              }
-                            }
-                            GlobalKey buttonKey = GlobalKey();
-                            final dateTime = chatList[index]
-                                .createdAt
-                                .add(const Duration(hours: 5, minutes: 30));
-                            if (index == 0) {
-                              currentChatDay = dateTime.day;
-                            }
-                            return Column(
-                              children: [
-                                chatDay(index, currentChatDay, dateTime),
-                                InkWell(
-                                  key: buttonKey,
-                                  onLongPress: () {
-                                    showDeleteMenu(
-                                        buttonKey,
-                                        chatList[index].id!,
-                                        chatList[index].senderId ==
-                                                currentUserId
-                                            ? true
-                                            : false);
-                                  },
-                                  child: SwipeTo(
-                                    rightSwipeWidget: const SizedBox(),
-                                    onRightSwipe: () {
-                                      log('currenDayisReplying');
-                                      Provider.of<ChatProvider>(context,
-                                              listen: false)
-                                          .replyToMessage(
-                                              chatList[index].message,
-                                              chatList[index].senderId ==
-                                                      currentUserId
-                                                  ? "You"
-                                                  : widget.userName);
-                                      Provider.of<ChatProvider>(context,
-                                              listen: false)
-                                          .getReplyId(chatList[index].id!);
-
-                                      Provider.of<ChatProvider>(context,
-                                              listen: false)
-                                          .isReply(true);
-                                    },
-                                    child: Column(
-                                      children: [
-                                        ChatBubble(
-                                            isReply: chatList[index].isReply,
-                                            replyMessage: chatList[index]
-                                                    .isReply
-                                                ? {
-                                                    'currentUserId':
-                                                        currentUserId,
-                                                    'userName': widget.userName,
-                                                    'message': chatList[index]
-                                                        .replyId!
-                                                        .message,
-                                                    'replyUserId': senderId
-                                                  }
-                                                : {},
-                                            dateTimeString: chatList[index]
-                                                .createdAt
-                                                .toString(),
-                                            message: chatList[index].message,
-                                            isMe: chatList[index].senderId ==
-                                                    currentUserId
-                                                ? true
-                                                : false),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 55.h,
-                    ),
-                    SizedBox(
-                      height: provider.isReplying ? 65.h : 0.0,
-                    ),
-                  ],
+                      SizedBox(
+                        height: 55.h,
+                      ),
+                      SizedBox(
+                        height: provider.isReplying ? 65.h : 0.0,
+                      ),
+                    ],
+                  ),
                 );
                 // });
               });
@@ -943,6 +1033,12 @@ class _ChatPageState extends State<ChatPage> {
           buildPopupMenuItem('Delete for everyone', () {
             Provider.of<ChatProvider>(context, listen: false)
                 .deleteForEveryone(messageId, widget.roomId);
+            SocketIoService.instance.deleteForEveryOneNotify(
+              widget.streamSocket,
+              messageId,
+              widget.roomId,
+              widget.visitingUserId,
+            );
             Navigator.pop(context);
           }, !isMe, context),
         ]);
@@ -983,6 +1079,13 @@ class _ChatPageState extends State<ChatPage> {
     } else {
       return const SizedBox();
     }
+  }
+
+  onBackspacePressed() {
+    chatcontroller
+      ..text = chatcontroller.text.characters.toString()
+      ..selection = TextSelection.fromPosition(
+          TextPosition(offset: chatcontroller.text.length));
   }
 }
 
@@ -1036,6 +1139,7 @@ class ChatBubble extends StatelessWidget {
     if (hour > 12) {
       hour = hour - 12;
     }
+    log('hour$hour');
     return Row(
       mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
@@ -1124,11 +1228,11 @@ class ChatBubble extends StatelessWidget {
                             ? Row(
                                 children: [
                                   Text(
-                                    "$hour.${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}pm",
+                                    "$hour:${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}${dateTime.hour > 11 ? 'pm' : 'am'}",
                                     style: TextStyle(
                                         fontSize: 12.sp,
-                                        color: const Color.fromARGB(
-                                            255, 134, 133, 133)),
+                                        color: const Color.fromRGBO(
+                                            134, 133, 133, 1)),
                                   ),
                                   Image.asset(
                                     "assets/images/chatTick.png",
@@ -1137,7 +1241,7 @@ class ChatBubble extends StatelessWidget {
                                 ],
                               )
                             : Text(
-                                "${dateTime.hour}.${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}pm",
+                                "$hour:${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}${dateTime.hour > 11 ? 'pm' : 'am'}",
                                 style: TextStyle(
                                     fontSize: 12.sp,
                                     color: const Color.fromARGB(
@@ -1157,7 +1261,12 @@ class ChatBubble extends StatelessWidget {
       return 50 * widthOf1;
     } else if (length <= 10) {
       return 100 * widthOf1;
+    } else if (length <= 15) {
+      return 150 * widthOf1;
+    } else if (length <= 20) {
+      return 200 * widthOf1;
+    } else {
+      return (300 * widthOf1);
     }
-    return 300.w;
   }
 }

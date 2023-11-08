@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:ahbas/controller/getx/auth_controller.dart';
+import 'package:ahbas/controller/getx/chat_controller.dart';
 import 'package:ahbas/controller/getx/notification_controller.dart';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
@@ -19,6 +20,7 @@ import 'package:ahbas/view/home_page/widgets/tabbar/status.dart';
 import 'package:ahbas/view/notification_page/notification_page.dart';
 import 'package:ahbas/view/profile_page/profile-page.dart';
 import 'package:ahbas/view/search_page/search_page.dart';
+import 'package:ahbas/view/voicechat.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -45,12 +47,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Authcontrolller authcontrolller = Get.put(Authcontrolller());
   final TabBarController controller = Get.put(TabBarController());
+  final ChatController unreadController = Get.put(ChatController());
 
   final NotificationsController _notificationsController =
       Get.put(NotificationsController());
 
 
-  late socketio.Socket streamSocket;
+  
 
 
 
@@ -61,6 +64,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _notificationsController.fetchNotifications();
     streamSocket =
         SocketIoService.instance.initializeSocket(widget.authorizationToken);
+        
 
     super.initState();
   }
@@ -94,7 +98,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         InkWell(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ProfilePage(),
+                              builder: (context) => VoiceChat(),
                             ));
                           },
                           child: Image.asset(
@@ -253,7 +257,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       top: 2.h,
                                       left: 6.w,
                                       child: Text(
-                                        "4",
+                                        unreadController.numOfUnreadChats.value.toString(),
                                         style: GoogleFonts.poppins(
                                             color: const Color(0xff449cc0),
                                             fontSize: 10.sp),

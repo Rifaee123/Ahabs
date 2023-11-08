@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:ahbas/controller/getx/follow_controller.dart';
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
-
+import 'package:ahbas/utils/strings.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
@@ -46,6 +44,7 @@ class SocketIoService {
 
   getOnlineStatus(socketio.Socket socket, BuildContext context) {
     List<String> onlineUserList = [];
+    log('onlineUsers');
     socket.on('get-users', (userList) {
       log('userList:${userList.toString()}');
       for (var user in userList) {
@@ -56,10 +55,10 @@ class SocketIoService {
     });
   }
 
-  sendMessage(ChatDTO chat, socketio.Socket socket) async {
+  sendMessage(Map chat, socketio.Socket socket, String? replyMsg) async {
     final authToken = await StorageService.instance.readSecureData('AuthToken');
     final userId = convertTokenToId(authToken!);
-
+    log('Hurray');
     socket.emit('chat-message', {
       'to': chat['to'],
       'message': chat['message'],
@@ -77,9 +76,25 @@ class SocketIoService {
     socketio.Socket socket,
   ) {
     socket.on('chat-message', (message) {
-      log('Where is my Message');
+      log('Where is my Messagesss');
 
       streamingSocket.addResponse(message);
+    });
+  }
+
+  deleteForEveryOneNotify(socketio.Socket socket, String msgId, String roomId,String recieverId) {
+    log('Notify');
+    socket.emit(
+        'delete-for-everyone', {'deleteMessagId': msgId, 'roomId': roomId,'recieverId':recieverId});
+  }
+
+  listenToDelete(socketio.Socket socket, String roomId, BuildContext context) {
+   
+    socket.on('delete-for-everyone', (deleteMessage) {
+      if (deleteMessage['roomId'] == roomId) {
+        Provider.of<ChatProvider>(context, listen: false)
+            .listenToDelete(deleteMessage['deleteMessagId'], roomId);
+      }
     });
   }
 }
@@ -129,7 +144,6 @@ connectSocket(
 }
 
 sendMessage(ChatDTO chat, socketio.Socket socket) async {
-  FolloControlller controlller = Get.put(FolloControlller());
   // Emit the message to the server using the socket
   final authToken = await StorageService.instance.readSecureData('AuthToken');
   final userId = convertTokenToId(authToken!);
@@ -145,7 +159,7 @@ listenMessage(StreamSocket streamingSocket, socketio.Socket socket,
     StreamController streamController) {
   log('listenMessage');
   socket.on('chat-message', (message) {
-    log('Where is my Message');
+    log('Where is my Messageeee');
     log(message.toString());
     streamController.sink.add(message);
     streamingSocket.addResponse(message);
