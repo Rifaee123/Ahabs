@@ -115,7 +115,7 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
                             const MaterialStatePropertyAll(Colors.white),
                         textStyle:
                             MaterialStatePropertyAll(GoogleFonts.poppins())),
-                    onPressed: () async{
+                    onPressed: () async {
                       loginphonecontroller.text.isEmpty
                           ? controller.loginphonevalidate.value = true
                           : controller.loginphonevalidate.value = false;
@@ -135,13 +135,15 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
                             Provider.of<LoginProvider>(context, listen: false)
                                 .resultData;
                         if (result.isAuthorized == true) {
-                          final authorizationToken =
-          await StorageService.instance.readSecureData('AuthToken');
+                          final authorizationToken = await StorageService
+                              .instance
+                              .readSecureData('AuthToken');
                           Future.delayed(Duration.zero);
                           loginphonecontroller.clear();
                           loginphonepasscontroller.clear();
                           Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>  HomePage(authorizationToken: authorizationToken!),
+                            builder: (context) => HomePage(
+                                authorizationToken: authorizationToken!),
                           ));
                           authcontrolller.registerCurrentIndex.value = 0;
                           authcontrolller.loginCurrentIndex.value = 0;

@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-
 import 'package:ahbas/data/profile/add_profile_pic_service.dart';
 import 'package:ahbas/data/profile/current_user.dart';
 import 'package:ahbas/data/profile/edit_profile_service.dart';
@@ -277,12 +276,14 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
                                   .resultData;
 
                           if (result.isRegistarationSuccess == true) {
-                            final authorizationToken =
-          await StorageService.instance.readSecureData('AuthToken');
+                            final authorizationToken = await StorageService
+                                .instance
+                                .readSecureData('AuthToken');
                             Future.delayed(Duration.zero);
                             Navigator.of(context)
                                 .pushReplacement(MaterialPageRoute(
-                              builder: (context) => HomePage(authorizationToken: authorizationToken!),
+                              builder: (context) => HomePage(
+                                  authorizationToken: authorizationToken!),
                             ));
                             Phonecontroller.clear();
                             passwordcontroller.clear();

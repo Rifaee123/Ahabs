@@ -16,7 +16,6 @@ class PhoneVerifyPage extends StatefulWidget {
 }
 
 class _PhoneVerifyPageState extends State<PhoneVerifyPage> {
-  
   @override
   Widget build(BuildContext context) {
     Future<void> _navigateToNextScreen() async {

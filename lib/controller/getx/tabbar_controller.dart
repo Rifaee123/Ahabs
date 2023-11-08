@@ -19,7 +19,7 @@ class TabBarController extends GetxController {
   // Rx variable to hold the selected dropdown value
   RxString selectedGender = 'male'.obs;
   RxString dob = 'YYYY MM DD'.obs;
-  var  otp= ''.obs;
+  var otp = ''.obs;
 
   // Method to update the selected gender
   void setSelectedGender(String gender) {

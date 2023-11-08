@@ -104,7 +104,8 @@ class FollowFollowingService {
     }
   }
 
-  Future<Either<MainFailure, List<Follower>>> getFollowersList(String userId) async {
+  Future<Either<MainFailure, List<Follower>>> getFollowersList(
+      String userId) async {
     try {
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');
@@ -134,7 +135,8 @@ class FollowFollowingService {
     }
   }
 
-  Future<Either<MainFailure, List<Following>>> getFollowingList(String userId) async {
+  Future<Either<MainFailure, List<Following>>> getFollowingList(
+      String userId) async {
     try {
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');

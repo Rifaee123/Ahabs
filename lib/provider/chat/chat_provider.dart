@@ -10,6 +10,7 @@ import 'package:ahbas/data/services/socket_io/socket_io.dart';
 
 import 'package:ahbas/model/chat/individual_chats/datum.dart';
 import 'package:ahbas/model/chat/primary_chatters/datum.dart';
+import 'package:ahbas/model/chatroom_response/data.dart';
 import 'package:ahbas/utils/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socketio;
@@ -17,13 +18,21 @@ import 'package:socket_io_client/socket_io_client.dart' as socketio;
 class ChatProvider extends ChangeNotifier {
   bool isCreatedChatRoom = false;
   dynamic currentChatDay = 0;
+  CreateChatResponse chatRoomResponse =
+      CreateChatResponse(isError: false, isLoading: true, roomId: '');
   IndividualChatResponse chatResponse =
       IndividualChatResponse(chatList: [], isLoading: true, isError: false);
   PrimaryChattersResponse primrychatResponse =
       PrimaryChattersResponse(chatList: [], isLoading: true, isError: false);
   List<ChatDataDTO> chatList = [];
+  late socketio.Socket initializedSocket;
 
   // List<String> chatUserIdList = [];
+//  void getSocketIO(socketio.Socket socket) {
+//     initializedSocket = socket;
+//     notifyListeners();
+//   }
+
   List<String> onlineUserList = [];
   bool isReplying = false;
   String replyId = '';
@@ -59,7 +68,10 @@ class ChatProvider extends ChangeNotifier {
 
   Future createChatRoom({required String visitingUserId}) async {
     final result = await ChatService().createChatRoom(visitingUserId);
-    isCreatedChatRoom = result.fold((l) => false, (r) => true);
+    chatRoomResponse = result.fold(
+        (l) => CreateChatResponse(isError: true, isLoading: false, roomId: ''),
+        (r) => CreateChatResponse(
+            isError: false, isLoading: false, roomId: r!.id ?? ''));
 
     notifyListeners();
   }
@@ -69,9 +81,8 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void connectSocketIO()async {
-    final authToken =
-          await StorageService.instance.readSecureData('AuthToken');
+  void connectSocketIO() async {
+    final authToken = await StorageService.instance.readSecureData('AuthToken');
     socketio.Socket socket = socketio.io(
         kBaseUrl,
         socketio.OptionBuilder()
@@ -91,8 +102,8 @@ class ChatProvider extends ChangeNotifier {
   Future getIndividualChats({required String roomId}) async {
     final result = await ChatService().getIndividualChats(roomId);
 
-    final authToken = await StorageService.instance.readSecureData('authToken');
-    final currentUserId = convertTokenToId(sampleToken);
+    final authToken = await StorageService.instance.readSecureData('AuthToken');
+    final currentUserId = convertTokenToId(authToken!);
     chatResponse = result.fold(
         (l) => IndividualChatResponse(
             chatList: [], isError: true, isLoading: false), (r) {
@@ -109,8 +120,8 @@ class ChatProvider extends ChangeNotifier {
 
   getPrimaryChats() async {
     final result = await ChatService().getPrimaryChats();
-    final authToken = await StorageService.instance.readSecureData('authToken');
-    final currentUserId = convertTokenToId(sampleToken);
+    final authToken = await StorageService.instance.readSecureData('AuthToken');
+    final currentUserId = convertTokenToId(authToken!);
     primrychatResponse = result.fold(
         (l) => PrimaryChattersResponse(
             chatList: [], isError: true, isLoading: false), (r) {
@@ -148,15 +159,16 @@ class ChatProvider extends ChangeNotifier {
             createdAt: sendedChat.createdAt!,
           ),
           sendedChat.roomId ??= '');
+      final authToken =
+          await StorageService.instance.readSecureData('AuthToken');
 
       SocketIoService.instance
-          .sendMessage(sendingChat, socket, chat.replyMessage);
+          .sendMessage(sendingChat, socket, chat.replyMessage, authToken!);
     } else {}
     notifyListeners();
   }
 
   getOnlineStatus(List<String> allOnlineUsers) {
-
     // for (var user in chatUserIdList) {
     //   if (allOnlineUsers.any((element) => element == user)) {
     onlineUserList.addAll(allOnlineUsers);
@@ -211,10 +223,11 @@ class ChatProvider extends ChangeNotifier {
   void addToPrimarylatest(String message, String roomId, DateTime createdAt) {
     final index = primrychatResponse.chatList
         .indexWhere((element) => element.roomId == roomId);
-    primrychatResponse.chatList[index].latestMessage = message;
+        if(primrychatResponse.chatList.isNotEmpty && index!=-1)
+  {  primrychatResponse.chatList[index].latestMessage = message;
     primrychatResponse.chatList[index].latestMsgTime = createdAt;
     final msgCount = primrychatResponse.chatList[index].messageCount;
-    primrychatResponse.chatList[index].messageCount = msgCount + 1;
+    primrychatResponse.chatList[index].messageCount = msgCount + 1;}
   }
 
   void addSingleChat(ChatDataDTO chat, String roomId) {
@@ -275,6 +288,14 @@ class IndividualChatResponse {
       {required this.chatList, required this.isLoading, required this.isError});
 }
 
+class CreateChatResponse {
+  final String roomId;
+  final bool isLoading;
+  final bool isError;
+  CreateChatResponse(
+      {required this.roomId, required this.isLoading, required this.isError});
+}
+
 class ChatDataDTO {
   final String? id;
   final String senderId;
@@ -298,8 +319,10 @@ class ChatDataDTO {
 List<ChatDataDTO> convertChatDataToDTO(
     List<ChatData> chatDataList, String currentUserId, String roomId) {
   List<ChatDataDTO> chatDTOList = [];
+  
   ChatLengthService.instance.addChatListLength(chatDataList.length, roomId,
-      chatDataList.last.message, chatDataList.last.createdAt);
+    chatDataList.isEmpty?null:chatDataList.last.message,
+     chatDataList.isEmpty?null:chatDataList.last.createdAt);
 
   for (var chat in chatDataList) {
     if (chat.deleteduser != null && chat.deleteduser!.contains(currentUserId)) {

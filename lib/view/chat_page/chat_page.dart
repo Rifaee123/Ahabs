@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-
 import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
 
 import 'package:ahbas/controller/getx/follow_controller.dart';
@@ -25,12 +24,14 @@ class ChatPage extends StatefulWidget {
       required this.roomId,
       required this.userName,
       required this.profilePic,
-      required this.streamSocket});
+      required this.streamSocket,
+      required this.authToken});
   final String visitingUserId;
   final String roomId;
   final String userName;
   final String profilePic;
   final socketio.Socket streamSocket;
+  final String? authToken;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -45,11 +46,8 @@ class _ChatPageState extends State<ChatPage> {
   StreamSocket streamingSocket = StreamSocket();
   List<ChatDataDTO> chatList = [];
 
-  final currentUserId = convertTokenToId(sampleToken);
+  late String currentUserId;
   // late socketio.Socket socket;
-
-
-
 
   final ScrollController scrollController = ScrollController();
   var currentChatDay = 0;
@@ -57,6 +55,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
+    currentUserId = convertTokenToId(widget.authToken!);
+
     log('Visiting');
     log(widget.roomId.toString());
     // socket = socketio.io(
@@ -92,20 +92,18 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return SafeArea(
       child: Scaffold(
         floatingActionButton:
             Consumer<ChatProvider>(builder: (context, provider, _) {
           final isreplying = provider.isReplying;
           return Padding(
-              padding: EdgeInsets.only(left: 20.w, top: 560.h),
+              padding: EdgeInsets.only(left: 20.w, top: 550.h),
               child: ValueListenableBuilder(
                 valueListenable: isTapped,
                 builder: (context, value, child) {
@@ -164,7 +162,6 @@ class _ChatPageState extends State<ChatPage> {
                               )
                             : SizedBox(
                                 height: 69.h,
-
                               ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

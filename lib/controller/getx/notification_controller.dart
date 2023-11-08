@@ -6,7 +6,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:convert';
 
 class NotificationsController extends GetxController {
-  var notifications = <Notification>[].obs;
+  var notifications = <Notifications>[].obs;
   var isLoading = false.obs;
   var error = Rx<String>('');
 
@@ -23,7 +23,7 @@ class NotificationsController extends GetxController {
     socket.connect();
 
     socket.on('notification', (data) {
-      var notification = Notification.fromJson(data);
+      var notification = Notifications.fromJson(data);
       notifications.insert(
           0, notification); // Add new notification to the beginning of the list
     });
@@ -42,7 +42,7 @@ class NotificationsController extends GetxController {
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body)['data'];
         notifications.value = responseData
-            .map((data) => Notification.fromJson(data))
+            .map((data) => Notifications.fromJson(data))
             .toList()
             .reversed
             .toList();
@@ -56,7 +56,6 @@ class NotificationsController extends GetxController {
     }
   }
 }
-
 
 // class NotificationsController extends GetxController {
 //   var notifications = <Notification>[].obs;
@@ -75,11 +74,11 @@ class NotificationsController extends GetxController {
 
 //       if (response.statusCode == 200) {
 //         final List<dynamic> responseData = json.decode(response.body)['data'];
-        // notifications.value = responseData
-        //     .map((data) => Notification.fromJson(data))
-        //     .toList()
-        //     .reversed
-        //     .toList();
+// notifications.value = responseData
+//     .map((data) => Notification.fromJson(data))
+//     .toList()
+//     .reversed
+//     .toList();
 //       } else {
 //         error.value = 'Failed to load notifications';
 //       }
@@ -90,4 +89,3 @@ class NotificationsController extends GetxController {
 //     }
 //   }
 // }
-

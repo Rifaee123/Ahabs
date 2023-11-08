@@ -9,12 +9,14 @@ import 'package:ahbas/model/chat/individual_chats/individual_chats.dart';
 import 'package:ahbas/model/chat/primary_chatters/primary_chatters.dart';
 import 'package:ahbas/model/chat/send_chat/chat_message.dart';
 import 'package:ahbas/model/chat/send_chat/send_chat.dart';
+import 'package:ahbas/model/chatroom_response/chatroom_response.dart';
+import 'package:ahbas/model/chatroom_response/data.dart';
 import 'package:ahbas/utils/strings.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 
 class ChatService {
-  Future<Either<MainFailure, bool>> createChatRoom(
+  Future<Either<MainFailure, Data?>> createChatRoom(
       String visitingUserId) async {
     try {
       final authToken =
@@ -28,9 +30,19 @@ class ChatService {
         'Authorization': 'Bearer $authToken',
       });
       log(response.statusCode.toString());
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+      
+
+        final responseData = jsonDecode(response.body);
+
+        log(responseData.toString());
+
+        final result = ChatroomResponse.fromJson(responseData);
+
+        log(result.data!.id.toString());
+        //  chatRoom.value = ChatRoom.fromJson(responseData);
         log('chat Created');
-        return const Right(true);
+        return Right(result.data);
       } else {
         return Left(MainFailure.serverFailure());
       }
@@ -48,7 +60,6 @@ class ChatService {
       final uri = Uri.parse(url);
 
       final response = await http.get(uri, headers: {
-
         'Authorization': 'Bearer $authToken'
 
         //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTI3YmZjYTU3N2Y5YzlmMTg5MGM2Y2EiLCJpYXQiOjE2OTgxNDU3ODMsImV4cCI6MTY5ODIzMjE4M30.hngWcSu6DJsFMn3WDJCNTZZkZgo-VdW7zeBEwcWWHQg'
@@ -78,7 +89,6 @@ class ChatService {
       final uri = Uri.parse(url);
 
       final response = await http.get(uri, headers: {
-
         'Authorization': 'Bearer $authToken'
 
         //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTI3YmZjYTU3N2Y5YzlmMTg5MGM2Y2EiLCJpYXQiOjE2OTgxNDU3ODMsImV4cCI6MTY5ODIzMjE4M30.hngWcSu6DJsFMn3WDJCNTZZkZgo-VdW7zeBEwcWWHQg'
@@ -104,8 +114,8 @@ class ChatService {
       String? replyId}) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
-      final userId = convertTokenToId(sampleToken);
+          await StorageService.instance.readSecureData('AuthToken');
+      final userId = convertTokenToId(authToken!);
       const url = '$kBaseUrl$sendMessgeEndpoint';
       final uri = Uri.parse(url);
       Map data = {};
@@ -127,7 +137,7 @@ class ChatService {
 
       final response = await http.post(uri, body: newbody, headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Bearer $sampleToken'
+        'Authorization': 'Bearer $authToken'
       });
 
       log(response.statusCode.toString());
@@ -151,11 +161,11 @@ class ChatService {
       {required String messageId}) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
       final url = '$kBaseUrl$deleteForMeEndPoint$messageId';
       final uri = Uri.parse(url);
-      final response = await http
-          .put(uri, headers: {'Authorization': 'Bearer $sampleToken'});
+      final response =
+          await http.put(uri, headers: {'Authorization': 'Bearer $authToken'});
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);
       } else {
@@ -170,12 +180,12 @@ class ChatService {
       {required String messageId}) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
 
       final url = '$kBaseUrl$deleteForEveryOneEndPoint$messageId';
       final uri = Uri.parse(url);
       final response = await http
-          .delete(uri, headers: {'Authorization': 'Bearer $sampleToken'});
+          .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);
       } else {
@@ -189,12 +199,12 @@ class ChatService {
   Future<Either<MainFailure, bool>> clearChat({required String roomId}) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
 
       final url = '$kBaseUrl$clearChatEndPoint$roomId';
       final uri = Uri.parse(url);
-      final response = await http
-          .get(uri, headers: {'Authorization': 'Bearer $sampleToken'});
+      final response =
+          await http.get(uri, headers: {'Authorization': 'Bearer $authToken'});
       log(response.statusCode.toString());
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);

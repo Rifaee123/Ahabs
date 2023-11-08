@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:ahbas/data/chat/chat_service.dart';
 import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/model/chat/primary_chatters/datum.dart';
 import 'package:ahbas/model/chat/primary_chatters/primary_chatters.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
@@ -22,136 +23,136 @@ class PrimaryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
+        future:
+            Provider.of<ChatProvider>(context, listen: false).getPrimaryChats(),
+        builder: (context, snapshot) {
+          return Consumer<ChatProvider>(builder: (context, provider, _) {
+            if (provider.primrychatResponse.isLoading) {
+              return const CircularProgressIndicator();
+            }
 
-      future: Provider.of<ChatProvider>(context,listen: false).getPrimaryChats(),
-      builder: (context,snapshot) {
-        return Consumer<ChatProvider>(builder: (context, provider, _) {
-          if (provider.primrychatResponse.isLoading) {
-            return const CircularProgressIndicator();
-
-          }
-
-          List<PrimaryChattersDTO> dataList = provider.primrychatResponse.chatList;
-          return ListView.builder(
-            itemCount: dataList.length,
-            itemBuilder: (context, index) => InkWell(
-              onTap: () {
-                Provider.of<ChatProvider>(context, listen: false)
-
-                    .getIndividualChats(
-                        roomId: dataList[index].roomId );
-                Provider.of<ChatProvider>(context, listen: false)
-                    .clearAllMessages();
-                Provider.of<ChatProvider>(context, listen: false).isReply(false);
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => ChatPage(
-                    streamSocket: streamSocket,
-                    profilePic: dataList[index].profilepicture ,
-                    userName: dataList[index].username ,
-                    roomId: dataList[index].roomId ,
-                    visitingUserId: dataList[index].id ,
-                  ),
-
-                ));
-              },
-              child: ListTile(
-                trailing: SizedBox(
-                  width: 90.w,
-                  child: Row(
-                    children: [
-                      Text(latestChatTime(dataList[index].latestMsgTime),
-                          style: GoogleFonts.poppins(
-                              fontSize: 10.sp, color: Colors.grey)),
-                      SizedBox(
-                        width: 10.w,
-                      ),
-                      Consumer<ChatProvider>(builder: (context, provider, _) {
-                        bool isOnline = false;
-                        if (provider.onlineUserList.isNotEmpty) {
-                          if (provider.onlineUserList.any((element) =>
-                              element == dataList[index].id)) {
-                            isOnline = true;
+            List<PrimaryChattersDTO> dataList =
+                provider.primrychatResponse.chatList;
+            return ListView.builder(
+              itemCount: dataList.length,
+              itemBuilder: (context, index) => InkWell(
+                onTap: () async {
+                  Provider.of<ChatProvider>(context, listen: false)
+                      .getIndividualChats(roomId: dataList[index].roomId);
+                  Provider.of<ChatProvider>(context, listen: false)
+                      .clearAllMessages();
+                  Provider.of<ChatProvider>(context, listen: false)
+                      .isReply(false);
+                  final authToken =
+                      await StorageService.instance.readSecureData('AuthToken');
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ChatPage(
+                      authToken: authToken,
+                      streamSocket: streamSocket,
+                      profilePic: dataList[index].profilepicture,
+                      userName: dataList[index].username,
+                      roomId: dataList[index].roomId,
+                      visitingUserId: dataList[index].id,
+                    ),
+                  ));
+                },
+                child: ListTile(
+                  trailing: SizedBox(
+                    width: 90.w,
+                    child: Row(
+                      children: [
+                        Text(latestChatTime(dataList[index].latestMsgTime),
+                            style: GoogleFonts.poppins(
+                                fontSize: 10.sp, color: Colors.grey)),
+                        SizedBox(
+                          width: 10.w,
+                        ),
+                        Consumer<ChatProvider>(builder: (context, provider, _) {
+                          bool isOnline = false;
+                          if (provider.onlineUserList.isNotEmpty) {
+                            if (provider.onlineUserList.any(
+                                (element) => element == dataList[index].id)) {
+                              isOnline = true;
+                            }
                           }
-                        }
-                        final numOfUnread = numberOfUnread(
-                            dataList[index].messageCount,
-                            dataList[index].roomId );
-                        if (numOfUnread == 0 || numOfUnread < 1) {
-                          return const SizedBox();
-                        }
-                        return CircleAvatar(
-                          backgroundColor:
-                              isOnline ? Colors.green : const Color(0xff449cc0),
-                          radius: 12.r,
-                          child: Center(
-                            child: Text(
-                              numOfUnread.toString(),
-                              style: GoogleFonts.poppins(
-                                  color: Colors.black, fontSize: 12.sp),
+                          final numOfUnread = numberOfUnread(
+                              dataList[index].messageCount,
+                              dataList[index].roomId);
+                          if (numOfUnread == 0 || numOfUnread < 1) {
+                            return const SizedBox();
+                          }
+                          return CircleAvatar(
+                            backgroundColor: isOnline
+                                ? Colors.green
+                                : const Color(0xff449cc0),
+                            radius: 12.r,
+                            child: Center(
+                              child: Text(
+                                numOfUnread.toString(),
+                                style: GoogleFonts.poppins(
+                                    color: Colors.black, fontSize: 12.sp),
+                              ),
+                            ),
+                          );
+                        })
+                        // Container(
+                        //     decoration: const BoxDecoration(
+                        //         color: Color(0xff449cc0),
+                        //         borderRadius: BorderRadius.all(Radius.circular(30))),
+                        //     height: 18.h,
+                        //     width: 20.w,
+                        // child: Center(
+                        //   child: Text(
+                        //     "4",
+                        //     style: GoogleFonts.poppins(
+                        //         color: Colors.black, fontSize: 12.sp),
+                        //   ),
+                        // )),
+                      ],
+                    ),
+                  ),
+                  subtitle: Text(dataList[index].latestMessage,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(
+                          fontSize: 13.sp, color: Colors.grey)),
+                  title: Text(
+                    dataList[index].username,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(
+                        fontSize: 19.sp, fontWeight: FontWeight.w500),
+                  ),
+                  leading: SizedBox(
+                    height: 50.h,
+                    width: 62.w,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          child: CircleAvatar(
+                            backgroundColor:
+                                const Color.fromARGB(255, 230, 229, 229),
+                            radius: 25.r,
+                            child: Image.asset(
+                              'assets/images/icons8-person-96 2.png',
+                              height: 30.h,
+                              width: 30.w,
                             ),
                           ),
-                        );
-                      })
-                      // Container(
-                      //     decoration: const BoxDecoration(
-                      //         color: Color(0xff449cc0),
-                      //         borderRadius: BorderRadius.all(Radius.circular(30))),
-                      //     height: 18.h,
-                      //     width: 20.w,
-                      // child: Center(
-                      //   child: Text(
-                      //     "4",
-                      //     style: GoogleFonts.poppins(
-                      //         color: Colors.black, fontSize: 12.sp),
-                      //   ),
-                      // )),
-                    ],
-                  ),
-                ),
-                subtitle: Text(dataList[index].latestMessage ,
-                    overflow: TextOverflow.ellipsis,
-                    style:
-                        GoogleFonts.poppins(fontSize: 13.sp, color: Colors.grey)),
-                title: Text(
-
-                  dataList[index].username ,
-
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                      fontSize: 19.sp, fontWeight: FontWeight.w500),
-                ),
-                leading: SizedBox(
-                  height: 50.h,
-                  width: 62.w,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        child: CircleAvatar(
-                          backgroundColor: const Color.fromARGB(255, 230, 229, 229),
-                          radius: 25.r,
-                          child: Image.asset(
-                            'assets/images/icons8-person-96 2.png',
-                            height: 30.h,
-                            width: 30.w,
-                          ),
                         ),
-                      ),
-                      Positioned(
-                          right: 5.w,
-                          bottom: -1.h,
-                          child: Image.asset(
-                            'assets/images/Group 26.png',
-                            height: 22.h,
-                          )),
-                    ],
+                        Positioned(
+                            right: 5.w,
+                            bottom: -1.h,
+                            child: Image.asset(
+                              'assets/images/Group 26.png',
+                              height: 22.h,
+                            )),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
+            );
+          });
         });
-      }
-    );
   }
 
   int numberOfUnread(int currentChatLength, String roomId) {

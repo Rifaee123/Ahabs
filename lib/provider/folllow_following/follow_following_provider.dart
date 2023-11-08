@@ -2,11 +2,15 @@ import 'dart:developer';
 
 import 'package:ahbas/controller/getx/follow_controller.dart';
 import 'package:ahbas/data/follow_following/follow_following_service.dart';
+import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
+import 'package:ahbas/data/services/socket_io/socket_io.dart';
 import 'package:ahbas/model/follow_following/followers_list/follower.dart';
 import 'package:ahbas/model/follow_following/following_list/following.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
 class FollowFollowingProvider extends ChangeNotifier {
   final FolloControlller controller = Get.put(FolloControlller());
@@ -17,10 +21,21 @@ class FollowFollowingProvider extends ChangeNotifier {
       ResultFollowerList(followerList: [], isError: false, isLoading: true);
   ResultFollowingList followingListData =
       ResultFollowingList(followingList: [], isError: false, isLoading: true);
-  Future sentFollowRequest({required String visitingUserId}) async {
+  Future sentFollowRequest(
+      {required String visitingUserId, required socketio.Socket socket,required String userName}) async {
+    final authToken = await StorageService.instance.readSecureData('AuthToken');
+    final currentUserId = convertTokenToId(authToken!);
     final result =
         await FollowFollowingService().sentFollowRequest(visitingUserId);
     isFollowRequestSent = result.fold((l) => false, (r) => true);
+    if (isFollowRequestSent) {
+      SocketIoService.instance.sendFollowNotification(
+          socket,
+          visitingUserId,
+          currentUserId,
+          userName,
+          "https://shahidbucketsample.s3.ap-south-1.amazonaws.com/profile-pictures/appstore.png");
+    }
     // controller.isFollow.value = isFollowRequestSent;
     notifyListeners();
   }
