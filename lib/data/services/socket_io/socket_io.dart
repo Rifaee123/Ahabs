@@ -5,8 +5,6 @@ import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
 
-import 'package:ahbas/utils/strings.dart';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socketio;
@@ -61,7 +59,6 @@ class SocketIoService {
     });
   }
 
-
   sendMessage(Map chat, socketio.Socket socket, String? replyMsg) async {
     final authToken = await StorageService.instance.readSecureData('AuthToken');
     final userId = convertTokenToId(authToken!);
@@ -93,7 +90,7 @@ class SocketIoService {
     try {
       socket.emit('send-notification', {
         'sender_id': senderid,
-        'username': userName??='',
+        'username': userName ??= '',
         'profilepicture': profilePicture,
         'receiver': receverid, // Receiver user ID
         'content': "started to following you.",
@@ -108,30 +105,44 @@ class SocketIoService {
   }
 
   listenMessage(
-    StreamSocket streamingSocket,
-    socketio.Socket socket,
-  ) {
+      StreamSocket streamingSocket, socketio.Socket socket, String roomId) {
     socket.on('chat-message', (message) {
       log('Where is my Messagesss');
-
-      streamingSocket.addResponse(message);
+      if (roomId == message['roomid']) {
+        streamingSocket.addResponse(message);
+      }
+    });
+  }
+ listenForPrimaryMessage(
+      StreamSocket streamingSocket, socketio.Socket socket, ) {
+    socket.on('chat-message', (message)async {
+      log('Where is my Messagesss');
+       final authToken = await StorageService.instance.readSecureData('AuthToken');
+    final userId = convertTokenToId(authToken!);
+      if (userId == message['to']) {
+        streamingSocket.addResponse(message);
+      }
     });
   }
 
 
-  deleteForEveryOneNotify(socketio.Socket socket, String msgId, String roomId,String recieverId) {
+
+  deleteForEveryOneNotify(
+      socketio.Socket socket, String msgId, String roomId, String recieverId) {
     log('Notify');
-    socket.emit(
-        'delete-for-everyone', {'deleteMessagId': msgId, 'roomId': roomId,'recieverId':recieverId});
+    socket.emit('delete-for-everyone',
+        {'deleteMessagId': msgId, 'roomId': roomId, 'recieverId': recieverId});
   }
 
   listenToDelete(socketio.Socket socket, String roomId, BuildContext context) {
-   
     socket.on('delete-for-everyone', (deleteMessage) {
+      log('RecieveNotify');
       if (deleteMessage['roomId'] == roomId) {
         Provider.of<ChatProvider>(context, listen: false)
             .listenToDelete(deleteMessage['deleteMessagId'], roomId);
       }
+    });
+  }
 
   getFollowNotification(
     NotificationStream notificationStream,
@@ -142,7 +153,6 @@ class SocketIoService {
       log('Where is Notification');
       log(notification.toString());
       notificationStream.addfollowResponse(notification);
-
     });
   }
 }
@@ -151,71 +161,70 @@ const String userName = '';
 // late socketio.Socket socket;
 
 //This below code should be in initState.
-initstate(
-  StreamSocket streamingSocket,
-  socketio.Socket socket,
-) {
-  connectSocket(streamingSocket, socket);
-}
+// initstate(
+//   StreamSocket streamingSocket,
+//   socketio.Socket socket,
+// ) {
+//   connectSocket(streamingSocket, socket);
+// }
 
-connectSocket(
-  StreamSocket streamingSocket,
-  socketio.Socket socket,
-) {
-  socket.connect();
+// connectSocket(
+//   StreamSocket streamingSocket,
+//   socketio.Socket socket,
+// ) {
+//   socket.connect();
 
-  socket.onConnect((data) {
-    log(data.toString());
-    log('Connection Established');
-    try {
-      socket.on('chat-message', (message) {
-        log('Where is thy Message');
-        log(message.toString());
-        // Provider.of<ChatProvider>(context,listen: false).addSingleChat(Datum(
-        //   message: message['message'],
-        //   senderId: message['senderId'],
-        // ));
-        // streamingSocket.addResponse(message);
-      });
-      log('Connection Established2');
-    } catch (e) {
-      log(e.toString());
-    }
-    log('Connection Established3');
-  });
+//   socket.onConnect((data) {
+//     log(data.toString());
+//     log('Connection Established');
+//     try {
+//       socket.on('chat-message', (message) {
+//         log('Where is thy Message');
+//         log(message.toString());
+//         // Provider.of<ChatProvider>(context,listen: false).addSingleChat(Datum(
+//         //   message: message['message'],
+//         //   senderId: message['senderId'],
+//         // ));
+//         // streamingSocket.addResponse(message);
+//       });
+//       log('Connection Established2');
+//     } catch (e) {
+//       log(e.toString());
+//     }
+//     log('Connection Established3');
+//   });
 
-  log('okay');
+//   log('okay');
 
-  socket.onConnectError((data) => log('Connection Failed$data,'));
-  log('okay1');
-  socket.onDisconnect((data) => log('DisConnected'));
-}
+//   socket.onConnectError((data) => log('Connection Failed$data,'));
+//   log('okay1');
+//   socket.onDisconnect((data) => log('DisConnected'));
+// }
 
+// sendMessage(ChatDTO chat, socketio.Socket socket, String authToken) {
 
-sendMessage(ChatDTO chat, socketio.Socket socket, String authToken) {
+//   // Emit the message to the server using the socket
+//   final userId = convertTokenToId(authToken);
+//   socket.emit('chat-message', {
+//     'to': chat.toUserId,
+//     'message': chat.message,
+//     'userId': userId,
+//     'roomid': chat.roomid,
+//   });
+// }
 
-  // Emit the message to the server using the socket
-  final userId = convertTokenToId(authToken);
-  socket.emit('chat-message', {
-    'to': chat.toUserId,
-    'message': chat.message,
-    'userId': userId,
-    'roomid': chat.roomid,
-  });
-}
+// listenMessage(StreamSocket streamingSocket, socketio.Socket socket,
+//     StreamController streamController) {
+//   log('listenMessage');
+//   socket.on('chat-message', (message) {
+//     log('Where is my Messageeee');
+//     log(message.toString());
+//     streamController.sink.add(message);
+//     streamingSocket.addResponse(message);
+//   });
 
-listenMessage(StreamSocket streamingSocket, socketio.Socket socket,
-    StreamController streamController) {
-  log('listenMessage');
-  socket.on('chat-message', (message) {
-    log('Where is my Messageeee');
-    log(message.toString());
-    streamController.sink.add(message);
-    streamingSocket.addResponse(message);
-  });
-
-  // socket.on('chat-message', (message) => streamingSocket.addResponse(message));
-}
+//   // socket.on('chat-message', (message) => streamingSocket.addResponse(message));
+// }
 
 class NotificationStream {
   final StreamController<dynamic> socketfollowResponse =

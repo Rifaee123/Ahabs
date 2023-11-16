@@ -22,7 +22,9 @@ class FollowFollowingProvider extends ChangeNotifier {
   ResultFollowingList followingListData =
       ResultFollowingList(followingList: [], isError: false, isLoading: true);
   Future sentFollowRequest(
-      {required String visitingUserId, required socketio.Socket socket,required String userName}) async {
+      {required String visitingUserId,
+      required socketio.Socket socket,
+      required String userName}) async {
     final authToken = await StorageService.instance.readSecureData('AuthToken');
     final currentUserId = convertTokenToId(authToken!);
     final result =
@@ -60,24 +62,28 @@ class FollowFollowingProvider extends ChangeNotifier {
       controller.isFollower.value = false;
       controller.isFollowing.value = false;
       controller.isBoth.value = false;
+      controller.isUnFollow.value = true;
     } else if (followStatus == 'following') {
       log('CheckFollow:isfollowing');
       controller.isNeither.value = false;
       controller.isFollower.value = false;
       controller.isFollowing.value = true;
       controller.isBoth.value = false;
+      controller.isUnFollow.value = true;
     } else if (followStatus == "follower") {
       log('CheckFollow:isFollower');
       controller.isNeither.value = false;
       controller.isFollower.value = true;
       controller.isFollowing.value = false;
       controller.isBoth.value = false;
+      controller.isUnFollow.value = false;
     } else if (followStatus == 'Both') {
       log('CheckFollow:isBoth');
       controller.isNeither.value = false;
       controller.isFollower.value = false;
       controller.isFollowing.value = false;
       controller.isBoth.value = true;
+      controller.isUnFollow.value = false;
     }
     log(followStatus);
     notifyListeners();

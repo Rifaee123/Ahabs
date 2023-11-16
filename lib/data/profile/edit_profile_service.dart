@@ -13,7 +13,7 @@ class EditProfileService {
   Future<Either<MainFailure, bool>> editProfile(EditProfile editProfile) async {
     try {
       final authToken =
-          await StorageService.instance.readSecureData('authToken');
+          await StorageService.instance.readSecureData('AuthToken');
       final userId = convertTokenToId(authToken!);
       final url = '$kBaseUrl$editProfileEndpoint$userId';
       log(url);

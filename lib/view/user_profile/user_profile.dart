@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:ahbas/controller/getx/follow_controller.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
@@ -13,7 +12,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
-import 'package:socket_io_client/socket_io_client.dart' as socketio;
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key, required this.userData});
@@ -72,7 +70,7 @@ class _UserProfileState extends State<UserProfile> {
     var followProvider =
         Provider.of<FollowFollowingProvider>(context, listen: false);
     await followProvider.sentFollowRequest(
-        userName: widget.userData.userName,
+        userName: controller.currentusername.value,
         visitingUserId: widget.userData.userId,
         socket: Provider.of<ChatProvider>(context, listen: false)
             .initializedSocket);
@@ -236,7 +234,8 @@ class _UserProfileState extends State<UserProfile> {
                                 controller.currentuserid.value ==
                                         widget.userData.userId
                                     ? AnimatedContainer(
-                                        duration: Duration(milliseconds: 300),
+                                        duration:
+                                            const Duration(milliseconds: 300),
                                         width: 194.w,
                                         height: 38.h,
                                         decoration:
@@ -248,7 +247,7 @@ class _UserProfileState extends State<UserProfile> {
                                             //         borderRadius: BorderRadius.all(
                                             //             Radius.circular(30)))
                                             //     :
-                                            BoxDecoration(
+                                            const BoxDecoration(
                                                 color: Color(0xff449cc0),
                                                 borderRadius: BorderRadius.all(
                                                     Radius.circular(30))),
@@ -330,11 +329,11 @@ class _UserProfileState extends State<UserProfile> {
                                               //     false;
                                             },
                                             child: AnimatedContainer(
-                                              duration:
-                                                  Duration(milliseconds: 300),
+                                              duration: const Duration(
+                                                  milliseconds: 300),
                                               width: 200.w,
                                               height: 38.h,
-                                              decoration: BoxDecoration(
+                                              decoration: const BoxDecoration(
                                                   color: Color(0xff449cc0),
                                                   borderRadius:
                                                       BorderRadius.all(
@@ -400,16 +399,19 @@ class _UserProfileState extends State<UserProfile> {
                                                   // }
                                                 },
                                                 child: AnimatedContainer(
-                                                  duration: Duration(
+                                                  duration: const Duration(
                                                       milliseconds: 300),
                                                   width: 200.w,
                                                   height: 38.h,
-                                                  decoration: BoxDecoration(
-                                                      color: Color(0xff449cc0),
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  30))),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                          color:
+                                                              Color(0xff449cc0),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          30))),
                                                   child: Center(
                                                       child: Text(
                                                     "Follow",
@@ -418,17 +420,17 @@ class _UserProfileState extends State<UserProfile> {
                                                   )),
                                                 ))
                                             : AnimatedContainer(
-                                                duration:
-                                                    Duration(milliseconds: 300),
+                                                duration: const Duration(
+                                                    milliseconds: 300),
                                                 width: 200.w,
                                                 height: 38.h,
                                                 decoration: BoxDecoration(
-                                                    color: Color.fromARGB(
+                                                    color: const Color.fromARGB(
                                                         255, 254, 255, 255),
                                                     border: Border.all(
                                                         color: Colors.black),
                                                     borderRadius:
-                                                        BorderRadius.all(
+                                                        const BorderRadius.all(
                                                             Radius.circular(
                                                                 30))),
                                                 child: Center(
@@ -457,7 +459,8 @@ class _UserProfileState extends State<UserProfile> {
 
                                                         unFollow();
                                                         print('unfollow');
-                                                        checkFollowStatus();
+
+                                                        // checkFollowStatus();
                                                         // if (controller.isNeither
                                                         //         .value ==
                                                         //     true) {
@@ -546,7 +549,7 @@ class _UserProfileState extends State<UserProfile> {
                             showDialog(
                               context: context,
                               builder: (context) {
-                                return AlertDialog(
+                                return const AlertDialog(
                                   content: Text("'Failed to create chat room'"),
                                 );
                               },
@@ -564,7 +567,7 @@ class _UserProfileState extends State<UserProfile> {
 
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => ChatPage(
-                                  authToken: authToken,
+                                  authToken: authToken!,
                                   visitingUserId: widget.userData.userId,
                                   roomId: response.roomId,
                                   userName: widget.userData.userName,
@@ -592,7 +595,7 @@ class _UserProfileState extends State<UserProfile> {
                                       GoogleFonts.poppins(color: Colors.white),
                                 )),
                               )
-                            : SizedBox(),
+                            : const SizedBox(),
                       ),
                       SizedBox(
                         height: 10.h,

@@ -47,7 +47,7 @@ class TabBarController extends GetxController {
   void updatePage(int index) {
     pageController.animateToPage(
       index,
-      duration: Duration(milliseconds: 3),
+      duration: const Duration(milliseconds: 3),
       curve: Curves.easeInOut,
     );
     currentindex.value = index;

@@ -110,7 +110,7 @@ class FollowFollowingService {
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');
       // final userId = convertTokenToId(authToken!);
-      log("userid:${userId}");
+      log("userid:$userId");
       final url = '$kBaseUrl$followerListEndPoint$userId';
       final uri = Uri.parse(url);
 

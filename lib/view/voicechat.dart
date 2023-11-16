@@ -30,7 +30,7 @@ class _VoiceChatState extends State<VoiceChat> {
   bool temp = false;
   bool audio = false;
   int _limit = 20;
-  int _limitIncrement = 20;
+  final int _limitIncrement = 20;
 
 
   
@@ -220,7 +220,7 @@ class _VoiceChatState extends State<VoiceChat> {
           controller: messageController,
           focusNode: focusNode,
           decoration: InputDecoration(
-              prefixIcon: Container(
+              prefixIcon: SizedBox(
                 width: 80,
                 child: Row(
                   children: [

@@ -6,16 +6,14 @@ import 'package:ahbas/provider/chat/chat_provider.dart';
 import 'package:ahbas/provider/folllow_following/follow_following_provider.dart';
 
 import 'package:ahbas/provider/login/login_provider.dart';
+import 'package:ahbas/provider/profile/add_profile_pic_provider.dart';
 import 'package:ahbas/provider/profile/current_user_provider.dart';
+import 'package:ahbas/provider/profile/edit_profile_provider.dart';
 import 'package:ahbas/provider/register/email_registration_provider.dart';
 import 'package:ahbas/provider/register/phone_registration_provider.dart';
 import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
 import 'package:ahbas/provider/verify_phone/verify_phone_provider.dart';
-
-import 'package:ahbas/view/auth_page/auth_page.dart';
-
-import 'package:ahbas/view/home_page/home_page.dart';
 
 import 'package:ahbas/view/splash_page/splash_screen.dart';
 
@@ -70,6 +68,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => FollowFollowingProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => EditProfileProvider(),
+        ),
+         ChangeNotifierProvider(
+          create: (context) => AddProfilePicProvider(),
+        ),
       ],
       child: ScreenUtilInit(
         designSize: ScreenUtil.defaultSize,
@@ -81,7 +85,7 @@ class MyApp extends StatelessWidget {
                 ColorScheme.fromSeed(seedColor: const Color(0xff449cc0)),
             useMaterial3: true,
           ),
-          home: SplashScreen(),
+          home: const SplashScreen(),
         ),
       ),
     );

@@ -7,7 +7,6 @@ import 'package:ahbas/view/register_page/register_email_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -30,86 +29,107 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
   final Authcontrolller authcontrolller = Get.put(Authcontrolller());
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IconButton(
-              onPressed: () {
-                authcontrolller.loginCurrentIndex.value = 0;
-              },
-              icon: const Icon(Icons.close)),
-          Padding(
-            padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
-            child: Text(
-              "Enter Registerd Email",
-              style: GoogleFonts.poppins(color: Colors.white, fontSize: 18.sp),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
-            child: ComenFormFeild(
-                onChanged: (p0) {
-                  controller.loginEmailvalidate.value = false;
-                },
-                controller: loginemailcontroller,
-                hinttext: "Enter Your Email",
-                icon: Icons.person,
-                callback: () {},
-                inputType: TextInputType.emailAddress,
-                obscureText: false),
-          ),
-          controller.loginEmailvalidate.value
-              ? Padding(
-                  padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
-                  child: Text("Enter Email",
-                      style: GoogleFonts.poppins(color: Colors.red)),
-                )
-              : SizedBox(),
-          Padding(
-            padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
-            child: Text(
-              "Enter Password",
-              style: GoogleFonts.poppins(color: Colors.white, fontSize: 18.sp),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
-            child: ComenFormFeild(
-                onChanged: (p0) {
-                  controller.loginemailpasswordvalidate.value = false;
-                },
-                controller: loginemailpasscontroller,
-                hinttext: "Enter Your Password",
-                icon: Icons.person,
-                callback: () {},
-                inputType: TextInputType.visiblePassword,
-                obscureText: true),
-          ),
-          controller.loginemailpasswordvalidate.value
-              ? Padding(
-                  padding: EdgeInsets.only(
-                    left: 30.w,
+    return Scaffold(
+      backgroundColor: Color(0xff479ec1),
+      body: SafeArea(
+        child: Obx(() {
+          return SingleChildScrollView(
+            child: Container(
+              decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                colors: [Color(0xffbfdde9), Color(0xff479ec1)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              )),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 150.h,
                   ),
-                  child: Text("Enter Password",
-                      style: GoogleFonts.poppins(color: Colors.red)),
-                )
-              : SizedBox(),
-          Padding(
-            padding: EdgeInsets.only(left: 70.w, bottom: 10.h, top: 10.h),
-            child: SizedBox(
-              width: 200.w,
-              height: 50.h,
-              child: LoginButton(
-                  loginemailcontroller: loginemailcontroller,
-                  controller: controller,
-                  loginemailpasscontroller: loginemailpasscontroller,
-                  authcontrolller: authcontrolller),
+                  IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(Icons.close)),
+                  Padding(
+                    padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
+                    child: Text(
+                      "Enter Registerd Email",
+                      style: GoogleFonts.poppins(
+                          color: Colors.white, fontSize: 18.sp),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
+                    child: ComenFormFeild(
+                        onChanged: (p0) {
+                          controller.loginEmailvalidate.value = false;
+                        },
+                        controller: loginemailcontroller,
+                        hinttext: "Enter Your Email",
+                        icon: Icons.person,
+                        callback: () {},
+                        inputType: TextInputType.emailAddress,
+                        obscureText: false),
+                  ),
+                  controller.loginEmailvalidate.value
+                      ? Padding(
+                          padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
+                          child: Text("Enter Email",
+                              style: GoogleFonts.poppins(color: Colors.red)),
+                        )
+                      : const SizedBox(),
+                  Padding(
+                    padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
+                    child: Text(
+                      "Enter Password",
+                      style: GoogleFonts.poppins(
+                          color: Colors.white, fontSize: 18.sp),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 30.w, bottom: 10.h),
+                    child: ComenFormFeild(
+                        onChanged: (p0) {
+                          controller.loginemailpasswordvalidate.value = false;
+                        },
+                        controller: loginemailpasscontroller,
+                        hinttext: "Enter Your Password",
+                        icon: Icons.person,
+                        callback: () {},
+                        inputType: TextInputType.visiblePassword,
+                        obscureText: true),
+                  ),
+                  controller.loginemailpasswordvalidate.value
+                      ? Padding(
+                          padding: EdgeInsets.only(
+                            left: 30.w,
+                          ),
+                          child: Text("Enter Password",
+                              style: GoogleFonts.poppins(color: Colors.red)),
+                        )
+                      : const SizedBox(),
+                  Padding(
+                    padding:
+                        EdgeInsets.only(left: 70.w, bottom: 10.h, top: 10.h),
+                    child: SizedBox(
+                      width: 200.w,
+                      height: 50.h,
+                      child: LoginButton(
+                          loginemailcontroller: loginemailcontroller,
+                          controller: controller,
+                          loginemailpasscontroller: loginemailpasscontroller,
+                          authcontrolller: authcontrolller),
+                    ),
+                  )
+                ],
+              ),
             ),
-          )
-        ],
-      );
-    });
+          );
+        }),
+      ),
+    );
   }
 }
 
@@ -132,13 +152,15 @@ class LoginButton extends StatelessWidget {
     return Obx(() {
       if (authcontrolller.isLogin.value == true) {
         Future.microtask(() async {
-          final authorizationToken =
+          final String? authorizationToken =
               await StorageService.instance.readSecureData('AuthToken');
           if (authorizationToken!.isNotEmpty) {
             return Navigator.of(context).push(MaterialPageRoute(
               builder: (context) =>
                   HomePage(authorizationToken: authorizationToken),
             ));
+          } else {
+            return Text("auth token is null");
           }
         });
       }
@@ -191,17 +213,22 @@ class LoginButton extends StatelessWidget {
                       return Text(
                         'Error',
                         style: GoogleFonts.poppins(
-                            color: Color.fromARGB(255, 248, 0, 25)),
+                            color: const Color.fromARGB(255, 248, 0, 25)),
                       );
                     } else if (result.isPasswordInvalid == true) {
                       return Text(
                         'invalid Password',
                         style: GoogleFonts.poppins(
-                            color: Color.fromARGB(255, 248, 0, 25)),
+                            color: const Color.fromARGB(255, 248, 0, 25)),
+                      );
+                    } else if (result.isAuthorized == true) {
+                      return Text(
+                        'Login sucsesfull',
+                        style: GoogleFonts.poppins(color: Colors.green),
                       );
                     } else {
                       return Text(
-                        'Login Successfull',
+                        'Email Incurrect',
                         style: GoogleFonts.poppins(color: Colors.green),
                       );
                     }

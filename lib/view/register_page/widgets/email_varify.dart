@@ -96,7 +96,7 @@ class EmailVerifyPage extends StatelessWidget {
               onPressed: () {
                 verifyOtp(otp: controller.otp.value);
               },
-              child: Text('Verify OTP'),
+              child: const Text('Verify OTP'),
             )
           ],
         ),

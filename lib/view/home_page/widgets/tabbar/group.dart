@@ -28,7 +28,7 @@ class GroupView extends StatelessWidget {
                   width: 10.w,
                 ),
                 CircleAvatar(
-                  backgroundColor: Color(0xff449cc0),
+                  backgroundColor: const Color(0xff449cc0),
                   radius: 12.r,
                   child: Center(
                     child: Text(

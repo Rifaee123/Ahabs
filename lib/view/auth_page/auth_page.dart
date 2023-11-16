@@ -10,7 +10,6 @@ import 'package:ahbas/view/register_page/register_phone_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AuthPage extends StatelessWidget {
@@ -27,8 +26,8 @@ class AuthPage extends StatelessWidget {
                   child: Container(
                 height: controller.registerCurrentIndex.value == 1 ||
                         controller.registerCurrentIndex.value == 2
-                    ? 1030.h
-                    : 680.h,
+                    ? 1040.h
+                    : 690.h,
                 width: 500,
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -43,7 +42,7 @@ class AuthPage extends StatelessWidget {
                     SizedBox(
                       height: 20.h,
                     ),
-                    TopTabBar()
+                    const TopTabBar()
                   ],
                 ),
               )))),
@@ -112,10 +111,10 @@ class _TopTabBarState extends State<TopTabBar> with TickerProviderStateMixin {
                         controller.registerCurrentIndex.value == 2
                     ? 850.h
                     : 350.h,
-                child: TabBarView(controller: tabcontroller, children: [
+                child: TabBarView(controller: tabcontroller, children: const [
                   RegisterComenpage(),
                   LoginCommenPage(),
-                  const RecoverComenPage(),
+                  RecoverComenPage(),
                 ]))
           ],
         ));
@@ -161,12 +160,12 @@ class LoginCommenPage extends StatelessWidget {
               text: 'Login With Email',
               icon: Icons.mail_outline,
               callback: () {
-                authcontrolller.loginCurrentIndex.value = 1;
+                // authcontrolller.loginCurrentIndex.value = 1;
 
-                print(authcontrolller.loginCurrentIndex.value);
-                // Navigator.of(context).push(MaterialPageRoute(
-                //   builder: (context) => const RegisterPage(),
-                // ));
+                // print(authcontrolller.loginCurrentIndex.value);
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const LoginEmailPage(),
+                ));
               },
             ),
             SizedBox(
@@ -176,12 +175,12 @@ class LoginCommenPage extends StatelessWidget {
               text: 'Login With Mobile',
               icon: Icons.phone_android_outlined,
               callback: () {
-                authcontrolller.loginCurrentIndex.value = 2;
+                // authcontrolller.loginCurrentIndex.value = 2;
 
-                print(authcontrolller.loginCurrentIndex.value);
-                // Navigator.of(context).push(MaterialPageRoute(
-                //   builder: (context) => const RegisterPage(),
-                // ));
+                // print(authcontrolller.loginCurrentIndex.value);
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const LoginPhonePage(),
+                ));
               },
             ),
             SizedBox(
@@ -227,10 +226,10 @@ class LoginCommenPage extends StatelessWidget {
         );
       }
       if (authcontrolller.loginCurrentIndex.value == 1) {
-        return LoginEmailPage();
+        return const LoginEmailPage();
       }
       if (authcontrolller.loginCurrentIndex.value == 2) {
-        return LoginPhonePage();
+        return const LoginPhonePage();
       }
       if (authcontrolller.loginCurrentIndex.value == 3) {
         return Column(
@@ -461,14 +460,22 @@ class _RegisterComenpageState extends State<RegisterComenpage> {
     if (controller.registerCurrentIndex.value == 0) {
       return comenregisterContainer(valuefirst, valuesecond);
     }
-    if (controller.registerCurrentIndex.value == 1) {
-      return RegisterEmailPage();
-    }
-    if (controller.registerCurrentIndex.value == 2) {
-      return RegisterPhonePage();
-    }
     if (controller.registerCurrentIndex.value == 3) {
-      return const Text("Register As A guest");
+      return Column(
+        children: [
+          SizedBox(
+            height: 10.h,
+          ),
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  controller.registerCurrentIndex.value = 0;
+                });
+              },
+              icon: const Icon(Icons.close)),
+          const Text("Register As A guest"),
+        ],
+      );
     } else {
       return comenregisterContainer(valuefirst, valuesecond);
     }
@@ -484,13 +491,13 @@ class _RegisterComenpageState extends State<RegisterComenpage> {
           text: 'Register With Email',
           icon: Icons.mail_outline,
           callback: () {
-            setState(() {
-              controller.registerCurrentIndex.value = 1;
-            });
-            print(controller.registerCurrentIndex.value);
-            // Navigator.of(context).push(MaterialPageRoute(
-            //   builder: (context) => const RegisterPage(),
-            // ));
+            // setState(() {
+            //   // controller.registerCurrentIndex.value = 1;
+            // });
+            // print(controller.registerCurrentIndex.value);
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const RegisterEmailPage(),
+            ));
           },
         ),
         SizedBox(
@@ -500,12 +507,12 @@ class _RegisterComenpageState extends State<RegisterComenpage> {
           text: 'Register With Mobile',
           icon: Icons.phone_android_outlined,
           callback: () {
-            setState(() {
-              controller.registerCurrentIndex.value = 2;
-            });
-            // Navigator.of(context).push(MaterialPageRoute(
-            //   builder: (context) => const RegisterPage(),
-            // ));
+            // setState(() {
+            //   controller.registerCurrentIndex.value = 2;
+            // });
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const RegisterPhonePage(),
+            ));
           },
         ),
         SizedBox(

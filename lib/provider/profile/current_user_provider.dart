@@ -32,8 +32,10 @@ class CurrentUserProvider extends ChangeNotifier {
         );
       }
     });
+    controlller.currentusername.value =
+        currentUserResult.currentUser!.username!;
     controlller.currentuserid.value = currentUserResult.currentUser!.id!;
-    log("${controlller.currentuserid.value}");
+    log(controlller.currentuserid.value);
     log(controlller.authToken.value);
     notifyListeners();
   }

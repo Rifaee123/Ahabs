@@ -3,6 +3,8 @@ import 'package:ahbas/model/follow_following/following_list/following.dart';
 import 'package:get/get.dart';
 
 class FolloControlller extends GetxController {
+  RxString currentusername = ''.obs;
+  
   RxBool isFollow = false.obs;
   RxBool isUnFollow = true.obs;
   RxString checkresult = ''.obs;

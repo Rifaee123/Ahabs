@@ -21,6 +21,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   final NotificationsController _notificationsController =
       Get.put(NotificationsController());
   NotificationStream notificationStream = NotificationStream();
+  List notificationList = [];
+  dynamic prevNot = [];
   @override
   void initState() {
     SocketIoService.instance
@@ -37,7 +39,66 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       body: StreamBuilder(
           stream: notificationStream.getfollowResponse,
           builder: (context, snapshot) {
+//  if (snapshot.data != null) {
+//                 final currentMsg = snapshot.data;
+            // if (previousMsg == []) {
+            //   previousMsg = snapshot.data;
+            //   message = snapshot.data;
+            // } else {
+//                   if (currentMsg == previousMsg) {
+//                     // return const SizedBox();
+//                   } else {
+//                     message = snapshot.data;
+//                   }
+//                   previousMsg = currentMsg;
+//                 }
+
+            // // log('Recalled ${message['message']}');
+            // if (message != null) {
+
             log('okaydei');
+            dynamic notifyer;
+            if (snapshot.data != null) {
+              final currentNot = snapshot.data;
+              if (prevNot == []) {
+                prevNot = snapshot.data;
+                notifyer = snapshot.data;
+              } else {
+                if (currentNot == prevNot) {
+                } else {
+                  notifyer = snapshot.data;
+                }
+                prevNot = currentNot;
+              }
+
+              if (notifyer != null) {
+                log('Hurrayyyy');
+                final notification = snapshot.data;
+                // _notificationsController.notifications.add(Notifications(
+                //     id: notification['sender_id'],
+                //     receiver: notification['receiver'],
+                //     user: User(
+                //         id: notification['sender_id'],
+                //         username: notification['username'],
+                //         profilePicture: notification['profilepicture']),
+                //     content: notification['content'],
+                //     isRead: false,
+                //     createdAt: DateTime.parse(notification['createdAt']),
+                //     updatedAt: DateTime.now()));
+
+                notificationList.add(Notifications(
+                    id: notification['sender_id'],
+                    receiver: notification['receiver'],
+                    user: User(
+                        id: notification['sender_id'],
+                        username: notification['username'],
+                        profilePicture: notification['profilepicture']),
+                    content: notification['content'],
+                    isRead: false,
+                    createdAt: DateTime.parse(notification['createdAt']),
+                    updatedAt: DateTime.now()));
+              }
+            }
             return Center(
               child: Obx(() {
                 if (_notificationsController.isLoading.value) {
@@ -46,40 +107,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   return Text(_notificationsController.error.value);
                 } else if (_notificationsController.notifications.isEmpty) {
                   return const Text('No notifications');
-                }
-                 else {
-                  final notificationList =
-                      _notificationsController.notifications;
+                } else {
+                  notificationList = _notificationsController.notifications;
                   log('Hurrayyyy');
-                  if (snapshot.data != null) {
-                    log('Hurrayyyy');
-                    final notification = snapshot.data;
-                    _notificationsController.notifications.add(
-                        Notifications(
-                            id: notification['sender_id'],
-                            receiver: notification['receiver'],
-                            user: User(
-                                id: notification['sender_id'],
-                                username: notification['username'],
-                                profilePicture: notification['profilepicture']),
-                            content: notification['content'],
-                            isRead: false,
-                            createdAt:
-                                DateTime.parse(notification['createdAt']),
-                            updatedAt: DateTime.now()));
 
-                    notificationList.add(Notifications(
-                        id: notification['sender_id'],
-                        receiver: notification['receiver'],
-                        user: User(
-                            id: notification['sender_id'],
-                            username: notification['username'],
-                            profilePicture: notification['profilepicture']),
-                        content: notification['content'],
-                        isRead: false,
-                        createdAt: DateTime.parse(notification['createdAt']),
-                        updatedAt: DateTime.now()));
-                  }
                   return ListView.builder(
                     itemCount: notificationList.length,
                     itemBuilder: (context, index) {

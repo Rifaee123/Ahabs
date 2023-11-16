@@ -12,6 +12,7 @@ class EditProfileProvider extends ChangeNotifier {
     final EditProfile editProfile =
         EditProfile(email: email, gender: gender, username: username);
     final result = await EditProfileService().editProfile(editProfile);
+    print(result.toString());
     isProfileEditted = result.fold((l) => false, (r) {
       return true;
     });

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:ahbas/controller/getx/follow_controller.dart';
 import 'package:ahbas/provider/profile/current_user_provider.dart';
+import 'package:ahbas/view/edit_profile/edit_profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -30,7 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SafeArea(
           child: SingleChildScrollView(
         child: Padding(
-            padding: EdgeInsets.only(top: 15),
+            padding: const EdgeInsets.only(top: 15),
             child:
                 Consumer<CurrentUserProvider>(builder: (context, value, child) {
               // controlller.currentuserid.value =
@@ -96,9 +99,25 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Image.asset(
-                            "assets/images/Group 50.png",
-                            width: 70.w,
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.grey,
+                            child: value.currentUserResult.currentUser!
+                                        .profilepicture ==
+                                    null
+                                ? Icon(
+                                    Icons.person,
+                                    size: 10,
+                                    color: Colors.white,
+                                  )
+                                : ClipOval(
+                                    child: Image.network(
+                                    value.currentUserResult.currentUser!
+                                        .profilepicture!,
+                                    height: 200,
+                                    width: 200,
+                                    fit: BoxFit.cover,
+                                  )),
                           ),
                           Column(
                             children: [
@@ -139,7 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              ImageIcon(
+                              const ImageIcon(
                                   AssetImage('assets/images/copyIcone.png')),
                             ],
                           ),
@@ -179,18 +198,25 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            width: 194.w,
-                            height: 38.h,
-                            decoration: const BoxDecoration(
-                                color: Color(0xff449cc0),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30))),
-                            child: Center(
-                                child: Text(
-                              "Edit Account Details",
-                              style: GoogleFonts.poppins(color: Colors.white),
-                            )),
+                          InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => EditProfileScreen(),
+                              ));
+                            },
+                            child: Container(
+                              width: 194.w,
+                              height: 38.h,
+                              decoration: const BoxDecoration(
+                                  color: Color(0xff449cc0),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(30))),
+                              child: Center(
+                                  child: Text(
+                                "Edit Account Details",
+                                style: GoogleFonts.poppins(color: Colors.white),
+                              )),
+                            ),
                           ),
                           Container(
                             width: 110.w,
@@ -224,7 +250,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   Container(
                     width: 320.w,
                     height: 50.h,
-                    decoration: BoxDecoration(color: Color(0xffd9d9d9)),
+                    decoration: const BoxDecoration(color: Color(0xffd9d9d9)),
                     child: Row(children: [
                       Text("Album ",
                           style: GoogleFonts.poppins(

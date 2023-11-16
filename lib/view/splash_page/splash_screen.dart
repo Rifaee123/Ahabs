@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -25,11 +27,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   bool? authToken;
 
+  @override
   void initState() {
     super.initState();
 
     // Simulate a time-consuming operation, such as initializing some data
-    Future.delayed(Duration(seconds: 3), () async {
+    Future.delayed(const Duration(seconds: 3), () async {
       authToken = await readAuthToken();
       final authorizationToken =
           await StorageService.instance.readSecureData('AuthToken');

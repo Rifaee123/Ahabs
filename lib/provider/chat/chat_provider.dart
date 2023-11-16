@@ -11,8 +11,6 @@ import 'package:ahbas/data/services/socket_io/socket_io.dart';
 import 'package:ahbas/model/chat/individual_chats/datum.dart';
 import 'package:ahbas/model/chat/primary_chatters/datum.dart';
 
-import 'package:ahbas/model/chatroom_response/data.dart';
-import 'package:ahbas/utils/strings.dart';
 
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socketio;
@@ -166,15 +164,12 @@ class ChatProvider extends ChangeNotifier {
             createdAt: sendedChat.createdAt!,
           ),
           sendedChat.roomId ??= '');
-      final authToken =
-          await StorageService.instance.readSecureData('AuthToken');
 
       SocketIoService.instance
-          .sendMessage(sendingChat, socket, chat.replyMessage, authToken!);
+          .sendMessage(sendingChat, socket, chat.replyMessage);
     } else {}
     notifyListeners();
   }
-
 
   getOnlineStatus(List<dynamic> allOnlineUsers) {
     List<String> usersList = [];
@@ -184,7 +179,6 @@ class ChatProvider extends ChangeNotifier {
     onlineUserList.clear();
     onlineUserList.addAll(usersList);
 
-
     notifyListeners();
   }
 
@@ -192,40 +186,49 @@ class ChatProvider extends ChangeNotifier {
     final result = await ChatService().deleteForMe(messageId: messageId);
     result.fold((l) => null, (r) {
       chatList.removeWhere((element) => element.id == messageId);
-      final getlength = ChatLengthService.instance.getChatListLength(roomId);
-      ChatLengthService.instance.addChatListLength(
-          getlength != null ? getlength - 1 : 0,
-          roomId,
-          chatList.last.message,
-          chatList.last.createdAt);
+      // final getlength = ChatLengthService.instance.getChatListLength(roomId);
+      // ChatLengthService.instance.addChatListLength(
+      //     getlength != null ? getlength - 1 : 0,
+      //     roomId,
+      //     chatList.last.message,
+      //     chatList.last.createdAt);
     });
     notifyListeners();
   }
 
-  Future deleteForEveryone(String messageId, String roomId) async {
+  Future deleteForEveryone(String messageId, String roomId, socketio.Socket socket,String visitingUserId) async {
     final result = await ChatService().deleteForEveryOne(messageId: messageId);
+  
     result.fold((l) => null, (r) {
       chatList.removeWhere((element) => element.id == messageId);
-      final getlength = ChatLengthService.instance.getChatListLength(roomId);
-      ChatLengthService.instance.addChatListLength(
-          getlength != null ? getlength - 1 : 0,
-          roomId,
-          chatList.last.message,
-          chatList.last.createdAt);
+        SocketIoService.instance.deleteForEveryOneNotify(
+            socket,
+              messageId,
+            roomId,
+             visitingUserId,
+            );
+
+       
+      // final getlength = ChatLengthService.instance.getChatListLength(roomId);
+      // ChatLengthService.instance.addChatListLength(
+      //     getlength != null ? getlength - 1 : 0,
+      //     roomId,
+      //     chatList.last.message,
+      //     chatList.last.createdAt);
     });
     notifyListeners();
   }
 
-  listenToDelete(String deleteMessageId,String roomId){
-       chatList.removeWhere((element) => element.id == deleteMessageId);
-      final getlength = ChatLengthService.instance.getChatListLength(roomId);
-      ChatLengthService.instance.addChatListLength(
-          getlength != null ? getlength - 1 : 0,
-          roomId,
-          chatList.last.message,
-          chatList.last.createdAt);
-          
-          notifyListeners();
+  listenToDelete(String deleteMessageId, String roomId) {
+    chatList.removeWhere((element) => element.id == deleteMessageId);
+    final getlength = ChatLengthService.instance.getChatListLength(roomId);
+    ChatLengthService.instance.addChatListLength(
+        getlength != null ? getlength - 1 : 0,
+        roomId,
+        chatList.last.message,
+        chatList.last.createdAt);
+
+    notifyListeners();
   }
 
   Future clearChat(String roomId) async {
@@ -245,11 +248,12 @@ class ChatProvider extends ChangeNotifier {
   void addToPrimarylatest(String message, String roomId, DateTime createdAt) {
     final index = primrychatResponse.chatList
         .indexWhere((element) => element.roomId == roomId);
-        if(primrychatResponse.chatList.isNotEmpty && index!=-1)
-  {  primrychatResponse.chatList[index].latestMessage = message;
-    primrychatResponse.chatList[index].latestMsgTime = createdAt;
-    final msgCount = primrychatResponse.chatList[index].messageCount;
-    primrychatResponse.chatList[index].messageCount = msgCount + 1;}
+    if (primrychatResponse.chatList.isNotEmpty && index != -1) {
+      primrychatResponse.chatList[index].latestMessage = message;
+      primrychatResponse.chatList[index].latestMsgTime = createdAt;
+      final msgCount = primrychatResponse.chatList[index].messageCount;
+      primrychatResponse.chatList[index].messageCount = msgCount + 1;
+    }
   }
 
   void addSingleChat(ChatDataDTO chat, String roomId) {
@@ -341,10 +345,12 @@ class ChatDataDTO {
 List<ChatDataDTO> convertChatDataToDTO(
     List<ChatData> chatDataList, String currentUserId, String roomId) {
   List<ChatDataDTO> chatDTOList = [];
-  
-  ChatLengthService.instance.addChatListLength(chatDataList.length, roomId,
-    chatDataList.isEmpty?null:chatDataList.last.message,
-     chatDataList.isEmpty?null:chatDataList.last.createdAt);
+
+  ChatLengthService.instance.addChatListLength(
+      chatDataList.length,
+      roomId,
+      chatDataList.isEmpty ? null : chatDataList.last.message,
+      chatDataList.isEmpty ? null : chatDataList.last.createdAt);
 
   for (var chat in chatDataList) {
     if (chat.deleteduser != null && chat.deleteduser!.contains(currentUserId)) {
@@ -378,7 +384,7 @@ Map<String, dynamic> convertPrimaryChatDataToDTO(
 
   for (var chat in chatDataList) {
     bool isDeleted = false;
-   
+
     if (chat.latestmessage!.deleteduser!.contains(currentUserId)) {
       isDeleted = true;
     }
