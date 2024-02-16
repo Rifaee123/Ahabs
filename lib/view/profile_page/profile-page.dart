@@ -103,8 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             radius: 30,
                             backgroundColor: Colors.grey,
                             child: value.currentUserResult.currentUser!
-                                        .profilepicture ==
-                                    null
+                                        .profilepicture!.isEmpty
                                 ? Icon(
                                     Icons.person,
                                     size: 10,

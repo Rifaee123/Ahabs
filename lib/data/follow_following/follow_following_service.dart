@@ -44,7 +44,7 @@ class FollowFollowingService {
   }
 
   Future<Either<MainFailure, bool>> sentUnFollowRequest(
-      String visitingUserId) async {
+       String visitingUserId) async {
     try {
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');

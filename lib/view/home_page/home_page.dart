@@ -379,7 +379,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         CallsView(calltabcontroller: calltabcontroller),
                         StatusView(statustabcontroller: statustabcontroller),
                         PrimaryView(streamSocket: streamSocket,authToken:widget.authorizationToken),
-                        const GroupView(),
+                         GroupView(),
                       ],
                     ),
                   ),

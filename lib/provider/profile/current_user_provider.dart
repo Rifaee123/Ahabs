@@ -13,6 +13,7 @@ class CurrentUserProvider extends ChangeNotifier {
     isLoading: true,
     isError: false,
   );
+  ///addddd
   Future getCurrentUser() async {
     controlller.authToken.value =
         (await StorageService.instance.readSecureData('AuthToken'))!;
@@ -35,6 +36,7 @@ class CurrentUserProvider extends ChangeNotifier {
     controlller.currentusername.value =
         currentUserResult.currentUser!.username!;
     controlller.currentuserid.value = currentUserResult.currentUser!.id!;
+    log("Profile: ${currentUserResult.currentUser!.profilepicture!}");
     log(controlller.currentuserid.value);
     log(controlller.authToken.value);
     notifyListeners();
