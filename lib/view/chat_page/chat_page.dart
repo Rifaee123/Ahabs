@@ -715,6 +715,7 @@ class _ChatPageState extends State<ChatPage> {
                         : null,
                     id: message['chatId'],
                   ));
+                  
                   Provider.of<ChatProvider>(context).addToPrimarylatest(
                       message['message'],
                       widget.roomId,

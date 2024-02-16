@@ -163,20 +163,41 @@ class ChatService {
     }
   }
 
+  // Future<Either<MainFailure, bool>> deleteForEveryOne(
+  //     {required String messageId}) async {
+  //   try {
+  //     log('id$messageId');
+  //     final authToken =
+  //         await StorageService.instance.readSecureData('AuthToken');
+  //     log('Auther${authToken.toString()}');
+
+  //     final url = '$kBaseUrl$deleteForEveryOneEndPoint$messageId';
+  //     log('Url:$url');
+  //     final uri = Uri.parse(url);
+  //     final response = await http
+  //         .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
+  //     log('Delete${response.statusCode.toString()}');
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       return const Right(true);
+  //     } else {
+  //       return Left(MainFailure.serverFailure());
+  //     }
+  //   } catch (e) {
+  //     return Left(MainFailure.clientFailure());
+  //   }
+  // }
+
   Future<Either<MainFailure, bool>> deleteForEveryOne(
       {required String messageId}) async {
     try {
-      log('id$messageId');
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');
-      log('Auther${authToken.toString()}');
 
       final url = '$kBaseUrl$deleteForEveryOneEndPoint$messageId';
-      log('Url:$url');
       final uri = Uri.parse(url);
       final response = await http
           .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
-      log('Delete${response.statusCode.toString()}');
+      log('status:${response.statusCode}');
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);
       } else {
