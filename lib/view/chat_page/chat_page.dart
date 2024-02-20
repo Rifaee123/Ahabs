@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:ahbas/controller/getx/follow_controller.dart';
+import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
 
 import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
@@ -29,6 +30,7 @@ class ChatPage extends StatefulWidget {
   final String userName;
   final String profilePic;
   final socketio.Socket streamSocket;
+
   final String authToken;
 
   @override
@@ -39,8 +41,8 @@ class _ChatPageState extends State<ChatPage> {
   FolloControlller followcontroller = Get.put(FolloControlller());
   ValueNotifier<int> isTapped = ValueNotifier(0);
   TextEditingController chatcontroller = TextEditingController();
-  double _containerWidth = 200.0;
-  double _containerHeight = 40.0;
+  double _containerWidth = 200.w;
+  final double _containerHeight = 40.h;
   StreamSocket streamingSocket = StreamSocket();
   List<ChatDataDTO> chatList = [];
   bool emojiShowing = false;
@@ -54,6 +56,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
+    currentUserId = convertTokenToId(widget.authToken);
+
     log('Visiting');
     log(widget.roomId.toString());
     currentUserId = convertTokenToId(widget.authToken);
@@ -84,7 +88,7 @@ class _ChatPageState extends State<ChatPage> {
     log('Hereeeee');
     log(Provider.of<ChatProvider>(context, listen: false).chatList.toString());
     SocketIoService.instance
-        .listenMessage(streamingSocket, widget.streamSocket);
+        .listenMessage(streamingSocket, widget.streamSocket, widget.roomId);
     SocketIoService.instance
         .listenToDelete(widget.streamSocket, widget.roomId, context);
     super.initState();
@@ -99,13 +103,360 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        floatingActionButton:
+        body: Column(
+          children: [
+            Expanded(
+              child: StreamBuilder(
+                  stream: streamingSocket.getResponse,
+                  builder: (context, snapshot) {
+                    log(snapshot.data.toString());
+                    if (snapshot.data == 'Clear') {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    dynamic message;
+                    if (snapshot.data != null) {
+                      final currentMsg = snapshot.data;
+                      if (previousMsg == []) {
+                        previousMsg = snapshot.data;
+                        message = snapshot.data;
+                      } else {
+                        if (currentMsg == previousMsg) {
+                          // return const SizedBox();
+                        } else {
+                          message = snapshot.data;
+                        }
+                        previousMsg = currentMsg;
+                      }
+
+                      // log('Recalled ${message['message']}');
+                      if (message != null) {
+                        log('Hiii');
+                        log(message.toString());
+                        log(message['chatId'].toString());
+                        chatList.add(ChatDataDTO(
+                          message: message['message'],
+                          senderId: message['userId'],
+                          createdAt: DateTime.parse(message['createdAt']),
+                          isReply: message['replyId'] != null ? true : false,
+                          replyId: message['replyId'] != null
+                              ? ReplyId(
+                                  message: message['replyId']['message'],
+                                  replyId: message['replyId']['_id'])
+                              : null,
+                          id: message['chatId'],
+                        ));
+                        Provider.of<ChatProvider>(context).addToPrimarylatest(
+                            message['message'],
+                            widget.roomId,
+                            DateTime.parse(message['createdAt']));
+                        final getlength = ChatLengthService.instance
+                            .getChatListLength(widget.roomId);
+                        ChatLengthService.instance.addChatListLength(
+                            getlength != null ? getlength + 1 : 1,
+                            widget.roomId,
+                            message['message'],
+                            DateTime.parse(message['createdAt']));
+                      }
+                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                        scrollController.animateTo(
+                            scrollController.position.maxScrollExtent,
+                            duration: const Duration(milliseconds: 1),
+                            curve: Curves.slowMiddle);
+                      });
+                    }
+                    return Consumer<ChatProvider>(
+                        builder: (context, provider, _) {
+                      final response = provider.chatResponse;
+                      if (response.isLoading) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (response.isError) {
+                        return const Text('Error');
+                      }
+                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                        if (scrollController.hasClients) {
+                          scrollController.animateTo(
+                              scrollController.position.maxScrollExtent,
+                              duration: const Duration(milliseconds: 1),
+                              curve: Curves.easeOut);
+                        }
+                      });
+
+                      chatList = response.chatList;
+
+                      return GestureDetector(
+                        onTap: () {
+                          provider.showEmoji(false);
+                        },
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 50.h,
+                              color: const Color(0xff449cc0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      icon: const Icon(
+                                        Icons.arrow_back,
+                                        color: Colors.white,
+                                      )),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(top: 8.h, bottom: 8.h),
+                                    child: SizedBox(
+                                      height: 50.h,
+                                      width: 62.w,
+                                      child: Stack(
+                                        children: [
+                                          Positioned(
+                                            child: CircleAvatar(
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                      255, 230, 229, 229),
+                                              radius: 25.r,
+                                              child: Image.asset(
+                                                'assets/images/icons8-person-96 2.png',
+                                                height: 30.h,
+                                                width: 30.w,
+                                              ),
+                                            ),
+                                          ),
+                                          Consumer<ChatProvider>(
+                                              builder: (context, provider, _) {
+                                            bool isOnline = false;
+                                            if (provider
+                                                .onlineUserList.isNotEmpty) {
+                                              if (provider.onlineUserList.any(
+                                                  (element) =>
+                                                      element ==
+                                                      widget.visitingUserId)) {
+                                                isOnline = true;
+                                              } else {
+                                                isOnline = false;
+                                              }
+                                            } else {
+                                              isOnline = false;
+                                            }
+                                            return Positioned(
+                                                right: 5.w,
+                                                bottom: -1.h,
+                                                child: Image.asset(
+                                                  isOnline
+                                                      ? 'assets/images/online.png'
+                                                      : 'assets/images/Group 26.png',
+                                                  height: 22.h,
+                                                ));
+                                          }),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        width: 100.w,
+                                        child: Text(
+                                          widget.userName,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontSize: 16.sp),
+                                        ),
+                                      ),
+                                      Consumer<ChatProvider>(
+                                          builder: (context, provider, _) {
+                                        bool isOnline = false;
+                                        if (provider
+                                            .onlineUserList.isNotEmpty) {
+                                          if (provider.onlineUserList.any(
+                                              (element) =>
+                                                  element ==
+                                                  widget.visitingUserId)) {
+                                            isOnline = true;
+                                          } else {
+                                            isOnline = false;
+                                          }
+                                        } else {
+                                          isOnline = false;
+                                        }
+                                        return Text(
+                                          isOnline ? "online" : "offline",
+                                          style: const TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 208, 208, 208)),
+                                        );
+                                      })
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 10.w,
+                                  ),
+                                  IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                        Icons.call,
+                                        color: Colors.white,
+                                      )),
+                                  SizedBox(
+                                    width: 10.w,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      Provider.of<ChatProvider>(context,
+                                              listen: false)
+                                          .clearChat(widget.roomId);
+                                    },
+                                    child: Image.asset(
+                                      "assets/images/bussiness.png",
+                                      height: 20.h,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20.w,
+                                  ),
+                                  Image.asset(
+                                    "assets/images/Group 12.png",
+                                    height: 20.h,
+                                  )
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: ListView(
+                                controller: scrollController,
+                                children: List.generate(
+                                  chatList.length,
+                                  (index) {
+                                    log('currenDayListView');
+                                    String senderId = '';
+                                    if (chatList[index].isReply) {
+                                      final replyedToChat = chatList
+                                          .where((element) =>
+                                              element.id ==
+                                              chatList[index].replyId!.replyId)
+                                          .toList();
+                                      if (replyedToChat.isNotEmpty) {
+                                        senderId = replyedToChat[0].senderId;
+                                      } else {
+                                        senderId = 'Deleted';
+                                      }
+                                    }
+                                    GlobalKey buttonKey = GlobalKey();
+                                    final dateTime = chatList[index]
+                                        .createdAt
+                                        .add(const Duration(
+                                            hours: 5, minutes: 30));
+                                    if (index == 0) {
+                                      currentChatDay = dateTime.day;
+                                    }
+                                    return Column(
+                                      children: [
+                                        chatDay(
+                                            index, currentChatDay, dateTime),
+                                        InkWell(
+                                          key: buttonKey,
+                                          onTap: () {
+                                            provider.showEmoji(false);
+                                          },
+                                          onLongPress: () {
+                                            showDeleteMenu(
+                                                buttonKey,
+                                                chatList[index].id!,
+                                                chatList[index].senderId ==
+                                                        currentUserId
+                                                    ? true
+                                                    : false);
+                                          },
+                                          child: SwipeTo(
+                                            rightSwipeWidget: const SizedBox(),
+                                            onRightSwipe: () {
+                                              log('currenDayisReplying');
+                                              Provider.of<ChatProvider>(context,
+                                                      listen: false)
+                                                  .replyToMessage(
+                                                      chatList[index].message,
+                                                      chatList[index]
+                                                                  .senderId ==
+                                                              currentUserId
+                                                          ? "You"
+                                                          : widget.userName);
+                                              Provider.of<ChatProvider>(context,
+                                                      listen: false)
+                                                  .getReplyId(
+                                                      chatList[index].id!);
+
+                                              Provider.of<ChatProvider>(context,
+                                                      listen: false)
+                                                  .isReply(true);
+                                            },
+                                            child: Column(
+                                              children: [
+                                                ChatBubble(
+                                                    isReply:
+                                                        chatList[index].isReply,
+                                                    replyMessage:
+                                                        chatList[index].isReply
+                                                            ? {
+                                                                'currentUserId':
+                                                                    currentUserId,
+                                                                'userName': widget
+                                                                    .userName,
+                                                                'message': chatList[
+                                                                        index]
+                                                                    .replyId!
+                                                                    .message,
+                                                                'replyUserId':
+                                                                    senderId
+                                                              }
+                                                            : {},
+                                                    dateTimeString:
+                                                        chatList[index]
+                                                            .createdAt
+                                                            .toString(),
+                                                    message:
+                                                        chatList[index].message,
+                                                    isMe: chatList[index]
+                                                                .senderId ==
+                                                            currentUserId
+                                                        ? true
+                                                        : false),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 5.h,
+                            ),
+                            SizedBox(
+                              height: provider.isReplying ? 5.h : 0.0,
+                            ),
+                          ],
+                        ),
+                      );
+                      // });
+                    });
+                  }),
+            ),
             Consumer<ChatProvider>(builder: (context, provider, _) {
-          final isreplying = provider.isReplying;
-          return Padding(
-              padding: EdgeInsets.only(
-                  left: 20.w, top: provider.isEmojiShowing ? 330.h : 560.h),
-              child: ValueListenableBuilder(
+              final isreplying = provider.isReplying;
+              return ValueListenableBuilder(
                 valueListenable: isTapped,
                 builder: (context, value, child) {
                   print('value $isTapped');
@@ -114,6 +465,7 @@ class _ChatPageState extends State<ChatPage> {
                       children: [
                         isreplying == true
                             ? Container(
+                                // height: 50.h,
                                 width: 500.w,
                                 decoration: const BoxDecoration(
                                     borderRadius: BorderRadius.only(
@@ -162,283 +514,288 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                               )
                             : SizedBox(
-                                height: 69.h,
+                                height: 0.h,
                               ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            CircleAvatar(
-                              radius: 17,
-                              backgroundColor: const Color(0xff449cc0),
-                              child: Image.asset(
-                                'assets/images/more.png',
-                                height: 17.h,
-                                width: 17.w,
-                              ),
-                            ),
-                            Container(
-                              height: 40.h,
-                              width: 200.w,
-                              decoration: const BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(30)),
-                                  color: Color(0xffece8e8)),
-                              child: TextFormField(
-                                onTapOutside: (point) {},
-                                controller: chatcontroller,
-                                style: const TextStyle(
-                                    overflow: TextOverflow.ellipsis),
-                                onTap: () {
-                                  print('Tapped');
-                                  // setState(() {
-                                  isTapped.value = 1;
-                                  isTapped.value == 1
-                                      ? _containerWidth = 500.0
-                                      : _containerWidth = 200.0;
-                                  // });
-                                },
-                                textAlign: TextAlign.start,
-                                decoration: InputDecoration(
-                                    suffixIcon: IconButton(
-                                        onPressed: () {
-                                          log('sending...');
-                                          // setState(() {
-                                          // Provider.of<ChatProvider>(context,
-                                          //         listen: false)
-                                          //     .addSingleChat(ChatDataDTO(
-                                          //   replyId: provider.isReplying
-                                          //       ? ReplyId(
-                                          //           message:
-                                          //               provider.replyMessage[
-                                          //                   'message']!,
-                                          //           replyId: provider.replyId)
-                                          //       : null,
-                                          //   isReply: provider.isReplying,
-                                          //   message: chatcontroller.text,
-                                          //   senderId: currentUserId,
-                                          //   createdAt: DateTime.now(),
-                                          // ));
-
-                                          // chatList.add(ChatDataDTO(
-                                          //   message: chatcontroller.text,
-                                          //   senderId: currentUserId,
-                                          //   createdAt: DateTime.now(),
-                                          // ));
-                                          if (provider.isReplying) {
-                                            // SocketIoService.instance.sendMessage(
-                                            //   ChatDTO(
-
-                                            //       toUserId:
-                                            //           widget.visitingUserId,
-                                            //       message: chatcontroller.text,
-                                            //       roomid: widget.roomId),
-                                            //   widget.streamSocket);
-                                          }
-                                          // SocketIoService.instance.sendMessage(
-                                          //     ChatDTO(
-                                          //         toUserId:
-                                          //             widget.visitingUserId,
-                                          //         message: chatcontroller.text,
-                                          //         roomid: widget.roomId),
-                                          //     widget.streamSocket);
-                                          Provider.of<ChatProvider>(context,
-                                                  listen: false)
-                                              .sendMessage(
-                                                  ChatDTO(
-                                                      replyMessage: provider
-                                                              .isReplying
-                                                          ? provider
-                                                                  .replyMessage[
-                                                              'message']
-                                                          : null,
-                                                      replyId:
-                                                          provider.isReplying
-                                                              ? provider.replyId
-                                                              : null,
-                                                      toUserId:
-                                                          widget.visitingUserId,
-                                                      message:
-                                                          chatcontroller.text,
-                                                      roomid: widget.roomId),
-                                                  widget.streamSocket);
-
-                                          // sendMessage(
-                                          //     ChatDTO(
-                                          //         toUserId: widget.visitingUserId,
-                                          //         message: chatcontroller.text,
-                                          //         roomid: widget.roomId),
-                                          //     socket);
-
-                                          scrollController.animateTo(
-                                              scrollController
-                                                  .position.maxScrollExtent,
-                                              duration: const Duration(
-                                                  milliseconds: 1),
-                                              curve: Curves.slowMiddle);
-                                          Provider.of<ChatProvider>(context,
-                                                  listen: false)
-                                              .isReply(false);
-                                          chatcontroller.clear();
-                                        },
-                                        icon: const Icon(Icons.send)),
-                                    prefixIcon: IconButton(
-                                        onPressed: () {
-                                          provider.showEmoji(
-                                              !provider.isEmojiShowing);
-                                        },
-                                        icon: const Icon(
-                                          Icons.emoji_emotions,
-                                          color:
-                                              Color.fromARGB(255, 93, 88, 88),
-                                        )),
-                                    border: InputBorder.none),
-                              ),
-                            ),
-                            CircleAvatar(
-                              radius: 17,
-                              backgroundColor: const Color(0xff449cc0),
-                              child: InkWell(
-                                onTap: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    enableDrag: true,
-                                    isScrollControlled:
-                                        true, // Allows the bottom sheet to take up the full screen
-                                    builder: (BuildContext context) {
-                                      return Stack(
-                                        children: <Widget>[
-                                          DraggableScrollableSheet(
-                                            expand: false,
-
-                                            initialChildSize:
-                                                0.5, // Initial size of the bottom sheet
-                                            minChildSize:
-                                                0.25, // Minimum size of the bottom sheet
-                                            maxChildSize:
-                                                0.9, // Maximum size of the bottom sheet
-                                            builder: (BuildContext context,
-                                                ScrollController
-                                                    scrollController) {
-                                              return Container(
-                                                  decoration: const BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                              topLeft: Radius
-                                                                  .circular(15),
-                                                              topRight: Radius
-                                                                  .circular(
-                                                                      15))),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: GridView.builder(
-                                                      controller:
-                                                          scrollController,
-                                                      gridDelegate:
-                                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                                              crossAxisSpacing:
-                                                                  4,
-                                                              mainAxisSpacing:
-                                                                  4,
-                                                              crossAxisCount:
-                                                                  3),
-                                                      itemBuilder:
-                                                          (context, index) =>
-                                                              Container(
-                                                        height: 30,
-                                                        width: 30,
-                                                        color: const Color(
-                                                            0xff000088),
-                                                      ),
-                                                    ),
-                                                  ));
-                                            },
-                                          ),
-                                          Positioned(
-                                            bottom: 0,
-                                            child: Container(
-                                              height: 70.h,
-                                              width: 360.w,
-                                              color: const Color(0xffbcddea),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  InkWell(
-                                                    child: Image.asset(
-                                                      "assets/images/Group 46.png",
-                                                      height: 40.h,
-                                                    ),
-                                                  ),
-                                                  InkWell(
-                                                    child: Image.asset(
-                                                      "assets/images/Group 45.png",
-                                                      height: 40.h,
-                                                    ),
-                                                  ),
-                                                  InkWell(
-                                                    child: Image.asset(
-                                                      "assets/images/Group 44.png",
-                                                      height: 40.h,
-                                                    ),
-                                                  ),
-                                                  InkWell(
-                                                    child: Image.asset(
-                                                      "assets/images/Group 43.png",
-                                                      height: 40.h,
-                                                    ),
-                                                  ),
-                                                  InkWell(
-                                                    child: Image.asset(
-                                                      "assets/images/Group 42.png",
-                                                      height: 40.h,
-                                                    ),
-                                                  ),
-                                                  InkWell(
-                                                    child: Image.asset(
-                                                      "assets/images/Group 41.png",
-                                                      height: 40.h,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              CircleAvatar(
+                                radius: 17,
+                                backgroundColor: const Color(0xff449cc0),
                                 child: Image.asset(
-                                  'assets/images/Upload.png',
+                                  'assets/images/more.png',
                                   height: 17.h,
                                   width: 17.w,
                                 ),
                               ),
-                            ),
-                            CircleAvatar(
-                              radius: 17,
-                              backgroundColor: const Color(0xff449cc0),
-                              child: Image.asset(
-                                'assets/images/camara1.png',
-                                height: 17.h,
-                                width: 17.w,
+                              Container(
+                                // height: 40.h,
+                                width: 200.w,
+                                decoration: const BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(30)),
+                                  color: Color(0xffece8e8),
+                                ),
+                                child: TextFormField(
+                                  onTapOutside: (point) {},
+                                  controller: chatcontroller,
+                                  style: const TextStyle(
+                                      overflow: TextOverflow.ellipsis),
+                                  onTap: () {
+                                    print('Tapped');
+                                    // setState(() {
+                                    isTapped.value = 1;
+                                    isTapped.value == 1
+                                        ? _containerWidth = 500.0
+                                        : _containerWidth = 200.0;
+                                    // });
+                                  },
+                                  textAlign: TextAlign.start,
+                                  decoration: InputDecoration(
+                                      suffixIcon: IconButton(
+                                          onPressed: () {
+                                            log('sending...');
+                                            // setState(() {
+                                            // Provider.of<ChatProvider>(context,
+                                            //         listen: false)
+                                            //     .addSingleChat(ChatDataDTO(
+                                            //   replyId: provider.isReplying
+                                            //       ? ReplyId(
+                                            //           message:
+                                            //               provider.replyMessage[
+                                            //                   'message']!,
+                                            //           replyId: provider.replyId)
+                                            //       : null,
+                                            //   isReply: provider.isReplying,
+                                            //   message: chatcontroller.text,
+                                            //   senderId: currentUserId,
+                                            //   createdAt: DateTime.now(),
+                                            // ));
+
+                                            // chatList.add(ChatDataDTO(
+                                            //   message: chatcontroller.text,
+                                            //   senderId: currentUserId,
+                                            //   createdAt: DateTime.now(),
+                                            // ));
+                                            if (provider.isReplying) {
+                                              // SocketIoService.instance.sendMessage(
+                                              //   ChatDTO(
+
+                                              //       toUserId:
+                                              //           widget.visitingUserId,
+                                              //       message: chatcontroller.text,
+                                              //       roomid: widget.roomId),
+                                              //   widget.streamSocket);
+                                            }
+                                            // SocketIoService.instance.sendMessage(
+                                            //     ChatDTO(
+                                            //         toUserId:
+                                            //             widget.visitingUserId,
+                                            //         message: chatcontroller.text,
+                                            //         roomid: widget.roomId),
+                                            //     widget.streamSocket);
+                                            Provider.of<ChatProvider>(context,
+                                                    listen: false)
+                                                .sendMessage(
+                                                    ChatDTO(
+                                                        replyMessage: provider
+                                                                .isReplying
+                                                            ? provider
+                                                                    .replyMessage[
+                                                                'message']
+                                                            : null,
+                                                        replyId: provider
+                                                                .isReplying
+                                                            ? provider.replyId
+                                                            : null,
+                                                        toUserId: widget
+                                                            .visitingUserId,
+                                                        message:
+                                                            chatcontroller.text,
+                                                        roomid: widget.roomId),
+                                                    widget.streamSocket);
+
+                                            // sendMessage(
+                                            //     ChatDTO(
+                                            //         toUserId: widget.visitingUserId,
+                                            //         message: chatcontroller.text,
+                                            //         roomid: widget.roomId),
+                                            //     socket);
+
+                                            scrollController.animateTo(
+                                                scrollController
+                                                    .position.maxScrollExtent,
+                                                duration: const Duration(
+                                                    milliseconds: 1),
+                                                curve: Curves.slowMiddle);
+                                            Provider.of<ChatProvider>(context,
+                                                    listen: false)
+                                                .isReply(false);
+                                            chatcontroller.clear();
+                                          },
+                                          icon: const Icon(Icons.send)),
+                                      prefixIcon: IconButton(
+                                          onPressed: () {
+                                            provider.showEmoji(
+                                                !provider.isEmojiShowing);
+                                          },
+                                          icon: const Icon(
+                                            Icons.emoji_emotions,
+                                            color:
+                                                Color.fromARGB(255, 93, 88, 88),
+                                          )),
+                                      border: InputBorder.none),
+                                ),
                               ),
-                            ),
-                            CircleAvatar(
-                              radius: 17,
-                              backgroundColor: const Color(0xff449cc0),
-                              child: Image.asset(
-                                'assets/images/voice.png',
-                                height: 17.h,
-                                width: 17.w,
+                              CircleAvatar(
+                                radius: 17,
+                                backgroundColor: const Color(0xff449cc0),
+                                child: InkWell(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      enableDrag: true,
+                                      isScrollControlled:
+                                          true, // Allows the bottom sheet to take up the full screen
+                                      builder: (BuildContext context) {
+                                        return Stack(
+                                          children: <Widget>[
+                                            DraggableScrollableSheet(
+                                              expand: false,
+
+                                              initialChildSize:
+                                                  0.5, // Initial size of the bottom sheet
+                                              minChildSize:
+                                                  0.25, // Minimum size of the bottom sheet
+                                              maxChildSize:
+                                                  0.9, // Maximum size of the bottom sheet
+                                              builder: (BuildContext context,
+                                                  ScrollController
+                                                      scrollController) {
+                                                return Container(
+                                                    decoration: const BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        15),
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        15))),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: GridView.builder(
+                                                        controller:
+                                                            scrollController,
+                                                        gridDelegate:
+                                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                                                crossAxisSpacing:
+                                                                    4,
+                                                                mainAxisSpacing:
+                                                                    4,
+                                                                crossAxisCount:
+                                                                    3),
+                                                        itemBuilder:
+                                                            (context, index) =>
+                                                                Container(
+                                                          height: 30,
+                                                          width: 30,
+                                                          color: const Color(
+                                                              0xff000088),
+                                                        ),
+                                                      ),
+                                                    ));
+                                              },
+                                            ),
+                                            Positioned(
+                                              bottom: 0,
+                                              child: Container(
+                                                // height: 70.h,
+                                                width: 360.w,
+                                                color: const Color(0xffbcddea),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  children: [
+                                                    InkWell(
+                                                      child: Image.asset(
+                                                        "assets/images/Group 46.png",
+                                                        height: 40.h,
+                                                      ),
+                                                    ),
+                                                    InkWell(
+                                                      child: Image.asset(
+                                                        "assets/images/Group 45.png",
+                                                        height: 40.h,
+                                                      ),
+                                                    ),
+                                                    InkWell(
+                                                      child: Image.asset(
+                                                        "assets/images/Group 44.png",
+                                                        height: 40.h,
+                                                      ),
+                                                    ),
+                                                    InkWell(
+                                                      child: Image.asset(
+                                                        "assets/images/Group 43.png",
+                                                        height: 40.h,
+                                                      ),
+                                                    ),
+                                                    InkWell(
+                                                      child: Image.asset(
+                                                        "assets/images/Group 42.png",
+                                                        height: 40.h,
+                                                      ),
+                                                    ),
+                                                    InkWell(
+                                                      child: Image.asset(
+                                                        "assets/images/Group 41.png",
+                                                        height: 40.h,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Image.asset(
+                                    'assets/images/Upload.png',
+                                    height: 17.h,
+                                    width: 17.w,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                              CircleAvatar(
+                                radius: 17,
+                                backgroundColor: const Color(0xff449cc0),
+                                child: Image.asset(
+                                  'assets/images/camara1.png',
+                                  height: 17.h,
+                                  width: 17.w,
+                                ),
+                              ),
+                              CircleAvatar(
+                                radius: 17,
+                                backgroundColor: const Color(0xff449cc0),
+                                child: Image.asset(
+                                  'assets/images/voice.png',
+                                  height: 17.h,
+                                  width: 17.w,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         Offstage(
                           offstage: !provider.isEmojiShowing,
@@ -450,7 +807,7 @@ class _ChatPageState extends State<ChatPage> {
                                 config: Config(
                                   columns: 7,
                                   // Issue: https://github.com/flutter/flutter/issues/28894
-                                  emojiSizeMax: 32 *
+                                  emojiSizeMax: 28 *
                                       (foundation.defaultTargetPlatform ==
                                               TargetPlatform.iOS
                                           ? 1.30
@@ -488,180 +845,237 @@ class _ChatPageState extends State<ChatPage> {
                     );
                   } else {
                     if (value == 1) {
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 1),
-                        height: isreplying == true
-                            ? _containerHeight.h * 2
-                            : _containerHeight.h,
-                        width: _containerWidth,
-                        decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(30)),
-                            color: Color(0xffece8e8)),
-                        child: Column(
-                          children: [
-                            isreplying == true
-                                ? Container(
-                                    width: 500.w,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 0.5.h, horizontal: 15.w),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 1),
+                          height: isreplying == true
+                              ? _containerHeight.h * 2
+                              : _containerHeight.h,
+                          width: _containerWidth,
+                          decoration: const BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(30)),
+                              color: Color(0xffece8e8)),
+                          child: Column(
+                            children: [
+                              isreplying == true
+                                  ? Container(
+                                      height: 40.h,
+                                      width: 500.w,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 0.5.h, horizontal: 15.w),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  provider.replyMessage[
+                                                      'userName'] ??= '',
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 16.sp,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                // IconButton(
+                                                //     onPressed: () {
+                                                //       log('Pressed');
+                                                //       Provider.of<ChatProvider>(
+                                                //               context,
+                                                //               listen: false)
+                                                //           .isReply(false);
+                                                //     },
+                                                //     icon: const Icon(Icons.close))
+                                              ],
+                                            ),
+                                            Text(
                                                 provider.replyMessage[
-                                                    'userName'] ??= '',
+                                                    'message'] ??= '',
                                                 style: TextStyle(
                                                     color: Colors.black,
-                                                    fontSize: 16.sp,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              // IconButton(
-                                              //     onPressed: () {
-                                              //       log('Pressed');
-                                              //       Provider.of<ChatProvider>(
-                                              //               context,
-                                              //               listen: false)
-                                              //           .isReply(false);
-                                              //     },
-                                              //     icon: const Icon(Icons.close))
-                                            ],
-                                          ),
-                                          Text(
-                                              provider.replyMessage[
-                                                  'message'] ??= '',
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 14.sp))
-                                        ],
+                                                    fontSize: 14.sp))
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                : const SizedBox(
-                                    // height: 60.h,
-                                    ),
-                            SizedBox(
-                              height: _containerHeight.h,
-                              child: TextFormField(
-                                autofocus: true,
-                                onChanged: (text) {
-                                  // setState(() {
-                                  // Update the height of the container based on text length
-                                  _containerHeight = 40.0 + text.length / 2;
-                                  // You can adjust the factor (10.0 in this case) according to your preference
-                                  // });
-                                },
-                                onTapOutside: (event) {
-                                  isTapped.value = 0;
-                                  provider.showEmoji(false);
-                                },
-                                maxLines: null,
-                                minLines: 5,
-                                onEditingComplete: () {
-                                  isTapped.value = 0;
-                                },
-                                controller: chatcontroller,
-                                textAlign: TextAlign.start,
-                                decoration: InputDecoration(
-                                    suffixIcon: IconButton(
-                                        onPressed: () {
-                                          log('sending...');
-                                          // setState(() {
-                                          // Provider.of<ChatProvider>(context,
-                                          //         listen: false)
-                                          //     .addSingleChat(ChatDataDTO(
-                                          //   replyId: provider.isReplying
-                                          //       ? ReplyId(
-                                          //           message:
-                                          //               provider.replyMessage[
-                                          //                   'message']!,
-                                          //           replyId: provider.replyId)
-                                          //       : null,
-                                          //   isReply: provider.isReplying,
-                                          //   message: chatcontroller.text,
-                                          //   senderId: currentUserId,
-                                          //   createdAt: DateTime.now(),
-                                          // ));
-                                          // chatList.add(ChatDataDTO(
-                                          //   message: chatcontroller.text,
-                                          //   senderId: currentUserId,
-                                          //   createdAt: DateTime.now(),
-                                          // ));
-                                          // SocketIoService.instance.sendMessage(
-                                          //     ChatDTO(
-                                          //         toUserId:
-                                          //             widget.visitingUserId,
-                                          //         message: chatcontroller.text,
-                                          //         roomid: widget.roomId),
-                                          //     widget.streamSocket);
-                                          Provider.of<ChatProvider>(context,
-                                                  listen: false)
-                                              .sendMessage(
-                                                  ChatDTO(
-                                                      replyMessage: provider
-                                                              .isReplying
-                                                          ? provider
-                                                                  .replyMessage[
-                                                              'message']
-                                                          : null,
-                                                      replyId:
-                                                          provider.isReplying
-                                                              ? provider.replyId
-                                                              : null,
-                                                      toUserId:
-                                                          widget.visitingUserId,
-                                                      message:
-                                                          chatcontroller.text,
-                                                      roomid: widget.roomId),
-                                                  widget.streamSocket);
+                                    )
+                                  : const SizedBox(
+                                      // height: 60.h,
+                                      ),
+                              SizedBox(
+                                height: _containerHeight.h,
+                                child: TextFormField(
+                                  autofocus: true,
+                                  onChanged: (text) {
+                                    // setState(() {
+                                    // Update the height of the container based on text length
+                                    // _containerHeight = 40.h + text.length / 2;
+                                    // You can adjust the factor (10.0 in this case) according to your preference
+                                    // });
+                                  },
+                                  onTapOutside: (event) {
+                                    isTapped.value = 0;
+                                    provider.showEmoji(false);
+                                  },
+                                  maxLines: null,
+                                  minLines: 5,
+                                  onEditingComplete: () {
+                                    isTapped.value = 0;
+                                  },
+                                  controller: chatcontroller,
+                                  textAlign: TextAlign.start,
+                                  decoration: InputDecoration(
+                                      suffixIcon: IconButton(
+                                          onPressed: () {
+                                            log('sending...');
+                                            // setState(() {
+                                            // Provider.of<ChatProvider>(context,
+                                            //         listen: false)
+                                            //     .addSingleChat(ChatDataDTO(
+                                            //   replyId: provider.isReplying
+                                            //       ? ReplyId(
+                                            //           message:
+                                            //               provider.replyMessage[
+                                            //                   'message']!,
+                                            //           replyId: provider.replyId)
+                                            //       : null,
+                                            //   isReply: provider.isReplying,
+                                            //   message: chatcontroller.text,
+                                            //   senderId: currentUserId,
+                                            //   createdAt: DateTime.now(),
+                                            // ));
+                                            // chatList.add(ChatDataDTO(
+                                            //   message: chatcontroller.text,
+                                            //   senderId: currentUserId,
+                                            //   createdAt: DateTime.now(),
+                                            // ));
+                                            // SocketIoService.instance.sendMessage(
+                                            //     ChatDTO(
+                                            //         toUserId:
+                                            //             widget.visitingUserId,
+                                            //         message: chatcontroller.text,
+                                            //         roomid: widget.roomId),
+                                            //     widget.streamSocket);
+                                            Provider.of<ChatProvider>(context,
+                                                    listen: false)
+                                                .sendMessage(
+                                                    ChatDTO(
+                                                        replyMessage: provider
+                                                                .isReplying
+                                                            ? provider
+                                                                    .replyMessage[
+                                                                'message']
+                                                            : null,
+                                                        replyId: provider
+                                                                .isReplying
+                                                            ? provider.replyId
+                                                            : null,
+                                                        toUserId: widget
+                                                            .visitingUserId,
+                                                        message:
+                                                            chatcontroller.text,
+                                                        roomid: widget.roomId),
+                                                    widget.streamSocket);
 
-                                          // sendMessage(
-                                          //     ChatDTO(
-                                          //         toUserId: widget.visitingUserId,
-                                          //         message: chatcontroller.text,
-                                          //         roomid: widget.roomId),
-                                          //     socket);
+                                            // sendMessage(
+                                            //     ChatDTO(
+                                            //         toUserId: widget.visitingUserId,
+                                            //         message: chatcontroller.text,
+                                            //         roomid: widget.roomId),
+                                            //     socket);
 
-                                          scrollController.animateTo(
-                                              scrollController
-                                                  .position.maxScrollExtent,
-                                              duration: const Duration(
-                                                  milliseconds: 1),
-                                              curve: Curves.slowMiddle);
-                                          Provider.of<ChatProvider>(context,
-                                                  listen: false)
-                                              .isReply(false);
-                                          chatcontroller.clear();
-                                        },
-                                        icon: const Icon(Icons.send)),
-                                    prefixIcon: IconButton(
-                                        onPressed: () {},
-                                        icon: const Icon(
-                                          Icons.emoji_emotions,
-                                          color:
-                                              Color.fromARGB(255, 93, 88, 88),
-                                        )),
-                                    border: InputBorder.none),
+                                            scrollController.animateTo(
+                                                scrollController
+                                                    .position.maxScrollExtent,
+                                                duration: const Duration(
+                                                    milliseconds: 1),
+                                                curve: Curves.slowMiddle);
+                                            Provider.of<ChatProvider>(context,
+                                                    listen: false)
+                                                .isReply(false);
+                                            chatcontroller.clear();
+                                          },
+                                          icon: const Icon(Icons.send)),
+                                      prefixIcon: IconButton(
+                                          onPressed: () {
+                                            provider.showEmoji(
+                                                !provider.isEmojiShowing);
+                                          },
+                                          icon: const Icon(
+                                            Icons.emoji_emotions,
+                                            color:
+                                                Color.fromARGB(255, 93, 88, 88),
+                                          )),
+                                      border: InputBorder.none),
+                                ),
                               ),
-                            ),
-                          ],
+                              Offstage(
+                                offstage: !provider.isEmojiShowing,
+                                child: SizedBox(
+                                    height: 250,
+                                    child: EmojiPicker(
+                                      textEditingController: chatcontroller,
+                                      onBackspacePressed: onBackspacePressed,
+                                      config: Config(
+                                        columns: 7,
+                                        // Issue: https://github.com/flutter/flutter/issues/28894
+                                        emojiSizeMax: 32 *
+                                            (foundation.defaultTargetPlatform ==
+                                                    TargetPlatform.iOS
+                                                ? 1.30
+                                                : 1.0),
+                                        verticalSpacing: 0,
+                                        horizontalSpacing: 0,
+                                        gridPadding: EdgeInsets.zero,
+                                        initCategory: Category.RECENT,
+                                        bgColor: const Color(0xFFF2F2F2),
+                                        indicatorColor: Colors.blue,
+                                        iconColor: Colors.grey,
+                                        iconColorSelected: Colors.blue,
+                                        backspaceColor: Colors.blue,
+                                        skinToneDialogBgColor: Colors.white,
+                                        skinToneIndicatorColor: Colors.grey,
+                                        enableSkinTones: true,
+                                        recentTabBehavior:
+                                            RecentTabBehavior.RECENT,
+                                        recentsLimit: 28,
+                                        replaceEmojiOnLimitExceed: false,
+                                        noRecents: const Text(
+                                          'No Recents',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              color: Colors.black26),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        loadingIndicator:
+                                            const SizedBox.shrink(),
+                                        tabIndicatorAnimDuration:
+                                            kTabScrollDuration,
+                                        categoryIcons: const CategoryIcons(),
+                                        buttonMode: ButtonMode.MATERIAL,
+                                        checkPlatformCompatibility: true,
+                                      ),
+                                    )),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     } else {
                       if (value == 2) {
                         return Container(
                           width: 500,
-                          height: 70,
+                          // height: 70,
                           color: Colors.blue,
                         );
                       } else {
@@ -672,332 +1086,333 @@ class _ChatPageState extends State<ChatPage> {
                     }
                   }
                 },
-              ));
+              );
+              
+              
         }),
-        body: StreamBuilder(
-            stream: streamingSocket.getResponse,
-            builder: (context, snapshot) {
-              log(snapshot.data.toString());
-              if (snapshot.data == 'Clear') {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              dynamic message;
-              if (snapshot.data != null) {
-                final currentMsg = snapshot.data;
-                if (previousMsg == []) {
-                  previousMsg = snapshot.data;
-                  message = snapshot.data;
-                } else {
-                  if (currentMsg == previousMsg) {
-                    // return const SizedBox();
-                  } else {
-                    message = snapshot.data;
-                  }
-                  previousMsg = currentMsg;
-                }
+        // body: StreamBuilder(
+        //     stream: streamingSocket.getResponse,
+        //     builder: (context, snapshot) {
+        //       log(snapshot.data.toString());
+        //       if (snapshot.data == 'Clear') {
+        //         return const Center(
+        //           child: CircularProgressIndicator(),
+        //         );
+        //       }
+        //       dynamic message;
+        //       if (snapshot.data != null) {
+        //         final currentMsg = snapshot.data;
+        //         if (previousMsg == []) {
+        //           previousMsg = snapshot.data;
+        //           message = snapshot.data;
+        //         } else {
+        //           if (currentMsg == previousMsg) {
+        //             // return const SizedBox();
+        //           } else {
+        //             message = snapshot.data;
+        //           }
+        //           previousMsg = currentMsg;
+        //         }
 
-                // log('Recalled ${message['message']}');
-                if (message != null) {
-                  log('Hiii');
-                  log(message.toString());
-                  log(message['chatId'].toString());
-                  chatList.add(ChatDataDTO(
-                    message: message['message'],
-                    senderId: message['userId'],
-                    createdAt: DateTime.parse(message['createdAt']),
-                    isReply: message['replyId'] != null ? true : false,
-                    replyId: message['replyId'] != null
-                        ? ReplyId(
-                            message: message['replyId']['message'],
-                            replyId: message['replyId']['_id'])
-                        : null,
-                    id: message['chatId'],
-                  ));
-                  
-                  Provider.of<ChatProvider>(context).addToPrimarylatest(
-                      message['message'],
-                      widget.roomId,
-                      DateTime.parse(message['createdAt']));
-                }
-                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                  scrollController.animateTo(
-                      scrollController.position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 1),
-                      curve: Curves.slowMiddle);
-                });
-              }
-              return Consumer<ChatProvider>(builder: (context, provider, _) {
-                final response = provider.chatResponse;
-                if (response.isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (response.isError) {
-                  return const Text('Error');
-                }
-                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                  if (scrollController.hasClients) {
-                    scrollController.animateTo(
-                        scrollController.position.maxScrollExtent,
-                        duration: const Duration(milliseconds: 1),
-                        curve: Curves.easeOut);
-                  }
-                });
+        //         // log('Recalled ${message['message']}');
+        //         if (message != null) {
+        //           log('Hiii');
+        //           log(message.toString());
+        //           log(message['chatId'].toString());
+        //           chatList.add(ChatDataDTO(
+        //             message: message['message'],
+        //             senderId: message['userId'],
+        //             createdAt: DateTime.parse(message['createdAt']),
+        //             isReply: message['replyId'] != null ? true : false,
+        //             replyId: message['replyId'] != null
+        //                 ? ReplyId(
+        //                     message: message['replyId']['message'],
+        //                     replyId: message['replyId']['_id'])
+        //                 : null,
+        //             id: message['chatId'],
+        //           ));
+        //           Provider.of<ChatProvider>(context).addToPrimarylatest(
+        //               message['message'],
+        //               widget.roomId,
+        //               DateTime.parse(message['createdAt']));
+        //         }
+        //         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        //           scrollController.animateTo(
+        //               scrollController.position.maxScrollExtent,
+        //               duration: const Duration(milliseconds: 1),
+        //               curve: Curves.slowMiddle);
+        //         });
+        //       }
+        //       return Consumer<ChatProvider>(builder: (context, provider, _) {
+        //         final response = provider.chatResponse;
+        //         if (response.isLoading) {
+        //           return const Center(
+        //             child: CircularProgressIndicator(),
+        //           );
+        //         }
+        //         if (response.isError) {
+        //           return const Text('Error');
+        //         }
+        //         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        //           if (scrollController.hasClients) {
+        //             scrollController.animateTo(
+        //                 scrollController.position.maxScrollExtent,
+        //                 duration: const Duration(milliseconds: 1),
+        //                 curve: Curves.easeOut);
+        //           }
+        //         });
 
-                chatList = response.chatList;
+        //         chatList = response.chatList;
 
-                return GestureDetector(
-                  onTap: () {
-                    provider.showEmoji(false);
-                  },
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 50.h,
-                        color: const Color(0xff449cc0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            IconButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                icon: const Icon(
-                                  Icons.arrow_back,
-                                  color: Colors.white,
-                                )),
-                            Padding(
-                              padding: EdgeInsets.only(top: 8.h, bottom: 8.h),
-                              child: SizedBox(
-                                height: 50.h,
-                                width: 62.w,
-                                child: Stack(
-                                  children: [
-                                    Positioned(
-                                      child: CircleAvatar(
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 230, 229, 229),
-                                        radius: 25.r,
-                                        child: Image.asset(
-                                          'assets/images/icons8-person-96 2.png',
-                                          height: 30.h,
-                                          width: 30.w,
-                                        ),
-                                      ),
-                                    ),
-                                    Consumer<ChatProvider>(
-                                        builder: (context, provider, _) {
-                                      bool isOnline = false;
-                                      if (provider.onlineUserList.isNotEmpty) {
-                                        if (provider.onlineUserList.any(
-                                            (element) =>
-                                                element ==
-                                                widget.visitingUserId)) {
-                                          isOnline = true;
-                                        } else {
-                                          isOnline = false;
-                                        }
-                                      } else {
-                                        isOnline = false;
-                                      }
-                                      return Positioned(
-                                          right: 5.w,
-                                          bottom: -1.h,
-                                          child: Image.asset(
-                                            isOnline
-                                                ? 'assets/images/online.png'
-                                                : 'assets/images/Group 26.png',
-                                            height: 22.h,
-                                          ));
-                                    }),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: 100.w,
-                                  child: Text(
-                                    widget.userName,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.poppins(
-                                        color: Colors.white, fontSize: 16.sp),
-                                  ),
-                                ),
-                                Consumer<ChatProvider>(
-                                    builder: (context, provider, _) {
-                                  bool isOnline = false;
-                                  if (provider.onlineUserList.isNotEmpty) {
-                                    if (provider.onlineUserList.any((element) =>
-                                        element == widget.visitingUserId)) {
-                                      isOnline = true;
-                                    } else {
-                                      isOnline = false;
-                                    }
-                                  } else {
-                                    isOnline = false;
-                                  }
-                                  return Text(
-                                    isOnline ? "online" : "offline",
-                                    style: const TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 208, 208, 208)),
-                                  );
-                                })
-                              ],
-                            ),
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            IconButton(
-                                onPressed: () {},
-                                icon: const Icon(
-                                  Icons.call,
-                                  color: Colors.white,
-                                )),
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Provider.of<ChatProvider>(context,
-                                        listen: false)
-                                    .clearChat(widget.roomId);
-                              },
-                              child: Image.asset(
-                                "assets/images/bussiness.png",
-                                height: 20.h,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 20.w,
-                            ),
-                            Image.asset(
-                              "assets/images/Group 12.png",
-                              height: 20.h,
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView(
-                          controller: scrollController,
-                          children: List.generate(
-                            chatList.length,
-                            (index) {
-                              log('currenDayListView');
-                              String senderId = '';
-                              if (chatList[index].isReply) {
-                                final replyedToChat = chatList
-                                    .where((element) =>
-                                        element.id ==
-                                        chatList[index].replyId!.replyId)
-                                    .toList();
-                                if (replyedToChat.isNotEmpty) {
-                                  senderId = replyedToChat[0].senderId;
-                                } else {
-                                  senderId = 'Deleted';
-                                }
-                              }
-                              GlobalKey buttonKey = GlobalKey();
-                              final dateTime = chatList[index]
-                                  .createdAt
-                                  .add(const Duration(hours: 5, minutes: 30));
-                              if (index == 0) {
-                                currentChatDay = dateTime.day;
-                              }
-                              return Column(
-                                children: [
-                                  chatDay(index, currentChatDay, dateTime),
-                                  InkWell(
-                                    key: buttonKey,
-                                    onTap: () {
-                                      provider.showEmoji(false);
-                                    },
-                                    onLongPress: () {
-                                      showDeleteMenu(
-                                          buttonKey,
-                                          chatList[index].id!,
-                                          chatList[index].senderId ==
-                                                  currentUserId
-                                              ? true
-                                              : false);
-                                    },
-                                    child: SwipeTo(
-                                      rightSwipeWidget: const SizedBox(),
-                                      onRightSwipe: () {
-                                        log('currenDayisReplying');
-                                        Provider.of<ChatProvider>(context,
-                                                listen: false)
-                                            .replyToMessage(
-                                                chatList[index].message,
-                                                chatList[index].senderId ==
-                                                        currentUserId
-                                                    ? "You"
-                                                    : widget.userName);
-                                        Provider.of<ChatProvider>(context,
-                                                listen: false)
-                                            .getReplyId(chatList[index].id!);
+        //         return GestureDetector(
+        //           onTap: () {
+        //             provider.showEmoji(false);
+        //           },
+        //           child: Column(
+        //             children: [
+        //               Container(
+        //                 height: 50.h,
+        //                 color: const Color(0xff449cc0),
+        //                 child: Row(
+        //                   crossAxisAlignment: CrossAxisAlignment.center,
+        //                   children: [
+        //                     IconButton(
+        //                         onPressed: () {
+        //                           Navigator.pop(context);
+        //                         },
+        //                         icon: const Icon(
+        //                           Icons.arrow_back,
+        //                           color: Colors.white,
+        //                         )),
+        //                     Padding(
+        //                       padding: EdgeInsets.only(top: 8.h, bottom: 8.h),
+        //                       child: SizedBox(
+        //                         height: 50.h,
+        //                         width: 62.w,
+        //                         child: Stack(
+        //                           children: [
+        //                             Positioned(
+        //                               child: CircleAvatar(
+        //                                 backgroundColor: const Color.fromARGB(
+        //                                     255, 230, 229, 229),
+        //                                 radius: 25.r,
+        //                                 child: Image.asset(
+        //                                   'assets/images/icons8-person-96 2.png',
+        //                                   height: 30.h,
+        //                                   width: 30.w,
+        //                                 ),
+        //                               ),
+        //                             ),
+        //                             Consumer<ChatProvider>(
+        //                                 builder: (context, provider, _) {
+        //                               bool isOnline = false;
+        //                               if (provider.onlineUserList.isNotEmpty) {
+        //                                 if (provider.onlineUserList.any(
+        //                                     (element) =>
+        //                                         element ==
+        //                                         widget.visitingUserId)) {
+        //                                   isOnline = true;
+        //                                 } else {
+        //                                   isOnline = false;
+        //                                 }
+        //                               } else {
+        //                                 isOnline = false;
+        //                               }
+        //                               return Positioned(
+        //                                   right: 5.w,
+        //                                   bottom: -1.h,
+        //                                   child: Image.asset(
+        //                                     isOnline
+        //                                         ? 'assets/images/online.png'
+        //                                         : 'assets/images/Group 26.png',
+        //                                     height: 22.h,
+        //                                   ));
+        //                             }),
+        //                           ],
+        //                         ),
+        //                       ),
+        //                     ),
+        //                     Column(
+        //                       mainAxisAlignment: MainAxisAlignment.center,
+        //                       crossAxisAlignment: CrossAxisAlignment.start,
+        //                       children: [
+        //                         SizedBox(
+        //                           width: 100.w,
+        //                           child: Text(
+        //                             widget.userName,
+        //                             overflow: TextOverflow.ellipsis,
+        //                             style: GoogleFonts.poppins(
+        //                                 color: Colors.white, fontSize: 16.sp),
+        //                           ),
+        //                         ),
+        //                         Consumer<ChatProvider>(
+        //                             builder: (context, provider, _) {
+        //                           bool isOnline = false;
+        //                           if (provider.onlineUserList.isNotEmpty) {
+        //                             if (provider.onlineUserList.any((element) =>
+        //                                 element == widget.visitingUserId)) {
+        //                               isOnline = true;
+        //                             } else {
+        //                               isOnline = false;
+        //                             }
+        //                           } else {
+        //                             isOnline = false;
+        //                           }
+        //                           return Text(
+        //                             isOnline ? "online" : "offline",
+        //                             style: const TextStyle(
+        //                                 color:
+        //                                     Color.fromARGB(255, 208, 208, 208)),
+        //                           );
+        //                         })
+        //                       ],
+        //                     ),
+        //                     SizedBox(
+        //                       width: 10.w,
+        //                     ),
+        //                     IconButton(
+        //                         onPressed: () {},
+        //                         icon: const Icon(
+        //                           Icons.call,
+        //                           color: Colors.white,
+        //                         )),
+        //                     SizedBox(
+        //                       width: 10.w,
+        //                     ),
+        //                     InkWell(
+        //                       onTap: () {
+        //                         Provider.of<ChatProvider>(context,
+        //                                 listen: false)
+        //                             .clearChat(widget.roomId);
+        //                       },
+        //                       child: Image.asset(
+        //                         "assets/images/bussiness.png",
+        //                         height: 20.h,
+        //                       ),
+        //                     ),
+        //                     SizedBox(
+        //                       width: 20.w,
+        //                     ),
+        //                     Image.asset(
+        //                       "assets/images/Group 12.png",
+        //                       height: 20.h,
+        //                     )
+        //                   ],
+        //                 ),
+        //               ),
+        //               Expanded(
+        //                 child: ListView(
+        //                   controller: scrollController,
+        //                   children: List.generate(
+        //                     chatList.length,
+        //                     (index) {
+        //                       log('currenDayListView');
+        //                       String senderId = '';
+        //                       if (chatList[index].isReply) {
+        //                         final replyedToChat = chatList
+        //                             .where((element) =>
+        //                                 element.id ==
+        //                                 chatList[index].replyId!.replyId)
+        //                             .toList();
+        //                         if (replyedToChat.isNotEmpty) {
+        //                           senderId = replyedToChat[0].senderId;
+        //                         } else {
+        //                           senderId = 'Deleted';
+        //                         }
+        //                       }
+        //                       GlobalKey buttonKey = GlobalKey();
+        //                       final dateTime = chatList[index]
+        //                           .createdAt
+        //                           .add(const Duration(hours: 5, minutes: 30));
+        //                       if (index == 0) {
+        //                         currentChatDay = dateTime.day;
+        //                       }
+        //                       return Column(
+        //                         children: [
+        //                           chatDay(index, currentChatDay, dateTime),
+        //                           InkWell(
+        //                             key: buttonKey,
+        //                             onTap: () {
+        //                               provider.showEmoji(false);
+        //                             },
+        //                             onLongPress: () {
+        //                               showDeleteMenu(
+        //                                   buttonKey,
+        //                                   chatList[index].id!,
+        //                                   chatList[index].senderId ==
+        //                                           currentUserId
+        //                                       ? true
+        //                                       : false);
+        //                             },
+        //                             child: SwipeTo(
+        //                               rightSwipeWidget: const SizedBox(),
+        //                               onRightSwipe: () {
+        //                                 log('currenDayisReplying');
+        //                                 Provider.of<ChatProvider>(context,
+        //                                         listen: false)
+        //                                     .replyToMessage(
+        //                                         chatList[index].message,
+        //                                         chatList[index].senderId ==
+        //                                                 currentUserId
+        //                                             ? "You"
+        //                                             : widget.userName);
+        //                                 Provider.of<ChatProvider>(context,
+        //                                         listen: false)
+        //                                     .getReplyId(chatList[index].id!);
 
-                                        Provider.of<ChatProvider>(context,
-                                                listen: false)
-                                            .isReply(true);
-                                      },
-                                      child: Column(
-                                        children: [
-                                          ChatBubble(
-                                              isReply: chatList[index].isReply,
-                                              replyMessage: chatList[index]
-                                                      .isReply
-                                                  ? {
-                                                      'currentUserId':
-                                                          currentUserId,
-                                                      'userName':
-                                                          widget.userName,
-                                                      'message': chatList[index]
-                                                          .replyId!
-                                                          .message,
-                                                      'replyUserId': senderId
-                                                    }
-                                                  : {},
-                                              dateTimeString: chatList[index]
-                                                  .createdAt
-                                                  .toString(),
-                                              message: chatList[index].message,
-                                              isMe: chatList[index].senderId ==
-                                                      currentUserId
-                                                  ? true
-                                                  : false),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 55.h,
-                      ),
-                      SizedBox(
-                        height: provider.isReplying ? 65.h : 0.0,
-                      ),
-                    ],
-                  ),
-                );
-                // });
-              });
-            }),
-      ),
-    );
+        //                                 Provider.of<ChatProvider>(context,
+        //                                         listen: false)
+        //                                     .isReply(true);
+        //                               },
+        //                               child: Column(
+        //                                 children: [
+        //                                   ChatBubble(
+        //                                       isReply: chatList[index].isReply,
+        //                                       replyMessage: chatList[index]
+        //                                               .isReply
+        //                                           ? {
+        //                                               'currentUserId':
+        //                                                   currentUserId,
+        //                                               'userName':
+        //                                                   widget.userName,
+        //                                               'message': chatList[index]
+        //                                                   .replyId!
+        //                                                   .message,
+        //                                               'replyUserId': senderId
+        //                                             }
+        //                                           : {},
+        //                                       dateTimeString: chatList[index]
+        //                                           .createdAt
+        //                                           .toString(),
+        //                                       message: chatList[index].message,
+        //                                       isMe: chatList[index].senderId ==
+        //                                               currentUserId
+        //                                           ? true
+        //                                           : false),
+        //                                 ],
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ],
+        //                       );
+        //                     },
+        //                   ),
+        //                 ),
+        //               ),
+        //               SizedBox(
+        //                 height: 55.h,
+        //               ),
+        //               SizedBox(
+        //                 height: provider.isReplying ? 65.h : 0.0,
+        //               ),
+        //             ],
+        //           ),
+        //         );
+        //         // });
+        //       });
+        //     }),
+   ] ),
+    ));
   }
 
   void showDeleteMenu(GlobalKey buttonKey, String messageId, bool isMe) {
@@ -1032,14 +1447,13 @@ class _ChatPageState extends State<ChatPage> {
             Navigator.pop(context);
           }, false, context),
           buildPopupMenuItem('Delete for everyone', () {
-            Provider.of<ChatProvider>(context, listen: false)
-                .deleteForEveryone(messageId, widget.roomId);
-            SocketIoService.instance.deleteForEveryOneNotify(
-              widget.streamSocket,
+            Provider.of<ChatProvider>(context, listen: false).deleteForEveryone(
               messageId,
               widget.roomId,
+              widget.streamSocket,
               widget.visitingUserId,
             );
+
             Navigator.pop(context);
           }, !isMe, context),
         ]);

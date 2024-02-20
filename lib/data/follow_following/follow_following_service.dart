@@ -44,7 +44,7 @@ class FollowFollowingService {
   }
 
   Future<Either<MainFailure, bool>> sentUnFollowRequest(
-      String visitingUserId) async {
+       String visitingUserId) async {
     try {
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');
@@ -104,12 +104,13 @@ class FollowFollowingService {
     }
   }
 
-  Future<Either<MainFailure, List<Follower>>> getFollowersList(String userId) async {
+  Future<Either<MainFailure, List<Follower>>> getFollowersList(
+      String userId) async {
     try {
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');
       // final userId = convertTokenToId(authToken!);
-      log("userid:${userId}");
+      log("userid:$userId");
       final url = '$kBaseUrl$followerListEndPoint$userId';
       final uri = Uri.parse(url);
 
@@ -134,7 +135,8 @@ class FollowFollowingService {
     }
   }
 
-  Future<Either<MainFailure, List<Following>>> getFollowingList(String userId) async {
+  Future<Either<MainFailure, List<Following>>> getFollowingList(
+      String userId) async {
     try {
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');

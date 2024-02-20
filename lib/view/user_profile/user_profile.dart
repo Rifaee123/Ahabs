@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:ahbas/controller/getx/follow_controller.dart';
+import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/provider/chat/chat_provider.dart';
 import 'package:ahbas/provider/folllow_following/follow_following_provider.dart';
 import 'package:ahbas/provider/search/search_provider.dart';
@@ -22,6 +23,7 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   final FolloControlller controller = Get.put(FolloControlller());
+  // final socketio.Socket streamSocket;
 
   @override
   void initState() {
@@ -68,7 +70,10 @@ class _UserProfileState extends State<UserProfile> {
     var followProvider =
         Provider.of<FollowFollowingProvider>(context, listen: false);
     await followProvider.sentFollowRequest(
-        visitingUserId: widget.userData.userId);
+        userName: controller.currentusername.value,
+        visitingUserId: widget.userData.userId,
+        socket: Provider.of<ChatProvider>(context, listen: false)
+            .initializedSocket);
     log(widget.userData.userId);
     controller.isFollow.value = false;
     await followProvider.getFollowersList(
@@ -229,7 +234,8 @@ class _UserProfileState extends State<UserProfile> {
                                 controller.currentuserid.value ==
                                         widget.userData.userId
                                     ? AnimatedContainer(
-                                        duration: Duration(milliseconds: 300),
+                                        duration:
+                                            const Duration(milliseconds: 300),
                                         width: 194.w,
                                         height: 38.h,
                                         decoration:
@@ -241,7 +247,7 @@ class _UserProfileState extends State<UserProfile> {
                                             //         borderRadius: BorderRadius.all(
                                             //             Radius.circular(30)))
                                             //     :
-                                            BoxDecoration(
+                                            const BoxDecoration(
                                                 color: Color(0xff449cc0),
                                                 borderRadius: BorderRadius.all(
                                                     Radius.circular(30))),
@@ -323,11 +329,11 @@ class _UserProfileState extends State<UserProfile> {
                                               //     false;
                                             },
                                             child: AnimatedContainer(
-                                              duration:
-                                                  Duration(milliseconds: 300),
+                                              duration: const Duration(
+                                                  milliseconds: 300),
                                               width: 200.w,
                                               height: 38.h,
-                                              decoration: BoxDecoration(
+                                              decoration: const BoxDecoration(
                                                   color: Color(0xff449cc0),
                                                   borderRadius:
                                                       BorderRadius.all(
@@ -393,16 +399,19 @@ class _UserProfileState extends State<UserProfile> {
                                                   // }
                                                 },
                                                 child: AnimatedContainer(
-                                                  duration: Duration(
+                                                  duration: const Duration(
                                                       milliseconds: 300),
                                                   width: 200.w,
                                                   height: 38.h,
-                                                  decoration: BoxDecoration(
-                                                      color: Color(0xff449cc0),
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  30))),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                          color:
+                                                              Color(0xff449cc0),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          30))),
                                                   child: Center(
                                                       child: Text(
                                                     "Follow",
@@ -411,17 +420,17 @@ class _UserProfileState extends State<UserProfile> {
                                                   )),
                                                 ))
                                             : AnimatedContainer(
-                                                duration:
-                                                    Duration(milliseconds: 300),
+                                                duration: const Duration(
+                                                    milliseconds: 300),
                                                 width: 200.w,
                                                 height: 38.h,
                                                 decoration: BoxDecoration(
-                                                    color: Color.fromARGB(
+                                                    color: const Color.fromARGB(
                                                         255, 254, 255, 255),
                                                     border: Border.all(
                                                         color: Colors.black),
                                                     borderRadius:
-                                                        BorderRadius.all(
+                                                        const BorderRadius.all(
                                                             Radius.circular(
                                                                 30))),
                                                 child: Center(
@@ -450,7 +459,8 @@ class _UserProfileState extends State<UserProfile> {
 
                                                         unFollow();
                                                         print('unfollow');
-                                                        checkFollowStatus();
+
+                                                        // checkFollowStatus();
                                                         // if (controller.isNeither
                                                         //         .value ==
                                                         //     true) {
@@ -523,29 +533,50 @@ class _UserProfileState extends State<UserProfile> {
                                   visitingUserId: widget.userData.userId);
                           final response =
                               Provider.of<ChatProvider>(context, listen: false)
-                                  .chatResponse;
+                                  .chatRoomResponse;
                           if (response.isLoading == true) {
-                           
                             showDialog(
                               context: context,
-                              builder: (context) { 
+                              builder: (context) {
                                 return AlertDialog(
                                     content: SizedBox(
                                         width: 50.w,
-                                        child: const CircularProgressIndicator()));
+                                        child:
+                                            const CircularProgressIndicator()));
                               },
                             );
                           } else if (response.isError == true) {
                             showDialog(
                               context: context,
                               builder: (context) {
-                                return AlertDialog(
+                                return const AlertDialog(
                                   content: Text("'Failed to create chat room'"),
                                 );
                               },
                             );
                           } else {
-                            // Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(visitingUserId: widget.userData.userId, roomId: , userName: widget.userData.userName, profilePic: widget.userData.profilePic, streamSocket: streamSocket),))
+                            Provider.of<ChatProvider>(context, listen: false)
+                                .getIndividualChats(roomId: response.roomId);
+                            Provider.of<ChatProvider>(context, listen: false)
+                                .clearAllMessages();
+                            Provider.of<ChatProvider>(context, listen: false)
+                                .isReply(false);
+
+                            final authToken = await StorageService.instance
+                                .readSecureData('AuthToken');
+
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                  authToken: authToken!,
+                                  visitingUserId: widget.userData.userId,
+                                  roomId: response.roomId,
+                                  userName: widget.userData.userName,
+                                  profilePic: widget.userData.profilePic,
+                                  streamSocket: Provider.of<ChatProvider>(
+                                          context,
+                                          listen: false)
+                                      .initializedSocket),
+                            ));
                           }
                         },
                         child: controller.currentuserid.value !=
@@ -564,7 +595,7 @@ class _UserProfileState extends State<UserProfile> {
                                       GoogleFonts.poppins(color: Colors.white),
                                 )),
                               )
-                            : SizedBox(),
+                            : const SizedBox(),
                       ),
                       SizedBox(
                         height: 10.h,

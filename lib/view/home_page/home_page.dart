@@ -7,6 +7,7 @@ import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
+import 'package:ahbas/provider/chat/chat_provider.dart';
 
 import 'package:ahbas/provider/profile/current_user_provider.dart';
 
@@ -20,11 +21,9 @@ import 'package:ahbas/view/home_page/widgets/tabbar/status.dart';
 import 'package:ahbas/view/notification_page/notification_page.dart';
 import 'package:ahbas/view/profile_page/profile-page.dart';
 import 'package:ahbas/view/search_page/search_page.dart';
-import 'package:ahbas/view/voicechat.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -52,10 +51,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final NotificationsController _notificationsController =
       Get.put(NotificationsController());
 
-
-  
-
-
+  // late socketio.Socket streamSocket;
 
   @override
   void initState() {
@@ -64,7 +60,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _notificationsController.fetchNotifications();
     streamSocket =
         SocketIoService.instance.initializeSocket(widget.authorizationToken);
-        
 
     super.initState();
   }
@@ -98,7 +93,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         InkWell(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => VoiceChat(),
+                              builder: (context) => const ProfilePage(),
                             ));
                           },
                           child: Image.asset(
@@ -118,9 +113,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           children: [
                             InkWell(
                               onTap: () {
+                                Provider.of<ChatProvider>(context,
+                                        listen: false)
+                                    .initializedSocket = streamSocket;
                                 _notificationsController.fetchNotifications();
                                 Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => NotificationsScreen(),
+                                  builder: (context) => NotificationsScreen(
+                                      streamSocket: streamSocket),
                                 ));
                               },
                               child: Image.asset(
@@ -135,11 +134,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               onTap: () async {
                                 authcontrolller.isRegister.value = false;
                                 await StorageService.instance
-                                    .deleteAllSecureData();
-                                Navigator.of(context)
+                                    .deleteAllSecureData().then((value) =>    Navigator.of(context)
                                     .pushReplacement(MaterialPageRoute(
                                   builder: (context) => AuthPage(),
-                                ));
+                                )));
+                             
                               },
                               child: Image.asset(
                                 "assets/images/🦆 icon _add_.png",
@@ -151,7 +150,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: () {
-
+                                Provider.of<ChatProvider>(context,
+                                        listen: false)
+                                    .initializedSocket = streamSocket;
                                 Provider.of<CurrentUserProvider>(context,
                                         listen: false)
                                     .getCurrentUser();
@@ -160,9 +161,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         listen: false)
                                     .getAllUsers();
                                 Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => SearchPage(),
+                                  builder: (context) => const SearchPage(),
                                 ));
-
                               },
                               child: Image.asset(
                                 "assets/images/Group 12.png",
@@ -257,7 +257,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       top: 2.h,
                                       left: 6.w,
                                       child: Text(
-                                        unreadController.numOfUnreadChats.value.toString(),
+                                        unreadController.numOfUnreadChats.value
+                                            .toString(),
                                         style: GoogleFonts.poppins(
                                             color: const Color(0xff449cc0),
                                             fontSize: 10.sp),
@@ -319,35 +320,35 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               width: 70.w,
                               color: controller.currentindex.value == 0
                                   ? Colors.white
-                                  : Color.fromARGB(0, 216, 216, 216),
+                                  : const Color.fromARGB(0, 216, 216, 216),
                             ),
                             Container(
                               height: 2.h,
                               width: 55.w,
                               color: controller.currentindex.value == 1
                                   ? Colors.white
-                                  : Color.fromARGB(0, 216, 216, 216),
+                                  : const Color.fromARGB(0, 216, 216, 216),
                             ),
                             Container(
                               height: 2.h,
                               width: 50.w,
                               color: controller.currentindex.value == 2
                                   ? Colors.white
-                                  : Color.fromARGB(0, 216, 216, 216),
+                                  : const Color.fromARGB(0, 216, 216, 216),
                             ),
                             Container(
                               height: 2.h,
                               width: 75.w,
                               color: controller.currentindex.value == 3
                                   ? Colors.white
-                                  : Color.fromARGB(0, 216, 216, 216),
+                                  : const Color.fromARGB(0, 216, 216, 216),
                             ),
                             Container(
                               height: 2.h,
                               width: 100.w,
                               color: controller.currentindex.value == 4
                                   ? Colors.white
-                                  : Color.fromARGB(0, 216, 216, 216),
+                                  : const Color.fromARGB(0, 216, 216, 216),
                             ),
                           ],
                         )
@@ -368,16 +369,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         controller.currentindex.value = index;
                       },
                       children: [
-                        Column(
+                        const Column(
                           children: [
-                            const Center(child: Text("Bussiness")),
+                            Center(child: Text("Bussiness")),
                             Text('')
                           ],
                         ),
                         CallsView(calltabcontroller: calltabcontroller),
                         StatusView(statustabcontroller: statustabcontroller),
-                        PrimaryView(streamSocket: streamSocket),
-                        const GroupView(),
+                        PrimaryView(streamSocket: streamSocket,authToken:widget.authorizationToken),
+                         GroupView(),
                       ],
                     ),
                   ),

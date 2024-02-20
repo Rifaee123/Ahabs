@@ -1,12 +1,12 @@
 import 'dart:developer';
 
 import 'package:ahbas/controller/getx/chat_controller.dart';
-import 'package:ahbas/data/chat/chat_service.dart';
 import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
+import 'package:ahbas/data/services/jwt_converter/jwt_converter.dart';
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
+
 import 'package:ahbas/data/services/socket_io/socket_io.dart';
-import 'package:ahbas/model/chat/primary_chatters/datum.dart';
-import 'package:ahbas/model/chat/primary_chatters/primary_chatters.dart';
+
 import 'package:ahbas/provider/chat/chat_provider.dart';
 import 'package:ahbas/view/chat_page/chat_page.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +20,10 @@ class PrimaryView extends StatefulWidget {
   const PrimaryView({
     super.key,
     required this.streamSocket,
+    required this.authToken,
   });
   final socketio.Socket streamSocket;
+  final String authToken;
 
   @override
   State<PrimaryView> createState() => _PrimaryViewState();
@@ -35,7 +37,7 @@ class _PrimaryViewState extends State<PrimaryView> {
   @override
   void initState() {
     SocketIoService.instance
-        .listenMessage(streamingSocket, widget.streamSocket);
+        .listenForPrimaryMessage(streamingSocket, widget.streamSocket);
     SocketIoService.instance.getOnlineStatus(widget.streamSocket, context);
     super.initState();
   }
@@ -46,6 +48,7 @@ class _PrimaryViewState extends State<PrimaryView> {
         future:
             Provider.of<ChatProvider>(context, listen: false).getPrimaryChats(),
         builder: (context, snapshot) {
+          int numOfUnread = 0;
           return StreamBuilder(
               stream: streamingSocket.getResponse,
               builder: (context, snapshot) {
@@ -77,11 +80,20 @@ class _PrimaryViewState extends State<PrimaryView> {
                     final index = dataList.indexWhere((element) =>
                         element.roomId == latestMessage!['roomid']);
 
-                    dataList[index].latestMessage = latestMessage['message'];
-                    dataList[index].latestMsgTime =
-                        DateTime.parse(latestMessage['createdAt']);
-                    final msgCount = dataList[index].messageCount;
-                    dataList[index].messageCount = msgCount + 1;
+                    if (dataList.isNotEmpty && index != -1) {
+                      dataList[index].latestMessage = latestMessage['message'];
+                      dataList[index].latestMsgTime =
+                          DateTime.parse(latestMessage['createdAt']);
+                      final msgCount = dataList[index].messageCount;
+                      dataList[index].messageCount = msgCount + 1;
+                    } else if (index == -1 &&
+                        latestMessage['to'] ==
+                            convertTokenToId(widget.authToken)) {
+                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                        Provider.of<ChatProvider>(context, listen: false)
+                            .getPrimaryChats();
+                      });
+                    }
                   }
 
                   dataList.sort(
@@ -92,10 +104,20 @@ class _PrimaryViewState extends State<PrimaryView> {
                         findTotalUnreadChats(dataList);
                   });
 
+                  if (dataList.isEmpty) {
+                    return const Center(
+                      child: Text("Talk To SomeOne"),
+                    );
+                  }
+
                   return ListView.builder(
                     itemCount: dataList.length,
                     itemBuilder: (context, index) => InkWell(
                       onTap: () async {
+                        if (numOfUnread != 0 && numOfUnread > 0) {
+                          final value = unreadController.numOfUnreadChats.value;
+                          unreadController.numOfUnreadChats.value = value - 1;
+                        }
                         Provider.of<ChatProvider>(context, listen: false)
                             .getIndividualChats(roomId: dataList[index].roomId);
                         Provider.of<ChatProvider>(context, listen: false)
@@ -140,7 +162,7 @@ class _PrimaryViewState extends State<PrimaryView> {
                                   }
                                 }
 
-                                final numOfUnread = numberOfUnread(
+                                numOfUnread = numberOfUnread(
                                     dataList[index].messageCount,
                                     dataList[index].roomId);
 
@@ -276,7 +298,7 @@ class _PrimaryViewState extends State<PrimaryView> {
           return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
         }
 
-        return '$hour:${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}${dateTime.hour > 11 ?  'pm' : 'am'}';
+        return '$hour:${dateTime.minute < 10 ? '0${dateTime.minute}' : dateTime.minute}${dateTime.hour > 11 ? 'pm' : 'am'}';
       } else {
         if (difference.inMinutes == 0) {
           return 'just now';

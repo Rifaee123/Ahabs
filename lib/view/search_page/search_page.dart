@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:ahbas/controller/getx/follow_controller.dart';
-import 'package:ahbas/model/search/all_users/datum.dart';
 import 'package:ahbas/provider/folllow_following/follow_following_provider.dart';
 import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:ahbas/view/user_profile/user_profile.dart';
@@ -11,19 +10,19 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({Key? key});
+  const SearchPage({super.key});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
-  late TextEditingController _searchController;
-  late List<UserDTO> _searchResults;
+  final TextEditingController _searchController = TextEditingController();
+  // late List<UserDTO> _searchResults;
   List<UserDTO> displayedUsers = [];
-  getallUsers() async {
-    await Provider.of<SearchPrvider>(context, listen: false).getAllUsers();
-  }
+  // getallUsers() async {
+  //   await Provider.of<SearchPrvider>(context, listen: false).getAllUsers();
+  // }
 
   void _performSearch(String query, List<UserDTO> allUserData) {
     List<UserDTO> results = [];
@@ -33,21 +32,21 @@ class _SearchPageState extends State<SearchPage> {
       }
     }
     setState(() {
-      _searchResults = results;
+      displayedUsers = results;
     });
   }
 
   final FolloControlller controller = Get.put(FolloControlller());
 
-  @override
-  void initState() {
-    super.initState();
-    getallUsers();
-    _searchController = TextEditingController();
-    _searchResults = Provider.of<SearchPrvider>(context, listen: false)
-        .resultData
-        .allUsersList;
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   getallUsers();
+  //   _searchController = TextEditingController();
+  //   _searchResults = Provider.of<SearchPrvider>(context, listen: false)
+  //       .resultData
+  //       .allUsersList;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +62,8 @@ class _SearchPageState extends State<SearchPage> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      icon: Icon(Icons.arrow_back)),
-                  Container(
+                      icon: const Icon(Icons.arrow_back)),
+                  SizedBox(
                     height: 50.h,
                     width: 280.w,
                     child: TextFormField(
@@ -76,7 +75,7 @@ class _SearchPageState extends State<SearchPage> {
                                 .resultData
                                 .allUsersList);
                       },
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Search',
                         border: OutlineInputBorder(),
                       ),
@@ -85,18 +84,69 @@ class _SearchPageState extends State<SearchPage> {
                 ],
               ),
               Expanded(
-                child: _searchResults.isNotEmpty
-                    ? ListView.builder(
+                child:
+                    //  _searchResults.isNotEmpty
+                    //     ? ListView.builder(
+                    //         shrinkWrap: true,
+                    //         itemCount: _searchResults.length,
+                    //         itemBuilder: (context, index) {
+                    //           void checkFollowStatus1() async {
+                    //             var followProvider =
+                    //                 Provider.of<FollowFollowingProvider>(context,
+                    //                     listen: false);
+
+                    //             await followProvider.checkFollowStatus(
+                    //                 visitingUserId: _searchResults[index].userId);
+                    //             if (controller.isNeither.value == true) {
+                    //               log('hai');
+                    //               controller.isFollow.value = true;
+                    //             } else if (controller.isFollowing.value == true) {
+                    //               log('hallo');
+                    //               controller.isFollow.value = false;
+                    //             }
+                    //           }
+
+                    //           return Padding(
+                    //             padding: const EdgeInsets.all(8.0),
+                    //             child: InkWell(
+                    //               onTap: () {
+                    //                 checkFollowStatus1();
+                    //                 Navigator.of(context).push(MaterialPageRoute(
+                    //                   builder: (context) => UserProfile(
+                    //                       userData: _searchResults[index]),
+                    //                 ));
+                    //               },
+                    //               child: Container(
+                    //                 width: 326.w,
+                    //                 height: 70.h,
+                    //                 color: Colors.blue,
+                    //                 child: Center(
+                    //                     child:
+                    //                         Text(_searchResults[index].userName)),
+                    //               ),
+                    //             ),
+                    //           );
+                    //         },
+                    //       )
+                    //     :
+                    Consumer<SearchPrvider>(
+                  builder: (context, value, child) {
+                    // Initialize the displayedUsers list with all users
+                    // displayedUsers = value.resultData.allUsersList;
+
+                    log(displayedUsers.toString());
+                    return ListView.builder(
                         shrinkWrap: true,
-                        itemCount: _searchResults.length,
+                        scrollDirection: Axis.vertical,
+                        itemCount: displayedUsers.length,
                         itemBuilder: (context, index) {
-                          void checkFollowStatus1() async {
+                          void checkFollowStatus() async {
                             var followProvider =
                                 Provider.of<FollowFollowingProvider>(context,
                                     listen: false);
 
                             await followProvider.checkFollowStatus(
-                                visitingUserId: _searchResults[index].userId);
+                                visitingUserId: displayedUsers[index].userId);
                             if (controller.isNeither.value == true) {
                               log('hai');
                               controller.isFollow.value = true;
@@ -110,10 +160,10 @@ class _SearchPageState extends State<SearchPage> {
                             padding: const EdgeInsets.all(8.0),
                             child: InkWell(
                               onTap: () {
-                                checkFollowStatus1();
+                                checkFollowStatus();
                                 Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => UserProfile(
-                                      userData: _searchResults[index]),
+                                      userData: displayedUsers[index]),
                                 ));
                               },
                               child: Container(
@@ -122,66 +172,13 @@ class _SearchPageState extends State<SearchPage> {
                                 color: Colors.blue,
                                 child: Center(
                                     child:
-                                        Text(_searchResults[index].userName)),
+                                        Text(displayedUsers[index].userName)),
                               ),
                             ),
                           );
-                        },
-                      )
-                    : Consumer<SearchPrvider>(
-                        builder: (context, value, child) {
-                          // Initialize the displayedUsers list with all users
-                          displayedUsers = value.resultData.allUsersList;
-
-                          log(displayedUsers.toString());
-                          return ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.vertical,
-                              itemCount: displayedUsers.length,
-                              itemBuilder: (context, index) {
-                                void checkFollowStatus() async {
-                                  var followProvider =
-                                      Provider.of<FollowFollowingProvider>(
-                                          context,
-                                          listen: false);
-
-                                  await followProvider.checkFollowStatus(
-                                      visitingUserId:
-                                          displayedUsers[index].userId);
-                                  if (controller.isNeither.value == true) {
-                                    log('hai');
-                                    controller.isFollow.value = true;
-                                  } else if (controller.isFollowing.value ==
-                                      true) {
-                                    log('hallo');
-                                    controller.isFollow.value = false;
-                                  }
-                                }
-
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: InkWell(
-                                    onTap: () {
-                                      checkFollowStatus();
-                                      Navigator.of(context)
-                                          .push(MaterialPageRoute(
-                                        builder: (context) => UserProfile(
-                                            userData: displayedUsers[index]),
-                                      ));
-                                    },
-                                    child: Container(
-                                      width: 326.w,
-                                      height: 70.h,
-                                      color: Colors.blue,
-                                      child: Center(
-                                          child: Text(
-                                              displayedUsers[index].userName)),
-                                    ),
-                                  ),
-                                );
-                              });
-                        },
-                      ),
+                        });
+                  },
+                ),
               ),
             ],
           ),

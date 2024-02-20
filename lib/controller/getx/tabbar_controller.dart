@@ -19,7 +19,7 @@ class TabBarController extends GetxController {
   // Rx variable to hold the selected dropdown value
   RxString selectedGender = 'male'.obs;
   RxString dob = 'YYYY MM DD'.obs;
-  var  otp= ''.obs;
+  var otp = ''.obs;
 
   // Method to update the selected gender
   void setSelectedGender(String gender) {
@@ -47,7 +47,7 @@ class TabBarController extends GetxController {
   void updatePage(int index) {
     pageController.animateToPage(
       index,
-      duration: Duration(milliseconds: 3),
+      duration: const Duration(milliseconds: 3),
       curve: Curves.easeInOut,
     );
     currentindex.value = index;

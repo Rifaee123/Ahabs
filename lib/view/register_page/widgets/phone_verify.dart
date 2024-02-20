@@ -1,9 +1,7 @@
-import 'dart:developer';
 import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/provider/verify_phone/verify_phone_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:otp_fields/otp_fields.dart';
 import 'package:provider/provider.dart';
 
@@ -16,12 +14,11 @@ class PhoneVerifyPage extends StatefulWidget {
 }
 
 class _PhoneVerifyPageState extends State<PhoneVerifyPage> {
-  
   @override
   Widget build(BuildContext context) {
     Future<void> _navigateToNextScreen() async {
       await Future.delayed(
-          Duration(seconds: 1)); // defer the execution to the next frame
+          const Duration(seconds: 1)); // defer the execution to the next frame
       Navigator.pop(context);
     }
 
@@ -124,10 +121,10 @@ class _PhoneVerifyPageState extends State<PhoneVerifyPage> {
     TextEditingController otpController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Email OTP Verification'),
+        title: const Text('Email OTP Verification'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -139,7 +136,7 @@ class _PhoneVerifyPageState extends State<PhoneVerifyPage> {
 
                   ///handle otp
                 }),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             Consumer<VerifyPhoneProvider>(
               builder: (context, value, child) {
                 if (value.verificationStatus.isVerified == true) {
@@ -149,7 +146,7 @@ class _PhoneVerifyPageState extends State<PhoneVerifyPage> {
                   onPressed: () {
                     verifyOtp(otp: controller.otp.value);
                   },
-                  child: Text('Verify OTP'),
+                  child: const Text('Verify OTP'),
                 );
               },
             ),

@@ -2,7 +2,6 @@ import 'package:ahbas/controller/getx/tabbar_controller.dart';
 import 'package:ahbas/data/verify_phone/verify_phone_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 class VerifyPhoneProvider extends ChangeNotifier {
   final TabBarController controller = Get.put(TabBarController());

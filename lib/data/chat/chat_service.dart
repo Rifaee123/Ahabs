@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'dart:developer';
 
 import 'package:ahbas/data/api_urls/api_urls.dart';
@@ -9,11 +11,14 @@ import 'package:ahbas/model/chat/individual_chats/individual_chats.dart';
 import 'package:ahbas/model/chat/primary_chatters/primary_chatters.dart';
 import 'package:ahbas/model/chat/send_chat/chat_message.dart';
 import 'package:ahbas/model/chat/send_chat/send_chat.dart';
+import 'package:ahbas/model/chatroom_response/chatroom_response.dart';
+import 'package:ahbas/model/chatroom_response/data.dart';
+
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 
 class ChatService {
-  Future<Either<MainFailure, bool>> createChatRoom(
+  Future<Either<MainFailure, Data?>> createChatRoom(
       String visitingUserId) async {
     try {
       final authToken =
@@ -27,9 +32,17 @@ class ChatService {
         'Authorization': 'Bearer $authToken',
       });
       log(response.statusCode.toString());
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+
+        log(responseData.toString());
+
+        final result = ChatroomResponse.fromJson(responseData);
+
+        log(result.data!.id.toString());
+        //  chatRoom.value = ChatRoom.fromJson(responseData);
         log('chat Created');
-        return const Right(true);
+        return Right(result.data);
       } else {
         return Left(MainFailure.serverFailure());
       }
@@ -151,8 +164,10 @@ class ChatService {
           await StorageService.instance.readSecureData('AuthToken');
       final url = '$kBaseUrl$deleteForMeEndPoint$messageId';
       final uri = Uri.parse(url);
-      final response =
-          await http.put(uri, headers: {'Authorization': 'Bearer $authToken'});
+      final response = await http.put(uri, headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Bearer $authToken'
+      });
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);
       } else {
@@ -169,14 +184,26 @@ class ChatService {
   //     log('id$messageId');
   //     final authToken =
   //         await StorageService.instance.readSecureData('AuthToken');
+// <<<<<<< HEAD
+// =======
+
+// >>>>>>> 1ebe7ced4ab285fe30410fa561fc72e8d3883748
   //     log('Auther${authToken.toString()}');
 
   //     final url = '$kBaseUrl$deleteForEveryOneEndPoint$messageId';
   //     log('Url:$url');
-  //     final uri = Uri.parse(url);
-  //     final response = await http
-  //         .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
-  //     log('Delete${response.statusCode.toString()}');
+//   //     final uri = Uri.parse(url);
+// <<<<<<< HEAD
+//   //     final response = await http
+//   //         .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
+//   //     log('Delete${response.statusCode.toString()}');
+// =======
+//   //     final response =
+//   //         await http.post(uri, headers: {'Authorization': 'Bearer $authToken'});
+
+//   //     log('Delete${response.statusCode.toString()}');
+
+// >>>>>>> 1ebe7ced4ab285fe30410fa561fc72e8d3883748
   //     if (response.statusCode == 200 || response.statusCode == 201) {
   //       return const Right(true);
   //     } else {
@@ -186,7 +213,10 @@ class ChatService {
   //     return Left(MainFailure.clientFailure());
   //   }
   // }
+// <<<<<<< HEAD
 
+// =======
+// >>>>>>> 1ebe7ced4ab285fe30410fa561fc72e8d3883748
   Future<Either<MainFailure, bool>> deleteForEveryOne(
       {required String messageId}) async {
     try {
@@ -195,15 +225,29 @@ class ChatService {
 
       final url = '$kBaseUrl$deleteForEveryOneEndPoint$messageId';
       final uri = Uri.parse(url);
-      final response = await http
-          .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
-      log('status:${response.statusCode}');
+// <<<<<<< HEAD
+//       final response = await http
+//           .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
+//       log('status:${response.statusCode}');
+// =======
+      final response =
+          await http.post(uri, headers: {'Authorization': 'Bearer $authToken'});
+
+      log('Delete${response.statusCode.toString()}');
+
+// >>>>>>> 1ebe7ced4ab285fe30410fa561fc72e8d3883748
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);
       } else {
-        return Left(MainFailure.serverFailure());
+        // Handle different HTTP status codes gracefully
+        if (response.statusCode == 502) {
+          return Left(MainFailure.serverFailure());
+        } else {
+          return Left(MainFailure.serverFailure());
+        }
       }
     } catch (e) {
+      // Handle other exceptions, such as network issues, gracefully
       return Left(MainFailure.clientFailure());
     }
   }

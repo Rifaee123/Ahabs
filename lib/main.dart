@@ -1,25 +1,19 @@
-
 import 'package:ahbas/data/services/hive/chat_length/chat_length_service.dart';
 import 'package:ahbas/data/services/hive/chat_length/models/chat_length.dart';
 
-
 import 'package:ahbas/provider/chat/chat_provider.dart';
-
-
 
 import 'package:ahbas/provider/folllow_following/follow_following_provider.dart';
 
 import 'package:ahbas/provider/login/login_provider.dart';
+import 'package:ahbas/provider/profile/add_profile_pic_provider.dart';
 import 'package:ahbas/provider/profile/current_user_provider.dart';
+import 'package:ahbas/provider/profile/edit_profile_provider.dart';
 import 'package:ahbas/provider/register/email_registration_provider.dart';
 import 'package:ahbas/provider/register/phone_registration_provider.dart';
 import 'package:ahbas/provider/search/search_provider.dart';
 import 'package:ahbas/provider/verify_email/verify_email_provider.dart';
 import 'package:ahbas/provider/verify_phone/verify_phone_provider.dart';
-
-import 'package:ahbas/view/auth_page/auth_page.dart';
-
-import 'package:ahbas/view/home_page/home_page.dart';
 
 import 'package:ahbas/view/splash_page/splash_screen.dart';
 
@@ -29,14 +23,12 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(ChatLengthModelAdapter());
   await Hive.openBox<ChatLengthModel>('ChatLengthBox');
   ChatLengthService.instance.openChatLengthBox();
-
 
   runApp(const MyApp());
 }
@@ -72,11 +64,15 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => CurrentUserProvider(),
-
         ),
         ChangeNotifierProvider(
           create: (context) => FollowFollowingProvider(),
-
+        ),
+        ChangeNotifierProvider(
+          create: (context) => EditProfileProvider(),
+        ),
+         ChangeNotifierProvider(
+          create: (context) => AddProfilePicProvider(),
         ),
       ],
       child: ScreenUtilInit(
@@ -89,7 +85,7 @@ class MyApp extends StatelessWidget {
                 ColorScheme.fromSeed(seedColor: const Color(0xff449cc0)),
             useMaterial3: true,
           ),
-          home: SplashScreen(),
+          home: const SplashScreen(),
         ),
       ),
     );

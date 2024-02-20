@@ -1,5 +1,4 @@
 import 'package:ahbas/data/search/all_user_service.dart';
-import 'package:ahbas/model/follow_following/followers_list/follower.dart';
 import 'package:ahbas/model/search/all_users/datum.dart';
 
 import 'package:flutter/material.dart';
