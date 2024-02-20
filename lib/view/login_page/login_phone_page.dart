@@ -30,7 +30,7 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff479ec1),
+      backgroundColor: const Color(0xff479ec1),
       body: SafeArea(
         child: Obx(() => SingleChildScrollView(
               child: Container(

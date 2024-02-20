@@ -1,8 +1,8 @@
-import 'dart:io';
 
 import 'package:ahbas/controller/getx/follow_controller.dart';
 import 'package:ahbas/provider/profile/current_user_provider.dart';
 import 'package:ahbas/view/edit_profile/edit_profile_page.dart';
+import 'package:ahbas/view/edit_profile/profile_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -104,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             backgroundColor: Colors.grey,
                             child: value.currentUserResult.currentUser!
                                         .profilepicture!.isEmpty
-                                ? Icon(
+                                ? const Icon(
                                     Icons.person,
                                     size: 10,
                                     color: Colors.white,
@@ -200,7 +200,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           InkWell(
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => EditProfileScreen(),
+                                builder: (context) =>  ProfileEditScreen(),
                               ));
                             },
                             child: Container(

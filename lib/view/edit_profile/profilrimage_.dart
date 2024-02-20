@@ -12,7 +12,7 @@ class EditProfilePhotoScreen extends StatefulWidget {
   final String authToken;
   final String userId;
 
-  EditProfilePhotoScreen(this.authToken, this.userId);
+  const EditProfilePhotoScreen(this.authToken, this.userId, {super.key});
 
   @override
   State<EditProfilePhotoScreen> createState() => _EditProfilePhotoScreenState();
@@ -48,7 +48,7 @@ class _EditProfilePhotoScreenState extends State<EditProfilePhotoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Profile Photo'),
+        title: const Text('Edit Profile Photo'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -59,7 +59,7 @@ class _EditProfilePhotoScreenState extends State<EditProfilePhotoScreen> {
               radius: 100,
               backgroundColor: Colors.grey,
               child: _imageFile == null
-                  ? Icon(
+                  ? const Icon(
                       Icons.person,
                       size: 80,
                       color: Colors.white,
@@ -74,22 +74,22 @@ class _EditProfilePhotoScreenState extends State<EditProfilePhotoScreen> {
             ),
             ElevatedButton(
               onPressed: _pickImage,
-              child: Text('Select Profile Photo'),
+              child: const Text('Select Profile Photo'),
             ),
             _imageFile != null
                 ? ElevatedButton(
                     onPressed: () async {
                       await uploadImage(File(_imageFile!.path));
                     },
-                    child: Text('upload'),
+                    child: const Text('upload'),
                   )
-                : SizedBox.shrink(),
+                : const SizedBox.shrink(),
             Consumer<AddProfilePicProvider>(
               builder: (context, value, child) {
                 if (value.isAddedProfilePic == true) {
-                  return Text("profile pic updated");
+                  return const Text("profile pic updated");
                 } else {
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 }
               },
             )

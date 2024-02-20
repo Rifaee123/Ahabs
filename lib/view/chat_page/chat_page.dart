@@ -42,7 +42,7 @@ class _ChatPageState extends State<ChatPage> {
   ValueNotifier<int> isTapped = ValueNotifier(0);
   TextEditingController chatcontroller = TextEditingController();
   double _containerWidth = 200.w;
-  double _containerHeight = 40.h;
+  final double _containerHeight = 40.h;
   StreamSocket streamingSocket = StreamSocket();
   List<ChatDataDTO> chatList = [];
   bool emojiShowing = false;
@@ -1087,11 +1087,332 @@ class _ChatPageState extends State<ChatPage> {
                   }
                 },
               );
-            }),
-          ],
-        ),
-      ),
-    );
+              
+              
+        }),
+        // body: StreamBuilder(
+        //     stream: streamingSocket.getResponse,
+        //     builder: (context, snapshot) {
+        //       log(snapshot.data.toString());
+        //       if (snapshot.data == 'Clear') {
+        //         return const Center(
+        //           child: CircularProgressIndicator(),
+        //         );
+        //       }
+        //       dynamic message;
+        //       if (snapshot.data != null) {
+        //         final currentMsg = snapshot.data;
+        //         if (previousMsg == []) {
+        //           previousMsg = snapshot.data;
+        //           message = snapshot.data;
+        //         } else {
+        //           if (currentMsg == previousMsg) {
+        //             // return const SizedBox();
+        //           } else {
+        //             message = snapshot.data;
+        //           }
+        //           previousMsg = currentMsg;
+        //         }
+
+        //         // log('Recalled ${message['message']}');
+        //         if (message != null) {
+        //           log('Hiii');
+        //           log(message.toString());
+        //           log(message['chatId'].toString());
+        //           chatList.add(ChatDataDTO(
+        //             message: message['message'],
+        //             senderId: message['userId'],
+        //             createdAt: DateTime.parse(message['createdAt']),
+        //             isReply: message['replyId'] != null ? true : false,
+        //             replyId: message['replyId'] != null
+        //                 ? ReplyId(
+        //                     message: message['replyId']['message'],
+        //                     replyId: message['replyId']['_id'])
+        //                 : null,
+        //             id: message['chatId'],
+        //           ));
+        //           Provider.of<ChatProvider>(context).addToPrimarylatest(
+        //               message['message'],
+        //               widget.roomId,
+        //               DateTime.parse(message['createdAt']));
+        //         }
+        //         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        //           scrollController.animateTo(
+        //               scrollController.position.maxScrollExtent,
+        //               duration: const Duration(milliseconds: 1),
+        //               curve: Curves.slowMiddle);
+        //         });
+        //       }
+        //       return Consumer<ChatProvider>(builder: (context, provider, _) {
+        //         final response = provider.chatResponse;
+        //         if (response.isLoading) {
+        //           return const Center(
+        //             child: CircularProgressIndicator(),
+        //           );
+        //         }
+        //         if (response.isError) {
+        //           return const Text('Error');
+        //         }
+        //         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        //           if (scrollController.hasClients) {
+        //             scrollController.animateTo(
+        //                 scrollController.position.maxScrollExtent,
+        //                 duration: const Duration(milliseconds: 1),
+        //                 curve: Curves.easeOut);
+        //           }
+        //         });
+
+        //         chatList = response.chatList;
+
+        //         return GestureDetector(
+        //           onTap: () {
+        //             provider.showEmoji(false);
+        //           },
+        //           child: Column(
+        //             children: [
+        //               Container(
+        //                 height: 50.h,
+        //                 color: const Color(0xff449cc0),
+        //                 child: Row(
+        //                   crossAxisAlignment: CrossAxisAlignment.center,
+        //                   children: [
+        //                     IconButton(
+        //                         onPressed: () {
+        //                           Navigator.pop(context);
+        //                         },
+        //                         icon: const Icon(
+        //                           Icons.arrow_back,
+        //                           color: Colors.white,
+        //                         )),
+        //                     Padding(
+        //                       padding: EdgeInsets.only(top: 8.h, bottom: 8.h),
+        //                       child: SizedBox(
+        //                         height: 50.h,
+        //                         width: 62.w,
+        //                         child: Stack(
+        //                           children: [
+        //                             Positioned(
+        //                               child: CircleAvatar(
+        //                                 backgroundColor: const Color.fromARGB(
+        //                                     255, 230, 229, 229),
+        //                                 radius: 25.r,
+        //                                 child: Image.asset(
+        //                                   'assets/images/icons8-person-96 2.png',
+        //                                   height: 30.h,
+        //                                   width: 30.w,
+        //                                 ),
+        //                               ),
+        //                             ),
+        //                             Consumer<ChatProvider>(
+        //                                 builder: (context, provider, _) {
+        //                               bool isOnline = false;
+        //                               if (provider.onlineUserList.isNotEmpty) {
+        //                                 if (provider.onlineUserList.any(
+        //                                     (element) =>
+        //                                         element ==
+        //                                         widget.visitingUserId)) {
+        //                                   isOnline = true;
+        //                                 } else {
+        //                                   isOnline = false;
+        //                                 }
+        //                               } else {
+        //                                 isOnline = false;
+        //                               }
+        //                               return Positioned(
+        //                                   right: 5.w,
+        //                                   bottom: -1.h,
+        //                                   child: Image.asset(
+        //                                     isOnline
+        //                                         ? 'assets/images/online.png'
+        //                                         : 'assets/images/Group 26.png',
+        //                                     height: 22.h,
+        //                                   ));
+        //                             }),
+        //                           ],
+        //                         ),
+        //                       ),
+        //                     ),
+        //                     Column(
+        //                       mainAxisAlignment: MainAxisAlignment.center,
+        //                       crossAxisAlignment: CrossAxisAlignment.start,
+        //                       children: [
+        //                         SizedBox(
+        //                           width: 100.w,
+        //                           child: Text(
+        //                             widget.userName,
+        //                             overflow: TextOverflow.ellipsis,
+        //                             style: GoogleFonts.poppins(
+        //                                 color: Colors.white, fontSize: 16.sp),
+        //                           ),
+        //                         ),
+        //                         Consumer<ChatProvider>(
+        //                             builder: (context, provider, _) {
+        //                           bool isOnline = false;
+        //                           if (provider.onlineUserList.isNotEmpty) {
+        //                             if (provider.onlineUserList.any((element) =>
+        //                                 element == widget.visitingUserId)) {
+        //                               isOnline = true;
+        //                             } else {
+        //                               isOnline = false;
+        //                             }
+        //                           } else {
+        //                             isOnline = false;
+        //                           }
+        //                           return Text(
+        //                             isOnline ? "online" : "offline",
+        //                             style: const TextStyle(
+        //                                 color:
+        //                                     Color.fromARGB(255, 208, 208, 208)),
+        //                           );
+        //                         })
+        //                       ],
+        //                     ),
+        //                     SizedBox(
+        //                       width: 10.w,
+        //                     ),
+        //                     IconButton(
+        //                         onPressed: () {},
+        //                         icon: const Icon(
+        //                           Icons.call,
+        //                           color: Colors.white,
+        //                         )),
+        //                     SizedBox(
+        //                       width: 10.w,
+        //                     ),
+        //                     InkWell(
+        //                       onTap: () {
+        //                         Provider.of<ChatProvider>(context,
+        //                                 listen: false)
+        //                             .clearChat(widget.roomId);
+        //                       },
+        //                       child: Image.asset(
+        //                         "assets/images/bussiness.png",
+        //                         height: 20.h,
+        //                       ),
+        //                     ),
+        //                     SizedBox(
+        //                       width: 20.w,
+        //                     ),
+        //                     Image.asset(
+        //                       "assets/images/Group 12.png",
+        //                       height: 20.h,
+        //                     )
+        //                   ],
+        //                 ),
+        //               ),
+        //               Expanded(
+        //                 child: ListView(
+        //                   controller: scrollController,
+        //                   children: List.generate(
+        //                     chatList.length,
+        //                     (index) {
+        //                       log('currenDayListView');
+        //                       String senderId = '';
+        //                       if (chatList[index].isReply) {
+        //                         final replyedToChat = chatList
+        //                             .where((element) =>
+        //                                 element.id ==
+        //                                 chatList[index].replyId!.replyId)
+        //                             .toList();
+        //                         if (replyedToChat.isNotEmpty) {
+        //                           senderId = replyedToChat[0].senderId;
+        //                         } else {
+        //                           senderId = 'Deleted';
+        //                         }
+        //                       }
+        //                       GlobalKey buttonKey = GlobalKey();
+        //                       final dateTime = chatList[index]
+        //                           .createdAt
+        //                           .add(const Duration(hours: 5, minutes: 30));
+        //                       if (index == 0) {
+        //                         currentChatDay = dateTime.day;
+        //                       }
+        //                       return Column(
+        //                         children: [
+        //                           chatDay(index, currentChatDay, dateTime),
+        //                           InkWell(
+        //                             key: buttonKey,
+        //                             onTap: () {
+        //                               provider.showEmoji(false);
+        //                             },
+        //                             onLongPress: () {
+        //                               showDeleteMenu(
+        //                                   buttonKey,
+        //                                   chatList[index].id!,
+        //                                   chatList[index].senderId ==
+        //                                           currentUserId
+        //                                       ? true
+        //                                       : false);
+        //                             },
+        //                             child: SwipeTo(
+        //                               rightSwipeWidget: const SizedBox(),
+        //                               onRightSwipe: () {
+        //                                 log('currenDayisReplying');
+        //                                 Provider.of<ChatProvider>(context,
+        //                                         listen: false)
+        //                                     .replyToMessage(
+        //                                         chatList[index].message,
+        //                                         chatList[index].senderId ==
+        //                                                 currentUserId
+        //                                             ? "You"
+        //                                             : widget.userName);
+        //                                 Provider.of<ChatProvider>(context,
+        //                                         listen: false)
+        //                                     .getReplyId(chatList[index].id!);
+
+        //                                 Provider.of<ChatProvider>(context,
+        //                                         listen: false)
+        //                                     .isReply(true);
+        //                               },
+        //                               child: Column(
+        //                                 children: [
+        //                                   ChatBubble(
+        //                                       isReply: chatList[index].isReply,
+        //                                       replyMessage: chatList[index]
+        //                                               .isReply
+        //                                           ? {
+        //                                               'currentUserId':
+        //                                                   currentUserId,
+        //                                               'userName':
+        //                                                   widget.userName,
+        //                                               'message': chatList[index]
+        //                                                   .replyId!
+        //                                                   .message,
+        //                                               'replyUserId': senderId
+        //                                             }
+        //                                           : {},
+        //                                       dateTimeString: chatList[index]
+        //                                           .createdAt
+        //                                           .toString(),
+        //                                       message: chatList[index].message,
+        //                                       isMe: chatList[index].senderId ==
+        //                                               currentUserId
+        //                                           ? true
+        //                                           : false),
+        //                                 ],
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ],
+        //                       );
+        //                     },
+        //                   ),
+        //                 ),
+        //               ),
+        //               SizedBox(
+        //                 height: 55.h,
+        //               ),
+        //               SizedBox(
+        //                 height: provider.isReplying ? 65.h : 0.0,
+        //               ),
+        //             ],
+        //           ),
+        //         );
+        //         // });
+        //       });
+        //     }),
+   ] ),
+    ));
   }
 
   void showDeleteMenu(GlobalKey buttonKey, String messageId, bool isMe) {

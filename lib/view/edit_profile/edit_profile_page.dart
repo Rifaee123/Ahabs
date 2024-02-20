@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
-class EditProfileScreen extends StatelessWidget {
+class EditProfileScreens extends StatelessWidget {
+  const EditProfileScreens({super.key});
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController _emailController = TextEditingController();
-    TextEditingController _usernameController = TextEditingController();
-    TextEditingController _genderController = TextEditingController();
+    TextEditingController emailController = TextEditingController();
+    TextEditingController usernameController = TextEditingController();
+    TextEditingController genderController = TextEditingController();
     final FolloControlller controiller = Get.put(FolloControlller());
 
     return Scaffold(
@@ -23,23 +25,23 @@ class EditProfileScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _emailController,
+              controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
             ),
             TextField(
-              controller: _usernameController,
+              controller: usernameController,
               decoration: const InputDecoration(labelText: 'Username'),
             ),
             TextField(
-              controller: _genderController,
+              controller: genderController,
               decoration: const InputDecoration(labelText: 'Gender'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                String email = _emailController.text;
-                String username = _usernameController.text;
-                String gender = _genderController.text;
+                String email = emailController.text;
+                String username = usernameController.text;
+                String gender = genderController.text;
 
                 Provider.of<EditProfileProvider>(context, listen: false)
                     .editProfile(

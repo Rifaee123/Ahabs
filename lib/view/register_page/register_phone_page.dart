@@ -51,7 +51,7 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
   Widget build(BuildContext context) {
     String gender = "male";
     return Scaffold(
-      backgroundColor: Color(0xff479ec1),
+      backgroundColor: const Color(0xff479ec1),
       body: SafeArea(
         child: Obx(() => SingleChildScrollView(
               child: Container(

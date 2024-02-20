@@ -17,7 +17,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   // late List<UserDTO> _searchResults;
   List<UserDTO> displayedUsers = [];
   // getallUsers() async {

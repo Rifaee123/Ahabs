@@ -30,7 +30,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff479ec1),
+      backgroundColor: const Color(0xff479ec1),
       body: SafeArea(
         child: Obx(() {
           return SingleChildScrollView(
@@ -160,7 +160,7 @@ class LoginButton extends StatelessWidget {
                   HomePage(authorizationToken: authorizationToken),
             ));
           } else {
-            return Text("auth token is null");
+            return const Text("auth token is null");
           }
         });
       }

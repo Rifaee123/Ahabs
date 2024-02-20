@@ -105,7 +105,7 @@ class _PrimaryViewState extends State<PrimaryView> {
                   });
 
                   if (dataList.isEmpty) {
-                    return Center(
+                    return const Center(
                       child: Text("Talk To SomeOne"),
                     );
                   }

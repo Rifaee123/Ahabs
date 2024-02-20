@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'dart:developer';
 
 import 'package:ahbas/data/api_urls/api_urls.dart';
@@ -182,17 +184,26 @@ class ChatService {
   //     log('id$messageId');
   //     final authToken =
   //         await StorageService.instance.readSecureData('AuthToken');
+// <<<<<<< HEAD
+// =======
 
+// >>>>>>> 1ebe7ced4ab285fe30410fa561fc72e8d3883748
   //     log('Auther${authToken.toString()}');
 
   //     final url = '$kBaseUrl$deleteForEveryOneEndPoint$messageId';
   //     log('Url:$url');
-  //     final uri = Uri.parse(url);
-  //     final response =
-  //         await http.post(uri, headers: {'Authorization': 'Bearer $authToken'});
+//   //     final uri = Uri.parse(url);
+// <<<<<<< HEAD
+//   //     final response = await http
+//   //         .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
+//   //     log('Delete${response.statusCode.toString()}');
+// =======
+//   //     final response =
+//   //         await http.post(uri, headers: {'Authorization': 'Bearer $authToken'});
 
-  //     log('Delete${response.statusCode.toString()}');
+//   //     log('Delete${response.statusCode.toString()}');
 
+// >>>>>>> 1ebe7ced4ab285fe30410fa561fc72e8d3883748
   //     if (response.statusCode == 200 || response.statusCode == 201) {
   //       return const Right(true);
   //     } else {
@@ -202,22 +213,29 @@ class ChatService {
   //     return Left(MainFailure.clientFailure());
   //   }
   // }
+// <<<<<<< HEAD
+
+// =======
+// >>>>>>> 1ebe7ced4ab285fe30410fa561fc72e8d3883748
   Future<Either<MainFailure, bool>> deleteForEveryOne(
       {required String messageId}) async {
     try {
-      log('id$messageId');
       final authToken =
           await StorageService.instance.readSecureData('AuthToken');
-      log('Auther${authToken.toString()}');
 
       final url = '$kBaseUrl$deleteForEveryOneEndPoint$messageId';
-      log('Url:$url');
       final uri = Uri.parse(url);
+// <<<<<<< HEAD
+//       final response = await http
+//           .delete(uri, headers: {'Authorization': 'Bearer $authToken'});
+//       log('status:${response.statusCode}');
+// =======
       final response =
           await http.post(uri, headers: {'Authorization': 'Bearer $authToken'});
 
       log('Delete${response.statusCode.toString()}');
 
+// >>>>>>> 1ebe7ced4ab285fe30410fa561fc72e8d3883748
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(true);
       } else {

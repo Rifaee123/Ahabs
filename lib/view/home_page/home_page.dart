@@ -21,7 +21,6 @@ import 'package:ahbas/view/home_page/widgets/tabbar/status.dart';
 import 'package:ahbas/view/notification_page/notification_page.dart';
 import 'package:ahbas/view/profile_page/profile-page.dart';
 import 'package:ahbas/view/search_page/search_page.dart';
-import 'package:ahbas/view/voicechat.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

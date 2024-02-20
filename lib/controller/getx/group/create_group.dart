@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:ahbas/data/services/secure_storage/secure_storage.dart';
 import 'package:ahbas/model/group/group_create.dart';
@@ -27,14 +26,12 @@ class GroupController extends GetxController {
       request.fields['participants'] = jsonEncode(group.participants);
 
       // Add image file if available
-      if (group.image != null) {
-        var stream = http.ByteStream(group.image.openRead());
-        var length = await group.image.length();
-        var multipartFile = http.MultipartFile('image', stream, length,
-            filename: group.image.path.split('/').last);
-        request.files.add(multipartFile);
-      }
-
+      var stream = http.ByteStream(group.image.openRead());
+      var length = await group.image.length();
+      var multipartFile = http.MultipartFile('image', stream, length,
+          filename: group.image.path.split('/').last);
+      request.files.add(multipartFile);
+    
       var response = await http.Response.fromStream(await request.send());
 
       if (response.statusCode == 200) {
