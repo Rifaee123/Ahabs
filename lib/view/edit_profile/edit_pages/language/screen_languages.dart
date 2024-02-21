@@ -45,7 +45,7 @@ class LanguagesScreen extends StatelessWidget {
           padding: EdgeInsets.all(10.w),
           child: SizedBox(
             height: 230.h,
-            child: Column(
+            child: const Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ProfileContentRow(
@@ -60,13 +60,13 @@ class LanguagesScreen extends StatelessWidget {
                   bottomSheetwidget:
                       LanguageBottomSheet(title: 'Lanaguage You Speak'),
                 ),
-                const ProfileContentRow(
+                ProfileContentRow(
                   content: 'Lanaguage You Write',
                   width: double.infinity,
                   bottomSheetwidget:
                       LanguageBottomSheet(title: 'Lanaguage You Write'),
                 ),
-                const ProfileContentRow(
+                ProfileContentRow(
                   content: 'Lanaguage You Read',
                   width: double.infinity,
                   bottomSheetwidget:

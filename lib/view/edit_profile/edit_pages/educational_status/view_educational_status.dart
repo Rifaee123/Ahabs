@@ -1,11 +1,11 @@
 import 'package:ahbas/utils/colors.dart';
-import 'package:ahbas/view/edit_profile/edit_pages/contact_details/addresses/add_address.dart';
-import 'package:flutter/material.dart';
+import 'package:ahbas/view/edit_profile/edit_pages/educational_status/add_education_status.dart';
+ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ViewAddressScreen extends StatelessWidget {
-  const ViewAddressScreen({super.key});
+class ViewEducationStatusScreen extends StatelessWidget {
+  const ViewEducationStatusScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class ViewAddressScreen extends StatelessWidget {
         leadingWidth: 20.w,
         title: Center(
           child: Text(
-            'Addresses',
+            'Educational Status',
             style: GoogleFonts.poppins(
               color: Colors.white,
               fontSize: 20.sp,
@@ -48,25 +48,20 @@ class ViewAddressScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AddressText(
+                    const EducationText(
                       isName: true,
-                      text: 'Name',
+                      text: 'Name Of Institution',
                     ),
-                    const AddressText(
-                      text: 'Street',
+                    const EducationText(
+                      text: 'Term of study',
                     ),
-                    const AddressText(
-                      text: 'City,Region',
+                    const EducationText(
+                      text: 'Addmission Date',
                     ),
-                    const AddressText(
-                      text: 'Country',
+                    const EducationText(
+                      text: 'Completeion Date',
                     ),
-                    const AddressText(
-                      text: 'PinCode',
-                    ),
-                    const AddressText(
-                      text: 'Phone Number',
-                    ),
+                
                     SizedBox(
                       height: 20.h,
                     ),
@@ -92,7 +87,7 @@ class ViewAddressScreen extends StatelessWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AddNewAddressScreen(),
+                        builder: (context) =>const AddEducationStatusScreen (),
                       ));
                 },
                 child: Container(
@@ -104,7 +99,7 @@ class ViewAddressScreen extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    'Add New Address',
+                    'Add New Education',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 16.sp,
@@ -144,8 +139,8 @@ class EditDeleteButton extends StatelessWidget {
   }
 }
 
-class AddressText extends StatelessWidget {
-  const AddressText({
+class EducationText extends StatelessWidget {
+  const EducationText({
     super.key,
     required this.text,
     this.isName = false,

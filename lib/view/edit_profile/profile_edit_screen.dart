@@ -1,21 +1,31 @@
-import 'dart:developer';
 
 import 'package:ahbas/utils/colors.dart';
 import 'package:ahbas/view/edit_profile/bottom_sheets/profile_frame/frame_bottom_sheet.dart';
 import 'package:ahbas/view/edit_profile/bottom_sheets/profile_photo/photo_bottom_sheet.dart';
 import 'package:ahbas/view/edit_profile/bottom_sheets/profile_purpose/purpose_bottom_sheet.dart';
+import 'package:ahbas/view/edit_profile/bottom_sheets/profile_type/profile_type.dart';
 import 'package:ahbas/view/edit_profile/edit_pages/contact_details/screen_contact_details.dart';
+import 'package:ahbas/view/edit_profile/edit_pages/educational_status/view_educational_status.dart';
 import 'package:ahbas/view/edit_profile/edit_pages/personal_details/screen_personal_details.dart';
 import 'package:ahbas/view/edit_profile/edit_pages/physical_status/screen_physical_status.dart';
+import 'package:ahbas/view/edit_profile/edit_pages/relation_status/relation_status.dart';
+import 'package:ahbas/view/edit_profile/edit_pages/work_status/view_work_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ProfileEditScreen extends StatelessWidget {
-  ProfileEditScreen({super.key});
+class ProfileEditScreen extends StatefulWidget {
+  const ProfileEditScreen({super.key});
 
+  @override
+  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
+}
+
+class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final TextEditingController profileNameController = TextEditingController();
+
   final TextEditingController introController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,6 +149,7 @@ class ProfileEditScreen extends StatelessWidget {
                           bottomSheetwidget: PurposeBottomSheet()),
                       ProfileContentRow(
                         content: 'Profile Type',
+                        bottomSheetwidget: TypeBottomSheet(),
                       ),
                       ProfileContentRow(
                         content: 'Profile Frame',
@@ -181,17 +192,36 @@ class ProfileEditScreen extends StatelessWidget {
                       ));
                 },
               ),
-              const ProfileContentRow(
+               ProfileContentRow(
                 content: 'Educational Status',
-                width: double.infinity,
+                width: double.infinity,    onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ViewEducationStatusScreen(),
+                      ));
+                },
               ),
-              const ProfileContentRow(
+               ProfileContentRow(
                 content: 'Work Status',
-                width: double.infinity,
+                width: double.infinity,onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ViewWorkStatusScreen(),
+                      ));
+                },
               ),
-              const ProfileContentRow(
+               ProfileContentRow(
                 content: 'Relation Status',
                 width: double.infinity,
+                   onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RelationStatusScreen(),
+                      ));
+                },
               ),
               ProfileContentRow(
                 content: 'Physical Status',
@@ -200,7 +230,7 @@ class ProfileEditScreen extends StatelessWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PhysicalStatusScreen(),
+                        builder: (context) => const PhysicalStatusScreen(),
                       ));
                 },
               ),
@@ -212,7 +242,7 @@ class ProfileEditScreen extends StatelessWidget {
   }
 }
 
-class EditingTextField extends StatelessWidget {
+class EditingTextField extends StatefulWidget {
   const EditingTextField(
       {super.key,
       required this.profileNameController,
@@ -228,26 +258,32 @@ class EditingTextField extends StatelessWidget {
   final bool isNumberfield;
   final Color? fieldColor;
   final EdgeInsetsGeometry? padding;
+
+  @override
+  State<EditingTextField> createState() => _EditingTextFieldState();
+}
+
+class _EditingTextFieldState extends State<EditingTextField> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: padding ??
+      padding: widget.padding ??
           EdgeInsets.symmetric(
             vertical: 10.w,
           ),
       child: TextFormField(
         style: TextStyle(
-          color: fieldColor ?? Colors.black,
+          color: widget.fieldColor ?? Colors.black,
         ),
-        keyboardType: isNumberfield ? TextInputType.number : TextInputType.name,
+        keyboardType: widget.isNumberfield ? TextInputType.number : TextInputType.name,
         decoration: InputDecoration(
-            fillColor: fieldColor,
-            label: Text(fieldLabel,
+            fillColor: widget.fieldColor,
+            label: Text(widget.fieldLabel,
                 style:
                     GoogleFonts.poppins(color: Colors.black, fontSize: 16.sp)),
             border: const OutlineInputBorder()),
-        controller: profileNameController,
-        maxLines: maxLines,
+        controller: widget.profileNameController,
+        maxLines: widget.maxLines,
       ),
     );
   }

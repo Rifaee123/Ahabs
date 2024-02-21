@@ -7,9 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class PhysicalStatusScreen extends StatelessWidget {
-  PhysicalStatusScreen({super.key});
+class PhysicalStatusScreen extends StatefulWidget {
+  const PhysicalStatusScreen({super.key});
+
+  @override
+  State<PhysicalStatusScreen> createState() => _PhysicalStatusScreenState();
+}
+
+class _PhysicalStatusScreenState extends State<PhysicalStatusScreen> {
   final TextEditingController heightController = TextEditingController();
+
   final TextEditingController weightController = TextEditingController();
 
   @override
@@ -72,7 +79,7 @@ class PhysicalStatusScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Physical Appearance',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -80,7 +87,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       itemList: ['Normal', 'Challenged'],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'General Apperance',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -104,7 +111,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       textController: weightController,
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Blood',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -121,7 +128,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Moustache',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -129,7 +136,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       itemList: ['None', 'Normal', 'Medium', 'Heavy'],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Beard',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -137,20 +144,20 @@ class PhysicalStatusScreen extends StatelessWidget {
                       itemList: ['None', 'Normal', 'Medium', 'Heavy'],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Hair',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
                         title: 'Hair', itemList: ['Curly', 'Straight', 'Long']),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Hair Color',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
                         title: 'Hair Color',
                         itemList: ['Black', 'Blonde', 'Brown']),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Body Color',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -158,7 +165,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       itemList: ['Wheatish', 'Wheatish Brown', 'Blackish'],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Body Shape',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -170,7 +177,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Lip Color',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -178,7 +185,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       itemList: ['Reddish', 'Pinkish', 'Brownish'],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Lip Shape',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -190,7 +197,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Nose',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -198,7 +205,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       itemList: ['Normal', 'Fatty', 'Flatty'],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Eyebrows',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -210,7 +217,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Tattooed',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -218,7 +225,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       itemList: ['Yes', 'No'],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Hearing',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(
@@ -226,7 +233,7 @@ class PhysicalStatusScreen extends StatelessWidget {
                       itemList: ['Normal', 'Average', 'With machine'],
                     ),
                   ),
-                  ProfileContentRow(
+                  const ProfileContentRow(
                     content: 'Sight',
                     width: double.infinity,
                     bottomSheetwidget: PhysicalStatusBottomSheet(

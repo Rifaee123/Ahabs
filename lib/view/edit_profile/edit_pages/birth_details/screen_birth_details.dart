@@ -4,14 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class BirthDetailsScreen extends StatelessWidget {
-  BirthDetailsScreen({super.key});
+class BirthDetailsScreen extends StatefulWidget {
+  const BirthDetailsScreen({super.key});
+
+  @override
+  State<BirthDetailsScreen> createState() => _BirthDetailsScreenState();
+}
+
+class _BirthDetailsScreenState extends State<BirthDetailsScreen> {
   final TextEditingController birthYearController = TextEditingController();
+
   final TextEditingController birthMonthController = TextEditingController();
+
   final TextEditingController birthDateController = TextEditingController();
+
   final TextEditingController countryController = TextEditingController();
+
   final TextEditingController stateController = TextEditingController();
+
   final TextEditingController cityController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
