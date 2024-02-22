@@ -87,7 +87,9 @@ class SettingsBottomSheet extends StatelessWidget {
                     onChanged: (value) {},
                     title: Text(
                       'Only friends',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.poppins
+                      (
+                        
                         color: Colors.white,
                         fontSize: 18.sp,
                         fontWeight: FontWeight.normal,

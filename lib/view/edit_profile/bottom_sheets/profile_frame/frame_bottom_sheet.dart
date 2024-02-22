@@ -1,4 +1,5 @@
 import 'package:ahbas/utils/colors.dart';
+import 'package:ahbas/view/edit_profile/edit_pages/preview/screen_preview.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -80,30 +81,39 @@ class FrameBottomSheet extends StatelessWidget {
           SizedBox(
             height: 30.h,
           ),
-          Container(
-            width: 150.w,
-            height: 30.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Preview',
-                  style: GoogleFonts.poppins(
-                    color: Colors.black,
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.normal,
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PreviewScreen(),
+                  ));
+            },
+            child: Container(
+              width: 150.w,
+              height: 30.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Preview',
+                    style: GoogleFonts.poppins(
+                      color: Colors.black,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
-                ),
-                const Icon(
-                  Icons.remove_red_eye,
-                  color: Colors.black,
-                )
-              ],
+                  const Icon(
+                    Icons.remove_red_eye,
+                    color: Colors.black,
+                  )
+                ],
+              ),
             ),
           )
         ],
