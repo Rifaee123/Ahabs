@@ -65,7 +65,7 @@ class HabitsScreen extends StatelessWidget {
           padding: EdgeInsets.all(10.w),
           child: SizedBox(
             height: 460.h,
-            child: Column(
+            child: const Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ProfileContentRow(
@@ -78,12 +78,12 @@ class HabitsScreen extends StatelessWidget {
                   width: double.infinity,
                   bottomSheetwidget: HabitBottomSheet(title: 'Eating'),
                 ),
-                const ProfileContentRow(
+                ProfileContentRow(
                   content: 'Alchoholic',
                   width: double.infinity,
                   bottomSheetwidget: HabitBottomSheet(title: 'Alchoholic'),
                 ),
-                const ProfileContentRow(
+                ProfileContentRow(
                   content: 'Smoke',
                   width: double.infinity,
                   bottomSheetwidget: HabitBottomSheet(title: 'Smoke'),

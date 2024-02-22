@@ -1,9 +1,8 @@
 import 'package:ahbas/utils/colors.dart';
 import 'package:ahbas/view/edit_profile/bottom_sheets/citizenship/citizenship.dart';
 import 'package:ahbas/view/edit_profile/bottom_sheets/religion/religion.dart';
-import 'package:ahbas/view/edit_profile/edit_pages/birth_details/screen_birth_details.dart';
 import 'package:ahbas/view/edit_profile/edit_pages/contact_details/addresses/view_address.dart';
-import 'package:ahbas/view/edit_profile/edit_pages/language/screen_languages.dart';
+import 'package:ahbas/view/edit_profile/edit_pages/contact_details/links/screen_links.dart';
 import 'package:ahbas/view/edit_profile/profile_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -84,7 +83,7 @@ class ContactDetailsScreen extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const LanguagesScreen(),
+                            builder: (context) => const LinksScreen(),
                           ));
                     }),
               ],

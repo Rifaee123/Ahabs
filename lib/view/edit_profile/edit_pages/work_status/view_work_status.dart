@@ -1,11 +1,12 @@
 import 'package:ahbas/utils/colors.dart';
-import 'package:ahbas/view/edit_profile/edit_pages/contact_details/addresses/add_address.dart';
-import 'package:flutter/material.dart';
+import 'package:ahbas/view/edit_profile/edit_pages/work_status/add_work_status.dart';
+
+ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ViewAddressScreen extends StatelessWidget {
-  const ViewAddressScreen({super.key});
+class ViewWorkStatusScreen extends StatelessWidget {
+  const ViewWorkStatusScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class ViewAddressScreen extends StatelessWidget {
         leadingWidth: 20.w,
         title: Center(
           child: Text(
-            'Addresses',
+            'Work Status',
             style: GoogleFonts.poppins(
               color: Colors.white,
               fontSize: 20.sp,
@@ -48,25 +49,20 @@ class ViewAddressScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AddressText(
+                    const WorkText(
                       isName: true,
-                      text: 'Name',
+                      text: 'Work Title',
                     ),
-                    const AddressText(
-                      text: 'Street',
+                    const WorkText(
+                      text: 'Work Location',
                     ),
-                    const AddressText(
-                      text: 'City,Region',
+                    const WorkText(
+                      text: 'Date of join',
                     ),
-                    const AddressText(
-                      text: 'Country',
+                    const WorkText(
+                      text: 'Date of resign',
                     ),
-                    const AddressText(
-                      text: 'PinCode',
-                    ),
-                    const AddressText(
-                      text: 'Phone Number',
-                    ),
+                
                     SizedBox(
                       height: 20.h,
                     ),
@@ -92,7 +88,7 @@ class ViewAddressScreen extends StatelessWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AddNewAddressScreen(),
+                        builder: (context) => const AddWorkStatusScreen(),
                       ));
                 },
                 child: Container(
@@ -104,7 +100,7 @@ class ViewAddressScreen extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    'Add New Address',
+                    'Add New Work',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 16.sp,
@@ -144,8 +140,8 @@ class EditDeleteButton extends StatelessWidget {
   }
 }
 
-class AddressText extends StatelessWidget {
-  const AddressText({
+class WorkText extends StatelessWidget {
+  const WorkText({
     super.key,
     required this.text,
     this.isName = false,

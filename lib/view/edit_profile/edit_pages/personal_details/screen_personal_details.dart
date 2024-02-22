@@ -1,5 +1,6 @@
 import 'package:ahbas/utils/colors.dart';
 import 'package:ahbas/view/edit_profile/bottom_sheets/citizenship/citizenship.dart';
+import 'package:ahbas/view/edit_profile/bottom_sheets/gender/gender.dart';
 import 'package:ahbas/view/edit_profile/bottom_sheets/religion/religion.dart';
 import 'package:ahbas/view/edit_profile/edit_pages/birth_details/screen_birth_details.dart';
 import 'package:ahbas/view/edit_profile/edit_pages/habit/screen_habit.dart';
@@ -60,13 +61,14 @@ class PersonalDetailsScreen extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BirthDetailsScreen(),
+                          builder: (context) => const BirthDetailsScreen(),
                         ));
                   },
                 ),
                 const ProfileContentRow(
                   content: 'Gender',
                   width: double.infinity,
+                  bottomSheetwidget: GenderBottomSheet(),
                 ),
                 const ProfileContentRow(
                   content: 'Religion',

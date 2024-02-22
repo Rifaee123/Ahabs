@@ -1,25 +1,19 @@
 import 'package:ahbas/utils/colors.dart';
-import 'package:ahbas/view/edit_profile/profile_edit_screen.dart';
 
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class PhysicalStatusBottomSheet extends StatefulWidget {
-  const PhysicalStatusBottomSheet({
+class WorkingBottomSheet extends StatelessWidget {
+  const WorkingBottomSheet({
     super.key,
-    required this.title,  this.itemList,this.textController
+    required this.title, required this.itemList,
   });
   final String title;
-  final List<String>? itemList;
-  final TextEditingController? textController;
+  final List<String> itemList;
+  
 
-  @override
-  State<PhysicalStatusBottomSheet> createState() => _PhysicalStatusBottomSheetState();
-}
-
-class _PhysicalStatusBottomSheetState extends State<PhysicalStatusBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -51,7 +45,7 @@ class _PhysicalStatusBottomSheetState extends State<PhysicalStatusBottomSheet> {
                 width: 250.w,
                 child: Center(
                   child: Text(
-                    widget.title,
+                    title,
                     //   maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.poppins(
@@ -73,24 +67,18 @@ class _PhysicalStatusBottomSheetState extends State<PhysicalStatusBottomSheet> {
           SizedBox(
             width: 250.w,
             child: SingleChildScrollView(
-              child:widget.itemList==null?
-             EditingTextField(
-              fieldColor: Colors.white,
-              fieldLabel: widget.title,
-              isNumberfield: true,
-              profileNameController:widget.textController! ,maxLines: 1,
-             ) 
+              child:
               
-              : Column(
+               Column(
                 children: List.generate(
-                  widget.itemList!.length,
+                  itemList.length,
                   (index) => CheckboxListTile(
                     tileColor: Colors.white,
                     controlAffinity: ListTileControlAffinity.leading,
                     value: true,
                     onChanged: (value) {},
                     title: Text(
-                      widget.itemList![index],
+                      itemList[index],
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 18.sp,
