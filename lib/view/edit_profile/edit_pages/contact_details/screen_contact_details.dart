@@ -1,7 +1,7 @@
 import 'package:ahbas/utils/colors.dart';
-import 'package:ahbas/view/edit_profile/bottom_sheets/citizenship/citizenship.dart';
-import 'package:ahbas/view/edit_profile/bottom_sheets/religion/religion.dart';
 import 'package:ahbas/view/edit_profile/edit_pages/contact_details/addresses/view_address.dart';
+import 'package:ahbas/view/edit_profile/edit_pages/contact_details/contact_number/view_contact_number.dart';
+import 'package:ahbas/view/edit_profile/edit_pages/contact_details/email/view_email.dart';
 import 'package:ahbas/view/edit_profile/edit_pages/contact_details/links/screen_links.dart';
 import 'package:ahbas/view/edit_profile/profile_edit_screen.dart';
 import 'package:flutter/material.dart';
@@ -62,19 +62,32 @@ class ContactDetailsScreen extends StatelessWidget {
                         ));
                   },
                 ),
-                const ProfileContentRow(
+                 ProfileContentRow(
                   content: 'Contact Number',
                   width: double.infinity,
+                     onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ViewContactNumberScreen(),
+                        ));
+                  },
                 ),
-                const ProfileContentRow(
+                 ProfileContentRow(
                   content: 'Email',
                   width: double.infinity,
-                  bottomSheetwidget: ReligionBottomSheet(),
+                   onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ViewEmailStatusScreen(),
+                        ));
+                  },
                 ),
                 const ProfileContentRow(
                   content: 'Location',
                   width: double.infinity,
-                  bottomSheetwidget: CitizenshipBottomSheet(),
+                  
                 ),
                 ProfileContentRow(
                     content: 'Links',
